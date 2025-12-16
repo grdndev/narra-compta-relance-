@@ -7,7 +7,8 @@ import { mockClients, mockDocuments, mockReminders, mockAccountingEntries } from
 import { useRoute } from "wouter";
 import { 
   ArrowLeft, Mail, Phone, Building2, Calendar, 
-  AlertCircle, CheckCircle2, History, Send, Search, CheckSquare, MessageSquare
+  AlertCircle, CheckCircle2, History, Send, Search, CheckSquare, MessageSquare, ZoomIn, Eye, AlertTriangle,
+  User, Link2, FileText, Trash2, Plus, Save
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -25,32 +26,45 @@ export default function ClientDetail() {
   const [selectedEntries, setSelectedEntries] = useState<string[]>([]);
   const [ignoredEntries, setIgnoredEntries] = useState<string[]>([]);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
-  
+  const [minAmount, setMinAmount] = useState<number>(0);
+  const [journalFilter, setJournalFilter] = useState<string>("ALL");
+
   const client = mockClients.find(c => c.id === params?.id);
+  const [clientContacts, setClientContacts] = useState(client?.contacts || []);
+
   const documents = mockDocuments.filter(d => d.clientId === params?.id);
   const reminders = mockReminders.filter(r => r.clientId === params?.id);
   
   // Filter entries for this client
   const activeEntries = mockAccountingEntries.filter(e => e.clientId === params?.id && !ignoredEntries.includes(e.id));
-  const purchases = activeEntries.filter(e => e.journal === 'ACH');
-  const sales = activeEntries.filter(e => e.journal === 'VTE');
+  const filteredEntries = activeEntries.filter(e => e.amount >= minAmount);
   
-  // Group by Account for Encaissements view (placeholder logic for now, using existing data structure)
-  const entriesByAccount = Object.values(activeEntries.reduce((acc, entry) => {
-    if (!acc[entry.account]) {
-      acc[entry.account] = {
-        account: entry.account,
-        label: entry.accountLabel,
-        entries: [],
-        totalAmount: 0,
-        count: 0
-      };
-    }
-    acc[entry.account].entries.push(entry);
-    acc[entry.account].totalAmount += entry.amount;
-    acc[entry.account].count += 1;
-    return acc;
-  }, {} as Record<string, { account: string, label: string, entries: typeof mockAccountingEntries, totalAmount: number, count: number }>));
+  const purchases = filteredEntries.filter(e => e.journal === 'ACH');
+  const sales = filteredEntries.filter(e => e.journal === 'VTE');
+  const bankEntries = filteredEntries.filter(e => e.journal === 'BQ');
+
+  // Helper to group entries
+  const groupEntries = (entries: typeof mockAccountingEntries) => {
+    return Object.values(entries.reduce((acc, entry) => {
+      if (!acc[entry.account]) {
+        acc[entry.account] = {
+          account: entry.account,
+          label: entry.accountLabel,
+          entries: [],
+          totalAmount: 0,
+          count: 0
+        };
+      }
+      acc[entry.account].entries.push(entry);
+      acc[entry.account].totalAmount += entry.amount;
+      acc[entry.account].count += 1;
+      return acc;
+    }, {} as Record<string, { account: string, label: string, entries: typeof mockAccountingEntries, totalAmount: number, count: number }>));
+  };
+
+  const purchasesGrouped = groupEntries(purchases);
+  const salesGrouped = groupEntries(sales);
+  const bankGrouped = groupEntries(bankEntries);
 
   if (!client) {
     return (
@@ -75,7 +89,7 @@ export default function ClientDetail() {
     setIsEmailModalOpen(false);
     toast({
       title: "Demande envoyée !",
-      description: `Un email a été envoyé à ${client.email} pour ${selectedEntries.length} pièces.`,
+      description: `Un email a été envoyé à demo@elo.io pour ${selectedEntries.length} pièces.`,
       className: "bg-green-600 text-white border-none"
     });
     setSelectedEntries([]);
@@ -105,6 +119,14 @@ export default function ClientDetail() {
     });
   };
 
+  const handleToggleUrgent = (id: string) => {
+    // In a real app, this would update backend. Here we mock it by forcing a re-render or just showing toast
+    toast({
+      title: "Urgence mise à jour",
+      description: "Le statut d'urgence de l'écriture a été modifié.",
+    });
+  };
+
   return (
     <Layout>
       <div className="space-y-8">
@@ -114,10 +136,16 @@ export default function ClientDetail() {
           </Button>
           <div>
             <h1 className="text-3xl font-serif font-bold text-slate-900">{client.company}</h1>
-            <div className="flex items-center gap-4 mt-2 text-slate-500 text-sm">
+            <div className="flex flex-wrap items-center gap-4 mt-2 text-slate-500 text-sm">
               <span className="flex items-center gap-1"><UsersIcon className="h-4 w-4" /> {client.name}</span>
               <span className="flex items-center gap-1"><Mail className="h-4 w-4" /> {client.email}</span>
               <span className="flex items-center gap-1"><Phone className="h-4 w-4" /> {client.phone}</span>
+              <span className="flex items-center gap-1 border-l border-slate-300 pl-4"><Building2 className="h-4 w-4" /> SIREN : {client.siren}</span>
+              <span className="flex items-center gap-1 border-l border-slate-300 pl-4">
+                 <Badge variant="secondary" className="font-normal bg-blue-50 text-blue-700 hover:bg-blue-100 border-none">
+                    Resp: {client.manager}
+                 </Badge>
+              </span>
             </div>
           </div>
           <div className="ml-auto flex gap-3">
@@ -136,13 +164,146 @@ export default function ClientDetail() {
           </div>
         </div>
 
+        {/* Global Filters */}
+        <div className="flex items-center justify-end gap-2 bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-100 w-fit ml-auto mb-4">
+            <span className="text-sm font-medium text-slate-600">Montant min. :</span>
+            <div className="relative w-24">
+              <Input 
+                type="number" 
+                value={minAmount} 
+                onChange={(e) => setMinAmount(Number(e.target.value))}
+                className="h-8 rounded-lg pl-6 pr-2 text-right border-slate-200"
+                placeholder="0"
+              />
+              <span className="absolute left-2 top-1.5 text-slate-400 text-xs">€</span>
+            </div>
+        </div>
+
         <Tabs defaultValue="synthesis" className="w-full">
           <TabsList className="grid w-full grid-cols-4 rounded-2xl p-1 bg-white border border-slate-200 shadow-sm mb-6">
             <TabsTrigger value="synthesis" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">Synthèse</TabsTrigger>
             <TabsTrigger value="achats-ventes" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">Achats / Ventes</TabsTrigger>
             <TabsTrigger value="journaux" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">Journaux</TabsTrigger>
             <TabsTrigger value="encaissements" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">Encaissements</TabsTrigger>
+            <TabsTrigger value="informations" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">Informations</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="informations" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+             <div className="grid gap-6 md:grid-cols-3">
+               {/* Client Identification */}
+               <Card className="md:col-span-1 border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] rounded-3xl h-fit">
+                 <CardHeader>
+                   <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                     <Building2 className="h-5 w-5 text-blue-500" />
+                     Identification
+                   </CardTitle>
+                 </CardHeader>
+                 <CardContent className="space-y-4">
+                   <div className="space-y-2">
+                     <Label>Dénomination Sociale</Label>
+                     <Input defaultValue={client.company} className="rounded-xl border-slate-200" />
+                   </div>
+                   <div className="space-y-2">
+                     <Label>Forme Juridique</Label>
+                     <Input defaultValue={client.legalForm || 'SAS'} className="rounded-xl border-slate-200" />
+                   </div>
+                   <div className="grid grid-cols-2 gap-4">
+                     <div className="space-y-2">
+                       <Label>SIREN</Label>
+                       <Input defaultValue={client.siren} className="rounded-xl border-slate-200" />
+                     </div>
+                     <div className="space-y-2">
+                       <Label>Code APE</Label>
+                       <Input defaultValue={client.ape || '6201Z'} className="rounded-xl border-slate-200" />
+                     </div>
+                   </div>
+                   <div className="space-y-2">
+                     <Label>Date de création</Label>
+                     <Input type="date" defaultValue={client.creationDate || '2020-01-01'} className="rounded-xl border-slate-200" />
+                   </div>
+                   <div className="space-y-2">
+                     <Label>Adresse Siège</Label>
+                     <Textarea defaultValue={client.address || ''} className="rounded-xl border-slate-200 min-h-[80px]" />
+                   </div>
+                   <Button className="w-full rounded-xl bg-slate-900 text-white hover:bg-slate-800 mt-2">
+                      <Save className="h-4 w-4 mr-2" /> Enregistrer
+                   </Button>
+                 </CardContent>
+               </Card>
+
+               {/* Contacts */}
+               <div className="md:col-span-2 space-y-6">
+                 {clientContacts.length === 0 ? (
+                    <div className="text-center p-8 bg-white rounded-3xl border border-slate-100 shadow-sm">
+                        <User className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+                        <h3 className="text-lg font-medium text-slate-900">Aucun contact</h3>
+                        <p className="text-slate-500 mb-4">Ajoutez des contacts pour ce dossier.</p>
+                        <Button variant="outline" onClick={() => setClientContacts([...clientContacts, { id: Date.now().toString(), name: '', role: '', email: '', phone: '', isPrimary: false, preferredChannel: 'email' }])}>
+                            Ajouter un contact
+                        </Button>
+                    </div>
+                 ) : (
+                    clientContacts.map((contact, index) => (
+                   <Card key={contact.id} className="border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] rounded-3xl relative group">
+                     <Button 
+                       variant="ghost" 
+                       size="icon" 
+                       className="absolute top-4 right-4 text-slate-400 hover:text-red-500 rounded-xl"
+                       onClick={() => setClientContacts(clientContacts.filter(c => c.id !== contact.id))}
+                     >
+                       <Trash2 className="h-4 w-4" />
+                     </Button>
+                     <CardHeader>
+                       <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                         <User className={`h-5 w-5 ${contact.isPrimary ? 'text-blue-500' : 'text-slate-400'}`} />
+                         {contact.name || 'Nouveau contact'} {contact.isPrimary && <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-none ml-2">Principal</Badge>}
+                       </CardTitle>
+                     </CardHeader>
+                     <CardContent>
+                       <div className="grid md:grid-cols-2 gap-4">
+                         <div className="space-y-2">
+                           <Label>Nom / Prénom</Label>
+                           <Input defaultValue={contact.name} className="rounded-xl border-slate-200" />
+                         </div>
+                         <div className="space-y-2">
+                           <Label>Fonction</Label>
+                           <Input defaultValue={contact.role} className="rounded-xl border-slate-200" />
+                         </div>
+                         <div className="space-y-2">
+                           <Label>Email</Label>
+                           <div className="relative">
+                             <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                             <Input defaultValue={contact.email} className="pl-10 rounded-xl border-slate-200" />
+                           </div>
+                         </div>
+                         <div className="space-y-2">
+                           <Label>Téléphone</Label>
+                           <div className="relative">
+                             <Phone className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                             <Input defaultValue={contact.phone} className="pl-10 rounded-xl border-slate-200" />
+                           </div>
+                         </div>
+                         <div className="md:col-span-2 space-y-2">
+                           <Label>Canal préféré</Label>
+                           <div className="flex gap-4">
+                             <Button variant="outline" className={`flex-1 rounded-xl ${contact.preferredChannel === 'email' ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200'}`}>Email</Button>
+                             <Button variant="outline" className={`flex-1 rounded-xl ${contact.preferredChannel === 'phone' ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200'}`}>Téléphone</Button>
+                             <Button variant="outline" className={`flex-1 rounded-xl ${contact.preferredChannel === 'whatsapp' ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200'}`}>WhatsApp</Button>
+                           </div>
+                         </div>
+                       </div>
+                     </CardContent>
+                   </Card>
+                 )))}
+                 
+                 <Button variant="outline" className="w-full rounded-2xl border-dashed border-2 border-slate-200 py-8 hover:bg-slate-50 hover:border-slate-300 text-slate-500 gap-2" 
+                    onClick={() => setClientContacts([...clientContacts, { id: Date.now().toString(), name: '', role: '', email: '', phone: '', isPrimary: false, preferredChannel: 'email' }])}
+                 >
+                   <Plus className="h-5 w-5" /> Ajouter un autre contact
+                 </Button>
+               </div>
+             </div>
+          </TabsContent>
 
           <TabsContent value="synthesis" className="space-y-8">
             <div className="grid grid-cols-3 gap-8">
@@ -240,25 +401,6 @@ export default function ClientDetail() {
                     </div>
                   </CardContent>
                 </Card>
-
-                <Card className="bg-slate-900 text-white border-none rounded-3xl">
-                  <CardHeader>
-                    <CardTitle className="text-white">Statistiques</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-400 text-sm">Taux de réponse</span>
-                      <span className="font-bold">85%</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-400 text-sm">Délai moyen</span>
-                      <span className="font-bold">3 jours</span>
-                    </div>
-                    <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden mt-2">
-                      <div className="bg-blue-500 h-full w-[85%]"></div>
-                    </div>
-                  </CardContent>
-                </Card>
               </div>
             </div>
           </TabsContent>
@@ -267,47 +409,186 @@ export default function ClientDetail() {
             <div className="space-y-8">
               {/* ACHATS */}
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                    <span className="w-2 h-8 bg-blue-500 rounded-full"></span>
-                    Achats
-                  </h3>
-                  <span className="text-lg font-bold text-slate-600 bg-white shadow-sm border border-slate-100 px-4 py-1 rounded-xl">
-                    Total : {purchases.reduce((sum, e) => sum + e.amount, 0).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
-                  </span>
+                <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                  <span className="w-2 h-8 bg-blue-500 rounded-full"></span>
+                  Achats
+                </h3>
+                <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_2px_20px_rgba(0,0,0,0.02)] overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
+                        <TableHead className="w-[150px] font-bold text-slate-600">N° de compte aux</TableHead>
+                        <TableHead className="font-bold text-slate-600">Libellé compte</TableHead>
+                        <TableHead className="text-center font-bold text-slate-600">Justificatifs manquants</TableHead>
+                        <TableHead className="text-right font-bold text-slate-600 pr-8">Montant Total</TableHead>
+                        <TableHead className="w-[50px]"></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {purchasesGrouped.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={5} className="text-center text-slate-400 py-8">Aucune écriture d'achat trouvée.</TableCell>
+                        </TableRow>
+                      ) : (
+                        purchasesGrouped.map((group) => (
+                          <AccountGroupRow 
+                            key={group.account} 
+                            group={group} 
+                            selectedEntries={selectedEntries}
+                            onToggleSelect={toggleEntrySelection}
+                            onIgnore={handleIgnoreEntry}
+                            onToggleUrgent={handleToggleUrgent}
+                          />
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
                 </div>
-                <EntryTable 
-                  entries={purchases} 
-                  selectedEntries={selectedEntries}
-                  onToggleSelect={toggleEntrySelection}
-                  onIgnore={handleIgnoreEntry}
-                />
               </div>
 
               {/* VENTES */}
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                    <span className="w-2 h-8 bg-green-500 rounded-full"></span>
-                    Ventes
-                  </h3>
-                  <span className="text-lg font-bold text-slate-600 bg-white shadow-sm border border-slate-100 px-4 py-1 rounded-xl">
-                    Total : {sales.reduce((sum, e) => sum + e.amount, 0).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
-                  </span>
+                <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                  <span className="w-2 h-8 bg-green-500 rounded-full"></span>
+                  Ventes
+                </h3>
+                <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_2px_20px_rgba(0,0,0,0.02)] overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
+                        <TableHead className="w-[150px] font-bold text-slate-600">N° de compte aux</TableHead>
+                        <TableHead className="font-bold text-slate-600">Libellé compte</TableHead>
+                        <TableHead className="text-center font-bold text-slate-600">Justificatifs manquants</TableHead>
+                        <TableHead className="text-right font-bold text-slate-600 pr-8">Montant Total</TableHead>
+                        <TableHead className="w-[50px]"></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {salesGrouped.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={5} className="text-center text-slate-400 py-8">Aucune écriture de vente trouvée.</TableCell>
+                        </TableRow>
+                      ) : (
+                        salesGrouped.map((group) => (
+                          <AccountGroupRow 
+                            key={group.account} 
+                            group={group} 
+                            selectedEntries={selectedEntries}
+                            onToggleSelect={toggleEntrySelection}
+                            onIgnore={handleIgnoreEntry}
+                            onToggleUrgent={handleToggleUrgent}
+                          />
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
                 </div>
-                <EntryTable 
-                  entries={sales} 
-                  selectedEntries={selectedEntries}
-                  onToggleSelect={toggleEntrySelection}
-                  onIgnore={handleIgnoreEntry}
-                />
               </div>
             </div>
           </TabsContent>
 
           <TabsContent value="journaux" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-             <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_2px_20px_rgba(0,0,0,0.02)] p-8 text-center text-slate-500">
-                Vue Journaux (Intégration à venir - similaire à Achats/Ventes mais groupé par code journal)
+             <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_2px_20px_rgba(0,0,0,0.02)] overflow-hidden">
+                <div className="p-4 border-b border-slate-50 flex items-center justify-between bg-white">
+                  <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                    <History className="h-5 w-5 text-slate-500" />
+                    Grand Livre
+                  </h3>
+                  <div className="flex items-center gap-2">
+                    <Badge 
+                      variant={journalFilter === 'ALL' ? 'default' : 'outline'} 
+                      className={`cursor-pointer ${journalFilter === 'ALL' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-slate-50'}`}
+                      onClick={() => setJournalFilter('ALL')}
+                    >
+                      Tout
+                    </Badge>
+                    <Badge 
+                      variant={journalFilter === 'ACH' ? 'default' : 'outline'} 
+                      className={`cursor-pointer ${journalFilter === 'ACH' ? 'bg-blue-500 text-white' : 'text-slate-500 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200'}`}
+                      onClick={() => setJournalFilter('ACH')}
+                    >
+                      Achats
+                    </Badge>
+                    <Badge 
+                      variant={journalFilter === 'VTE' ? 'default' : 'outline'} 
+                      className={`cursor-pointer ${journalFilter === 'VTE' ? 'bg-green-500 text-white' : 'text-slate-500 hover:bg-green-50 hover:text-green-600 hover:border-green-200'}`}
+                      onClick={() => setJournalFilter('VTE')}
+                    >
+                      Ventes
+                    </Badge>
+                    <Badge 
+                      variant={journalFilter === 'BQ' ? 'default' : 'outline'} 
+                      className={`cursor-pointer ${journalFilter === 'BQ' ? 'bg-purple-500 text-white' : 'text-slate-500 hover:bg-purple-50 hover:text-purple-600 hover:border-purple-200'}`}
+                      onClick={() => setJournalFilter('BQ')}
+                    >
+                      Banque
+                    </Badge>
+                    <Badge 
+                      variant={journalFilter === 'OD' ? 'default' : 'outline'} 
+                      className={`cursor-pointer ${journalFilter === 'OD' ? 'bg-orange-500 text-white' : 'text-slate-500 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200'}`}
+                      onClick={() => setJournalFilter('OD')}
+                    >
+                      OD
+                    </Badge>
+                  </div>
+                </div>
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
+                      <TableHead className="w-[100px] font-bold text-slate-600">Date</TableHead>
+                      <TableHead className="w-[80px] font-bold text-slate-600">Jnl</TableHead>
+                      <TableHead className="w-[100px] font-bold text-slate-600">Compte</TableHead>
+                      <TableHead className="font-bold text-slate-600">Libellé</TableHead>
+                      <TableHead className="font-bold text-slate-600">Libellé Écriture</TableHead>
+                      <TableHead className="text-right font-bold text-slate-600">Débit</TableHead>
+                      <TableHead className="text-right font-bold text-slate-600 pr-8">Crédit</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredEntries
+                      .filter(e => journalFilter === 'ALL' || e.journal === journalFilter)
+                      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                      .map((entry) => (
+                      <TableRow key={entry.id} className="hover:bg-blue-50/30 transition-colors">
+                        <TableCell className="font-medium text-slate-700">
+                          {new Date(entry.date).toLocaleDateString('fr-FR')}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className={`
+                            ${entry.journal === 'ACH' ? 'text-blue-600 border-blue-200 bg-blue-50' : ''}
+                            ${entry.journal === 'VTE' ? 'text-green-600 border-green-200 bg-green-50' : ''}
+                            ${entry.journal === 'BQ' ? 'text-purple-600 border-purple-200 bg-purple-50' : ''}
+                            ${entry.journal === 'OD' ? 'text-orange-600 border-orange-200 bg-orange-50' : ''}
+                          `}>
+                            {entry.journal}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="font-mono text-slate-600 text-xs">
+                          {entry.account}
+                        </TableCell>
+                        <TableCell className="text-slate-600 text-sm">
+                          {entry.accountLabel}
+                        </TableCell>
+                        <TableCell className="text-slate-900 font-medium text-sm">
+                          {entry.label}
+                        </TableCell>
+                        <TableCell className="text-right font-mono text-slate-600">
+                          {entry.type === 'Debit' ? entry.amount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' }) : '-'}
+                        </TableCell>
+                        <TableCell className="text-right font-mono text-slate-600 pr-8">
+                          {entry.type === 'Credit' ? entry.amount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' }) : '-'}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {filteredEntries.filter(e => journalFilter === 'ALL' || e.journal === journalFilter).length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={7} className="text-center py-12 text-slate-400">
+                          Aucune écriture trouvée pour ce journal.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
              </div>
           </TabsContent>
 
@@ -320,18 +601,26 @@ export default function ClientDetail() {
                     <TableHead className="font-bold text-slate-600">Libellé compte</TableHead>
                     <TableHead className="text-center font-bold text-slate-600">Justificatifs manquants</TableHead>
                     <TableHead className="text-right font-bold text-slate-600 pr-8">Montant Total</TableHead>
+                    <TableHead className="w-[50px]"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {entriesByAccount.map((group) => (
-                    <AccountGroupRow 
-                      key={group.account} 
-                      group={group} 
-                      selectedEntries={selectedEntries}
-                      onToggleSelect={toggleEntrySelection}
-                      onIgnore={handleIgnoreEntry}
-                    />
-                  ))}
+                  {bankGrouped.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center text-slate-400 py-8">Aucune écriture de banque trouvée.</TableCell>
+                    </TableRow>
+                  ) : (
+                    bankGrouped.map((group) => (
+                      <AccountGroupRow 
+                        key={group.account} 
+                        group={group} 
+                        selectedEntries={selectedEntries}
+                        onToggleSelect={toggleEntrySelection}
+                        onIgnore={handleIgnoreEntry}
+                        onToggleUrgent={handleToggleUrgent}
+                      />
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </div>
@@ -369,7 +658,7 @@ export default function ClientDetail() {
             <div className="space-y-4 mt-4">
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label className="text-right text-slate-500">À :</Label>
-                <Input value={client.email} readOnly className="col-span-3 bg-slate-50 border-transparent rounded-xl" />
+                <Input defaultValue="demo@elo.io" className="col-span-3 bg-slate-50 border-slate-200 rounded-xl" />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label className="text-right text-slate-500">Objet :</Label>
@@ -431,78 +720,7 @@ function UsersIcon(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-function EntryTable({ entries, selectedEntries, onToggleSelect, onIgnore }: any) {
-  return (
-    <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_2px_20px_rgba(0,0,0,0.02)] overflow-hidden">
-      <Table>
-        <TableHeader>
-          <TableRow className="hover:bg-transparent border-slate-50">
-            <TableHead className="w-[50px] pl-6"><Checkbox /></TableHead>
-            <TableHead className="font-bold text-slate-600">Date</TableHead>
-            <TableHead className="font-bold text-slate-600">Libellé</TableHead>
-            <TableHead className="font-bold text-slate-600">Compte</TableHead>
-            <TableHead className="text-right font-bold text-slate-600">Montant</TableHead>
-            <TableHead className="text-center font-bold text-slate-600">Urgence</TableHead>
-            <TableHead className="text-right pr-6 font-bold text-slate-600">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {entries.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={7} className="text-center py-8 text-slate-400">Aucune écriture trouvée.</TableCell>
-            </TableRow>
-          ) : (
-            entries.map((entry: any) => (
-              <TableRow key={entry.id} className="group hover:bg-blue-50/20 border-slate-50 transition-colors">
-                <TableCell className="pl-6">
-                  <Checkbox 
-                    checked={selectedEntries.includes(entry.id)}
-                    onCheckedChange={() => onToggleSelect(entry.id)}
-                    className="rounded-md border-slate-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
-                  />
-                </TableCell>
-                <TableCell className="font-medium text-slate-700">{new Date(entry.date).toLocaleDateString('fr-FR')}</TableCell>
-                <TableCell className="font-medium text-slate-900">{entry.label}</TableCell>
-                <TableCell>
-                  <Badge variant="outline" className="font-normal text-slate-500 bg-slate-50 border-slate-200">
-                    {entry.account}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right font-bold text-slate-800">
-                  {entry.amount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
-                </TableCell>
-                <TableCell className="text-center">
-                  {entry.isUrgent && (
-                    <Badge variant="destructive" className="bg-red-100 text-red-600 hover:bg-red-200 border-none shadow-none">
-                      Urgent
-                    </Badge>
-                  )}
-                </TableCell>
-                <TableCell className="text-right pr-6">
-                  <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
-                      <MessageSquare className="h-4 w-4" />
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
-                      onClick={() => onIgnore(entry.id)}
-                    >
-                      <CheckSquare className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-    </div>
-  );
-}
-
-function AccountGroupRow({ group, selectedEntries, onToggleSelect, onIgnore }: any) {
+function AccountGroupRow({ group, selectedEntries, onToggleSelect, onIgnore, onToggleUrgent }: any) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -518,21 +736,95 @@ function AccountGroupRow({ group, selectedEntries, onToggleSelect, onIgnore }: a
         <TableCell className="text-right font-bold text-slate-900 pr-8">
           {group.totalAmount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
         </TableCell>
+        <TableCell>
+           <Search className={`h-5 w-5 text-slate-400 transition-transform duration-200 ${isOpen ? "text-blue-500" : ""}`} />
+        </TableCell>
       </TableRow>
       {isOpen && (
         <TableRow className="bg-slate-50/30">
-          <TableCell colSpan={4} className="p-0">
-            <div className="pl-12 pr-4 py-4 border-l-4 border-blue-500/20 ml-6 my-2">
-              <div className="flex items-center gap-2 mb-4 text-blue-600 font-medium">
-                <Search className="h-4 w-4" />
-                Détail des écritures non lettrées
-              </div>
-              <EntryTable 
-                entries={group.entries} 
-                selectedEntries={selectedEntries}
-                onToggleSelect={onToggleSelect}
-                onIgnore={onIgnore}
-              />
+          <TableCell colSpan={5} className="p-0">
+            <div className="pl-8 pr-4 py-6 border-l-4 border-blue-500/20 ml-6 my-2 bg-slate-50/50 rounded-r-xl">
+               <div className="mb-4">
+                 <h4 className="text-sm font-bold text-slate-700 uppercase tracking-wide flex items-center gap-2">
+                   <Search className="h-4 w-4 text-blue-500" />
+                   Détail des écritures non lettrées
+                 </h4>
+               </div>
+               
+               <div className="rounded-xl border border-slate-200 overflow-hidden bg-white shadow-sm">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-slate-100/50 hover:bg-slate-100/50">
+                        <TableHead className="w-[50px] pl-4"><Checkbox disabled /></TableHead>
+                        <TableHead className="font-bold text-slate-600">Journal</TableHead>
+                        <TableHead className="font-bold text-slate-600">Libellé de l'opération</TableHead>
+                        <TableHead className="font-bold text-slate-600">Date de facturation</TableHead>
+                        <TableHead className="font-bold text-slate-600">N° Pièce</TableHead>
+                        <TableHead className="text-right font-bold text-slate-600">Débit</TableHead>
+                        <TableHead className="text-right font-bold text-slate-600">Crédit</TableHead>
+                        <TableHead className="text-center font-bold text-slate-600">Lettrage</TableHead>
+                        <TableHead className="text-right font-bold text-slate-600 pr-6">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {group.entries.map((entry: any) => (
+                        <TableRow key={entry.id} className={`group hover:bg-blue-50/10 border-slate-50 transition-colors ${entry.isUrgent ? 'bg-red-50/30' : ''}`}>
+                          <TableCell className="pl-4">
+                            <Checkbox 
+                              checked={selectedEntries.includes(entry.id)}
+                              onCheckedChange={() => onToggleSelect(entry.id)}
+                              className="rounded-md border-slate-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="font-mono text-xs bg-slate-50">{entry.journal}</Badge>
+                          </TableCell>
+                          <TableCell className="font-medium text-slate-900">
+                             {entry.label}
+                             {entry.comment && (
+                               <div className="text-xs text-orange-600 mt-0.5 flex items-center gap-1">
+                                 <MessageSquare className="h-3 w-3" /> {entry.comment}
+                               </div>
+                             )}
+                          </TableCell>
+                          <TableCell className="text-slate-600">{new Date(entry.date).toLocaleDateString('fr-FR')}</TableCell>
+                          <TableCell className="font-mono text-sm text-slate-500">{entry.pieceRef || '-'}</TableCell>
+                          <TableCell className="text-right font-medium text-slate-700">
+                            {entry.type === 'Debit' ? entry.amount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' }) : '-'}
+                          </TableCell>
+                          <TableCell className="text-right font-medium text-slate-700">
+                            {entry.type === 'Credit' ? entry.amount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' }) : '-'}
+                          </TableCell>
+                          <TableCell className="text-center text-slate-300 italic">
+                             -
+                          </TableCell>
+                          <TableCell className="text-right pr-6">
+                            <div className="flex items-center justify-end gap-2">
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className={`h-8 w-8 rounded-lg ${entry.isUrgent ? 'text-red-600 bg-red-50' : 'text-slate-300 hover:text-red-600 hover:bg-red-50'}`}
+                                onClick={() => onToggleUrgent(entry.id)}
+                                title="Marquer comme urgent"
+                              >
+                                <AlertTriangle className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 text-slate-300 hover:text-slate-600 hover:bg-slate-100 rounded-lg"
+                                onClick={() => onIgnore(entry.id)}
+                                title="Ignorer / Décocher"
+                              >
+                                <CheckSquare className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+               </div>
             </div>
           </TableCell>
         </TableRow>

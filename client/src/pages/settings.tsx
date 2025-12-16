@@ -1,6 +1,7 @@
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -17,10 +18,6 @@ import {
 
 export default function Settings() {
   const { toast } = useToast();
-  const [contacts, setContacts] = useState([
-    { id: 1, type: 'Principal', name: 'Jean Dupont', role: 'PDG', email: 'jean@techsol.fr', phone: '06 12 34 56 78', pref: 'email' },
-    { id: 2, type: 'Secondaire', name: 'Sophie Martin', role: 'Comptable', email: 'compta@techsol.fr', phone: '06 98 76 54 32', pref: 'email' }
-  ]);
 
   const handleSave = () => {
     toast({
@@ -30,26 +27,18 @@ export default function Settings() {
     });
   };
 
-  const addContact = () => {
-    setContacts([...contacts, { id: Date.now(), type: 'Autre', name: '', role: '', email: '', phone: '', pref: 'email' }]);
-  };
-
-  const removeContact = (id: number) => {
-    setContacts(contacts.filter(c => c.id !== id));
-  };
-
   return (
     <Layout>
       <div className="max-w-5xl mx-auto space-y-8">
         <div>
           <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Paramètres</h1>
-          <p className="text-slate-500 mt-1 font-medium">Gérez votre portefeuille, vos connexions et vos modèles.</p>
+          <p className="text-slate-500 mt-1 font-medium">Gérez votre cabinet, vos connexions et vos modèles.</p>
         </div>
 
-        <Tabs defaultValue="portefeuille" className="w-full">
+        <Tabs defaultValue="cabinet" className="w-full">
           <TabsList className="grid w-full grid-cols-3 rounded-2xl p-1 bg-white border border-slate-200 shadow-sm mb-8">
-            <TabsTrigger value="portefeuille" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 gap-2">
-              <Building2 className="h-4 w-4" /> Portefeuille Client
+            <TabsTrigger value="cabinet" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 gap-2">
+              <Building2 className="h-4 w-4" /> Mon Cabinet
             </TabsTrigger>
             <TabsTrigger value="connecteurs" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 gap-2">
               <Link2 className="h-4 w-4" /> Connecteurs
@@ -60,108 +49,102 @@ export default function Settings() {
           </TabsList>
 
           {/* =======================
-              ONGLET PORTEFEUILLE
+              ONGLET CABINET
              ======================= */}
-          <TabsContent value="portefeuille" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <TabsContent value="cabinet" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="grid gap-6 md:grid-cols-3">
-              {/* Client Identification */}
+              {/* Cabinet Identification */}
               <Card className="md:col-span-1 border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] rounded-3xl h-fit">
                 <CardHeader>
                   <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
                     <Building2 className="h-5 w-5 text-blue-500" />
-                    Identification
+                    Identification du Cabinet
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Dénomination Sociale</Label>
-                    <Input defaultValue="TechSolutions SAS" className="rounded-xl border-slate-200" />
+                    <Label>Raison Sociale</Label>
+                    <Input defaultValue="Cabinet Expertis & Co" className="rounded-xl border-slate-200" />
                   </div>
                   <div className="space-y-2">
                     <Label>Forme Juridique</Label>
-                    <Input defaultValue="SAS" className="rounded-xl border-slate-200" />
+                    <Input defaultValue="SELARL" className="rounded-xl border-slate-200" />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>SIREN</Label>
-                      <Input defaultValue="123 456 789" className="rounded-xl border-slate-200" />
+                      <Input defaultValue="999 888 777" className="rounded-xl border-slate-200" />
                     </div>
                     <div className="space-y-2">
                       <Label>Code APE</Label>
-                      <Input defaultValue="6201Z" className="rounded-xl border-slate-200" />
+                      <Input defaultValue="6920Z" className="rounded-xl border-slate-200" />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label>Date de création</Label>
-                    <Input type="date" defaultValue="2020-01-15" className="rounded-xl border-slate-200" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Adresse Siège</Label>
-                    <Textarea defaultValue="15 Rue de la République, 75001 Paris" className="rounded-xl border-slate-200 min-h-[80px]" />
+                    <Label>Adresse</Label>
+                    <Textarea defaultValue="12 Avenue des Champs-Élysées, 75008 Paris" className="rounded-xl border-slate-200 min-h-[80px]" />
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Contacts */}
+              {/* Collaborators */}
               <div className="md:col-span-2 space-y-6">
-                {contacts.map((contact, index) => (
-                  <Card key={contact.id} className="border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] rounded-3xl relative group">
-                    {index > 1 && (
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="absolute top-4 right-4 text-slate-400 hover:text-red-500 rounded-xl"
-                        onClick={() => removeContact(contact.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    )}
-                    <CardHeader>
+                <Card className="border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] rounded-3xl">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
                       <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <User className={`h-5 w-5 ${contact.type === 'Principal' ? 'text-blue-500' : 'text-slate-400'}`} />
-                        Contact {contact.type}
+                        <User className="h-5 w-5 text-blue-500" />
+                        Collaborateurs
                       </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label>Nom / Prénom</Label>
-                          <Input defaultValue={contact.name} className="rounded-xl border-slate-200" />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Fonction</Label>
-                          <Input defaultValue={contact.role} className="rounded-xl border-slate-200" />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Email</Label>
-                          <div className="relative">
-                            <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                            <Input defaultValue={contact.email} className="pl-10 rounded-xl border-slate-200" />
+                      <Button variant="outline" size="sm" className="rounded-xl">
+                        <Plus className="h-4 w-4 mr-2" /> Ajouter
+                      </Button>
+                    </div>
+                    <CardDescription>Gérez les accès de vos collaborateurs au dossier.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                       <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
+                          <div className="flex items-center gap-4">
+                             <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold">AD</div>
+                             <div>
+                               <p className="font-bold text-slate-900">Admin Cabinet</p>
+                               <p className="text-sm text-slate-500">admin@cabinet.fr</p>
+                             </div>
                           </div>
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Téléphone</Label>
-                          <div className="relative">
-                            <Phone className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                            <Input defaultValue={contact.phone} className="pl-10 rounded-xl border-slate-200" />
+                          <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-none">Administrateur</Badge>
+                       </div>
+                       
+                       <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-100">
+                          <div className="flex items-center gap-4">
+                             <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold">JD</div>
+                             <div>
+                               <p className="font-bold text-slate-900">Julie Dubois</p>
+                               <p className="text-sm text-slate-500">julie.d@cabinet.fr</p>
+                             </div>
                           </div>
-                        </div>
-                        <div className="md:col-span-2 space-y-2">
-                          <Label>Canal préféré</Label>
-                          <div className="flex gap-4">
-                            <Button variant="outline" className={`flex-1 rounded-xl ${contact.pref === 'email' ? 'border-blue-500 bg-blue-50 text-blue-700' : ''}`}>Email</Button>
-                            <Button variant="outline" className={`flex-1 rounded-xl ${contact.pref === 'phone' ? 'border-blue-500 bg-blue-50 text-blue-700' : ''}`}>Téléphone</Button>
-                            <Button variant="outline" className={`flex-1 rounded-xl ${contact.pref === 'whatsapp' ? 'border-blue-500 bg-blue-50 text-blue-700' : ''}`}>WhatsApp</Button>
+                          <div className="flex items-center gap-3">
+                            <Badge variant="outline" className="text-slate-600 border-slate-200">Collaborateur</Badge>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-red-500"><Trash2 className="h-4 w-4" /></Button>
                           </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-                
-                <Button variant="outline" className="w-full rounded-2xl border-dashed border-2 border-slate-200 py-8 hover:bg-slate-50 hover:border-slate-300 text-slate-500 gap-2" onClick={addContact}>
-                  <Plus className="h-5 w-5" /> Ajouter un autre contact
-                </Button>
+                       </div>
+
+                       <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-100">
+                          <div className="flex items-center gap-4">
+                             <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold">PM</div>
+                             <div>
+                               <p className="font-bold text-slate-900">Pierre Martin</p>
+                               <p className="text-sm text-slate-500">pierre.m@cabinet.fr</p>
+                             </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <Badge variant="outline" className="text-slate-600 border-slate-200">Expert-Comptable</Badge>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-red-500"><Trash2 className="h-4 w-4" /></Button>
+                          </div>
+                       </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </div>
             
