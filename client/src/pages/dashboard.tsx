@@ -1,9 +1,7 @@
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { mockClients, mockDocuments, mockReminders } from "@/lib/mockData";
-import { ArrowUpRight, AlertCircle, PieChart as PieChartIcon, Filter } from "lucide-react";
-import { Link } from "wouter";
+import { ArrowUpRight, AlertCircle, Filter, Activity, Clock } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -18,7 +16,7 @@ const weeklyData = [
   { name: 'Dim', sent: 0, opened: 0 },
 ];
 
-const COLORS = ['hsl(215 40% 20%)', 'hsl(210 60% 50%)', 'hsl(142 71% 45%)', 'hsl(45 93% 47%)', 'hsl(0 84% 60%)'];
+const COLORS = ['hsl(225 73% 57%)', 'hsl(48 96% 53%)', 'hsl(150 60% 45%)', 'hsl(340 80% 65%)', 'hsl(260 60% 65%)'];
 
 export default function Dashboard() {
   const [sectorFilter, setSectorFilter] = useState("All");
@@ -51,20 +49,20 @@ export default function Dashboard() {
       <div className="space-y-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-serif font-bold text-slate-900">Tableau de Bord</h1>
-            <p className="text-slate-500 mt-2">Vue d'ensemble et pilotage de l'activité.</p>
+            <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Bonjour, Cabinet ! 👋</h1>
+            <p className="text-slate-500 mt-1 font-medium">Voici ce qui se passe aujourd'hui.</p>
           </div>
           <div className="flex items-center gap-3">
-             <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-md border border-slate-200">
+             <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-100">
                <Filter className="h-4 w-4 text-slate-500" />
                <Select value={sectorFilter} onValueChange={setSectorFilter}>
-                 <SelectTrigger className="border-none h-auto p-0 focus:ring-0 w-[150px]">
+                 <SelectTrigger className="border-none h-auto p-0 focus:ring-0 w-[150px] font-medium text-slate-700">
                    <SelectValue placeholder="Tous secteurs" />
                  </SelectTrigger>
-                 <SelectContent>
-                   <SelectItem value="All">Tous secteurs</SelectItem>
+                 <SelectContent className="rounded-xl border-slate-100 shadow-lg">
+                   <SelectItem value="All" className="rounded-lg cursor-pointer">Tous secteurs</SelectItem>
                    {uniqueSectors.map(s => (
-                     <SelectItem key={s} value={s}>{s}</SelectItem>
+                     <SelectItem key={s} value={s} className="rounded-lg cursor-pointer">{s}</SelectItem>
                    ))}
                  </SelectContent>
                </Select>
@@ -73,95 +71,110 @@ export default function Dashboard() {
         </div>
 
         {/* KPI Cards */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card className="shadow-sm hover:shadow-md transition-shadow">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <Card className="rounded-3xl border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-shadow duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-slate-600">Clients Actifs</CardTitle>
-              <UsersIcon className="h-4 w-4 text-slate-400" />
+              <CardTitle className="text-sm font-bold text-slate-500 uppercase tracking-wider">Clients Actifs</CardTitle>
+              <div className="p-2 bg-blue-50 rounded-xl">
+                 <Activity className="h-5 w-5 text-blue-500" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-slate-900">{totalClients}</div>
-              <p className="text-xs text-slate-500 mt-1">
-                {sectorFilter === 'All' ? 'Total cabinet' : `Secteur ${sectorFilter}`}
+              <div className="text-3xl font-extrabold text-slate-800">{totalClients}</div>
+              <p className="text-xs font-medium text-slate-400 mt-2 flex items-center gap-1">
+                <span className="text-green-500 bg-green-50 px-1.5 py-0.5 rounded-md">↑ 2%</span> ce mois
               </p>
             </CardContent>
           </Card>
           
-          <Card className="shadow-sm hover:shadow-md transition-shadow border-orange-200 bg-orange-50/50">
+          <Card className="rounded-3xl border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-shadow duration-300 bg-gradient-to-br from-red-50 to-white">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-orange-700">Documents Manquants</CardTitle>
-              <AlertCircle className="h-4 w-4 text-orange-500" />
+              <CardTitle className="text-sm font-bold text-red-500 uppercase tracking-wider">Docs Manquants</CardTitle>
+              <div className="p-2 bg-white rounded-xl shadow-sm">
+                 <AlertCircle className="h-5 w-5 text-red-500" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-orange-700">{pendingDocs}</div>
-              <p className="text-xs text-orange-600 mt-1">À relancer</p>
+              <div className="text-3xl font-extrabold text-red-600">{pendingDocs}</div>
+              <p className="text-xs font-medium text-red-400 mt-2">
+                Nécessitent une relance
+              </p>
             </CardContent>
           </Card>
 
-          <Card className="shadow-sm hover:shadow-md transition-shadow">
+          <Card className="rounded-3xl border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-shadow duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-slate-600">Relances Envoyées</CardTitle>
-              <MailIcon className="h-4 w-4 text-slate-400" />
+              <CardTitle className="text-sm font-bold text-slate-500 uppercase tracking-wider">Relances</CardTitle>
+              <div className="p-2 bg-purple-50 rounded-xl">
+                 <Clock className="h-5 w-5 text-purple-500" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-slate-900">{remindersSent}</div>
-              <p className="text-xs text-slate-500 mt-1">Cette semaine</p>
+              <div className="text-3xl font-extrabold text-slate-800">{remindersSent}</div>
+              <p className="text-xs font-medium text-slate-400 mt-2">
+                Envoyées cette semaine
+              </p>
             </CardContent>
           </Card>
 
-          <Card className="shadow-sm hover:shadow-md transition-shadow">
+          <Card className="rounded-3xl border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-shadow duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-slate-600">Taux d'Ouverture</CardTitle>
-              <ArrowUpRight className="h-4 w-4 text-green-500" />
+              <CardTitle className="text-sm font-bold text-slate-500 uppercase tracking-wider">Taux d'Ouverture</CardTitle>
+              <div className="p-2 bg-green-50 rounded-xl">
+                 <ArrowUpRight className="h-5 w-5 text-green-500" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-slate-900">68%</div>
-              <p className="text-xs text-slate-500 mt-1">Global</p>
+              <div className="text-3xl font-extrabold text-slate-800">68%</div>
+              <p className="text-xs font-medium text-slate-400 mt-2 flex items-center gap-1">
+                 <span className="text-green-500 bg-green-50 px-1.5 py-0.5 rounded-md">↑ 4%</span> vs sem. dernière
+              </p>
             </CardContent>
           </Card>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
           {/* Main Chart */}
-          <Card className="col-span-4 shadow-sm">
+          <Card className="col-span-4 rounded-3xl border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)]">
             <CardHeader>
-              <CardTitle>Activité des Relances</CardTitle>
+              <CardTitle className="text-lg font-bold text-slate-800">Activité des Relances</CardTitle>
             </CardHeader>
             <CardContent className="pl-2">
               <div className="h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={weeklyData}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <BarChart data={weeklyData} barGap={8}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                     <XAxis 
                       dataKey="name" 
-                      stroke="#64748b" 
+                      stroke="#94a3b8" 
                       fontSize={12} 
                       tickLine={false} 
                       axisLine={false} 
+                      dy={10}
                     />
                     <YAxis 
-                      stroke="#64748b" 
+                      stroke="#94a3b8" 
                       fontSize={12} 
                       tickLine={false} 
                       axisLine={false} 
                       tickFormatter={(value) => `${value}`} 
                     />
                     <Tooltip 
-                      cursor={{fill: '#f1f5f9'}}
-                      contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}}
+                      cursor={{fill: '#f8fafc', radius: 8}}
+                      contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}}
                     />
-                    <Bar dataKey="sent" name="Envoyés" fill="hsl(215 40% 20%)" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="opened" name="Ouverts" fill="hsl(210 60% 50%)" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="sent" name="Envoyés" fill="hsl(225 73% 57%)" radius={[6, 6, 6, 6]} barSize={20} />
+                    <Bar dataKey="opened" name="Ouverts" fill="hsl(48 96% 53%)" radius={[6, 6, 6, 6]} barSize={20} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             </CardContent>
           </Card>
 
-          {/* Sector Distribution or Missing Docs */}
-          <Card className="col-span-3 shadow-sm">
+          {/* Sector Distribution */}
+          <Card className="col-span-3 rounded-3xl border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)]">
             <CardHeader>
-              <CardTitle>Répartition par Secteur</CardTitle>
+              <CardTitle className="text-lg font-bold text-slate-800">Répartition par Secteur</CardTitle>
             </CardHeader>
             <CardContent>
                <div className="h-[300px] w-full">
@@ -173,15 +186,21 @@ export default function Dashboard() {
                       cy="50%"
                       innerRadius={60}
                       outerRadius={80}
-                      paddingAngle={5}
+                      paddingAngle={8}
                       dataKey="value"
+                      cornerRadius={6}
                     >
                       {sectorData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} strokeWidth={0} />
                       ))}
                     </Pie>
-                    <Tooltip contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}} />
-                    <Legend verticalAlign="bottom" height={36}/>
+                    <Tooltip contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}} />
+                    <Legend 
+                      verticalAlign="bottom" 
+                      height={36} 
+                      iconType="circle"
+                      formatter={(value) => <span className="text-sm font-medium text-slate-600 ml-1">{value}</span>}
+                    />
                   </PieChart>
                 </ResponsiveContainer>
                </div>
