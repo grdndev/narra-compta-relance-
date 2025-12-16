@@ -2,10 +2,11 @@ import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { mockAccountingEntries, mockClients } from "@/lib/mockData";
+import { mockAccountingEntries, mockClients, mockReminders, mockDocuments } from "@/lib/mockData";
 import { 
   ArrowUpRight, AlertCircle, Filter, Search, Eye, Send, 
-  MessageSquare, Bird, Settings2, Trash2, CheckSquare, Square
+  MessageSquare, Bird, Settings2, Trash2, CheckSquare, Square,
+  Activity, Clock, Mail
 } from "lucide-react";
 import { useState } from "react";
 import { 
@@ -28,6 +29,19 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+
+const weeklyData = [
+  { name: 'Lun', sent: 4, opened: 2 },
+  { name: 'Mar', sent: 7, opened: 4 },
+  { name: 'Mer', sent: 5, opened: 3 },
+  { name: 'Jeu', sent: 12, opened: 8 },
+  { name: 'Ven', sent: 9, opened: 6 },
+  { name: 'Sam', sent: 2, opened: 1 },
+  { name: 'Dim', sent: 0, opened: 0 },
+];
+
+const COLORS = ['hsl(225 73% 57%)', 'hsl(48 96% 53%)', 'hsl(150 60% 45%)', 'hsl(340 80% 65%)', 'hsl(260 60% 65%)'];
 
 export default function Dashboard() {
   const { toast } = useToast();
@@ -36,17 +50,32 @@ export default function Dashboard() {
   const [selectedEntries, setSelectedEntries] = useState<string[]>([]);
   const [ignoredEntries, setIgnoredEntries] = useState<string[]>([]);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
-  
-  // Filter active entries (not ignored)
-  const activeEntries = mockAccountingEntries.filter(e => !ignoredEntries.includes(e.id));
-  
-  // Filter by min amount
-  const filteredEntries = activeEntries.filter(e => e.amount >= minAmount);
+  const [sectorFilter, setSectorFilter] = useState("All");
 
+  // Overview Data Calculation
+  const filteredClients = sectorFilter === "All" 
+    ? mockClients 
+    : mockClients.filter(c => c.sector === sectorFilter);
+  const totalClients = filteredClients.length;
+  const overviewPendingDocs = mockDocuments.filter(d => 
+    d.status === 'missing' && filteredClients.map(c => c.id).includes(d.clientId)
+  ).length;
+  const overviewRemindersSent = mockReminders.filter(r => 
+    (r.status === 'sent' || r.status === 'opened') && filteredClients.map(c => c.id).includes(r.clientId)
+  ).length;
+  const sectorData = Array.from(new Set(mockClients.map(c => c.sector))).map(sector => ({
+    name: sector,
+    value: mockClients.filter(c => c.sector === sector).length
+  }));
+  const uniqueSectors = Array.from(new Set(mockClients.map(c => c.sector)));
+
+  // Accounting Analysis Data Calculation
+  const activeEntries = mockAccountingEntries.filter(e => !ignoredEntries.includes(e.id));
+  const filteredEntries = activeEntries.filter(e => e.amount >= minAmount);
   const missingDocsCount = filteredEntries.length;
   const missingAmount = filteredEntries.reduce((sum, e) => sum + e.amount, 0);
 
-  // Group by Account for "Encaissements/Décaissements" view
+  // Group by Account
   const entriesByAccount = Object.values(filteredEntries.reduce((acc, entry) => {
     if (!acc[entry.account]) {
       acc[entry.account] = {
@@ -63,7 +92,6 @@ export default function Dashboard() {
     return acc;
   }, {} as Record<string, { account: string, label: string, entries: typeof mockAccountingEntries, totalAmount: number, count: number }>));
 
-  // Toggle selection
   const toggleEntrySelection = (id: string) => {
     if (selectedEntries.includes(id)) {
       setSelectedEntries(selectedEntries.filter(e => e !== id));
@@ -72,15 +100,6 @@ export default function Dashboard() {
     }
   };
 
-  const toggleAllSelection = () => {
-    if (selectedEntries.length === filteredEntries.length) {
-      setSelectedEntries([]);
-    } else {
-      setSelectedEntries(filteredEntries.map(e => e.id));
-    }
-  };
-
-  // Ignore entry logic
   const handleIgnoreEntry = (id: string) => {
     setIgnoredEntries([...ignoredEntries, id]);
     toast({
@@ -101,177 +120,310 @@ export default function Dashboard() {
 
   return (
     <Layout>
-      <div className="space-y-8">
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Tableau de Bord</h1>
-            <p className="text-slate-500 mt-1 font-medium flex items-center gap-2">
-              Période d'analyse : 01/10/2023 - 31/10/2023
-            </p>
-          </div>
-          
-          <div className="flex items-center gap-4 bg-white p-2 rounded-2xl shadow-sm border border-slate-100">
-             <div className="flex items-center gap-2 px-3">
-                <Bird className="h-5 w-5 text-blue-500 animate-pulse" />
-                <div className="text-sm">
-                  <p className="text-slate-500 text-xs font-semibold uppercase">Dernier envoi</p>
-                  <p className="text-slate-800 font-bold">Hier à 14:30</p>
-                </div>
-             </div>
-             <div className="h-8 w-px bg-slate-100"></div>
-             <div className="flex items-center gap-2 px-3">
-                <span className="text-sm font-medium text-slate-600">Montant min. :</span>
-                <div className="relative w-24">
-                  <Input 
-                    type="number" 
-                    value={minAmount} 
-                    onChange={(e) => setMinAmount(Number(e.target.value))}
-                    className="h-8 rounded-lg pl-6 pr-2 text-right"
-                    placeholder="0"
-                  />
-                  <span className="absolute left-2 top-1.5 text-slate-400 text-xs">€</span>
-                </div>
+      <div className="space-y-12">
+        {/* =========================================
+            SECTION 1: VUE D'ENSEMBLE (OVERVIEW)
+           ========================================= */}
+        <div className="space-y-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Vue d'ensemble</h1>
+              <p className="text-slate-500 mt-1 font-medium">Pilotage global du cabinet</p>
+            </div>
+            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-100">
+               <Filter className="h-4 w-4 text-slate-500" />
+               <Select value={sectorFilter} onValueChange={setSectorFilter}>
+                 <SelectTrigger className="border-none h-auto p-0 focus:ring-0 w-[150px] font-medium text-slate-700">
+                   <SelectValue placeholder="Tous secteurs" />
+                 </SelectTrigger>
+                 <SelectContent className="rounded-xl border-slate-100 shadow-lg">
+                   <SelectItem value="All" className="rounded-lg cursor-pointer">Tous secteurs</SelectItem>
+                   {uniqueSectors.map(s => (
+                     <SelectItem key={s} value={s} className="rounded-lg cursor-pointer">{s}</SelectItem>
+                   ))}
+                 </SelectContent>
+               </Select>
              </div>
           </div>
+
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <Card className="rounded-3xl border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-shadow duration-300">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-bold text-slate-500 uppercase tracking-wider">Clients Actifs</CardTitle>
+                <div className="p-2 bg-blue-50 rounded-xl">
+                   <Activity className="h-5 w-5 text-blue-500" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-extrabold text-slate-800">{totalClients}</div>
+                <p className="text-xs font-medium text-slate-400 mt-2 flex items-center gap-1">
+                  <span className="text-green-500 bg-green-50 px-1.5 py-0.5 rounded-md">↑ 2%</span> ce mois
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card className="rounded-3xl border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-shadow duration-300 bg-gradient-to-br from-red-50 to-white">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-bold text-red-500 uppercase tracking-wider">Docs Manquants</CardTitle>
+                <div className="p-2 bg-white rounded-xl shadow-sm">
+                   <AlertCircle className="h-5 w-5 text-red-500" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-extrabold text-red-600">{overviewPendingDocs}</div>
+                <p className="text-xs font-medium text-red-400 mt-2">Nécessitent une relance</p>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-3xl border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-shadow duration-300">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-bold text-slate-500 uppercase tracking-wider">Relances</CardTitle>
+                <div className="p-2 bg-purple-50 rounded-xl">
+                   <Clock className="h-5 w-5 text-purple-500" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-extrabold text-slate-800">{overviewRemindersSent}</div>
+                <p className="text-xs font-medium text-slate-400 mt-2">Envoyées cette semaine</p>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-3xl border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-shadow duration-300">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-bold text-slate-500 uppercase tracking-wider">Taux d'Ouverture</CardTitle>
+                <div className="p-2 bg-green-50 rounded-xl">
+                   <ArrowUpRight className="h-5 w-5 text-green-500" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-extrabold text-slate-800">68%</div>
+                <p className="text-xs font-medium text-slate-400 mt-2 flex items-center gap-1">
+                   <span className="text-green-500 bg-green-50 px-1.5 py-0.5 rounded-md">↑ 4%</span> vs sem. dernière
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
+             <Card className="col-span-4 rounded-3xl border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)]">
+               <CardHeader>
+                 <CardTitle className="text-lg font-bold text-slate-800">Activité des Relances</CardTitle>
+               </CardHeader>
+               <CardContent className="pl-2">
+                 <div className="h-[300px] w-full">
+                   <ResponsiveContainer width="100%" height="100%">
+                     <BarChart data={weeklyData} barGap={8}>
+                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                       <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} dy={10} />
+                       <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}`} />
+                       <Tooltip cursor={{fill: '#f8fafc', radius: 8}} contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}} />
+                       <Bar dataKey="sent" name="Envoyés" fill="hsl(225 73% 57%)" radius={[6, 6, 6, 6]} barSize={20} />
+                       <Bar dataKey="opened" name="Ouverts" fill="hsl(48 96% 53%)" radius={[6, 6, 6, 6]} barSize={20} />
+                     </BarChart>
+                   </ResponsiveContainer>
+                 </div>
+               </CardContent>
+             </Card>
+
+             <Card className="col-span-3 rounded-3xl border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)]">
+               <CardHeader>
+                 <CardTitle className="text-lg font-bold text-slate-800">Répartition par Secteur</CardTitle>
+               </CardHeader>
+               <CardContent>
+                  <div className="h-[300px] w-full">
+                   <ResponsiveContainer width="100%" height="100%">
+                     <PieChart>
+                       <Pie data={sectorData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={8} dataKey="value" cornerRadius={6}>
+                         {sectorData.map((entry, index) => (
+                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} strokeWidth={0} />
+                         ))}
+                       </Pie>
+                       <Tooltip contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}} />
+                       <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                     </PieChart>
+                   </ResponsiveContainer>
+                  </div>
+               </CardContent>
+             </Card>
+          </div>
         </div>
 
-        {/* View Switcher */}
-        <div className="flex justify-center">
-          <Tabs value={viewMode} onValueChange={(v: any) => setViewMode(v)} className="w-full max-w-3xl">
-            <TabsList className="grid w-full grid-cols-3 rounded-2xl p-1 bg-white border border-slate-200 shadow-sm">
-              <TabsTrigger value="achats-ventes" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">Achats / Ventes</TabsTrigger>
-              <TabsTrigger value="journaux" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">Journaux</TabsTrigger>
-              <TabsTrigger value="encaissements" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">Encaissements / Décaissements</TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
+        <div className="border-t border-slate-200"></div>
 
-        {/* Summary Cards */}
-        <div className="grid gap-6 md:grid-cols-2">
-          {/* Missing Docs Section */}
-          <Card className="rounded-3xl border-none shadow-[0_4px_20px_rgba(0,0,0,0.03)] bg-gradient-to-br from-red-50/50 to-white overflow-hidden relative group">
-            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-              <AlertCircle className="h-24 w-24 text-red-500 transform rotate-12" />
+        {/* =========================================
+            SECTION 2: PILOTAGE COMPTABLE (NEW)
+           ========================================= */}
+        <div className="space-y-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-3xl font-bold text-slate-800 tracking-tight">Analyse des Pièces</h2>
+              <p className="text-slate-500 mt-1 font-medium flex items-center gap-2">
+                Période d'analyse : 01/10/2023 - 31/10/2023
+              </p>
             </div>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-red-600 flex items-center gap-2">
-                <div className="p-2 bg-red-100 rounded-xl">
-                  <AlertCircle className="h-5 w-5" />
-                </div>
-                Pièces Manquantes
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-between items-end mt-4">
-                <div>
-                  <p className="text-4xl font-extrabold text-slate-800">{missingDocsCount}</p>
-                  <p className="text-slate-500 font-medium">justificatifs à réclamer</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-2xl font-bold text-red-600">{missingAmount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</p>
-                  <p className="text-slate-400 text-sm">montant total non justifié</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Received Docs Section */}
-          <Card className="rounded-3xl border-none shadow-[0_4px_20px_rgba(0,0,0,0.03)] bg-gradient-to-br from-green-50/50 to-white overflow-hidden relative group">
-            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-              <CheckSquare className="h-24 w-24 text-green-500 transform -rotate-12" />
-            </div>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-green-600 flex items-center gap-2">
-                <div className="p-2 bg-green-100 rounded-xl">
-                  <CheckSquare className="h-5 w-5" />
-                </div>
-                Pièces Reçues
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-between items-end mt-4">
-                <div>
-                  <p className="text-4xl font-extrabold text-slate-800">124</p>
-                  <p className="text-slate-500 font-medium">justificatifs traités</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-2xl font-bold text-green-600">{(45230.50).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</p>
-                  <p className="text-slate-400 text-sm">montant total justifié</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Content based on View Mode */}
-        {viewMode === "achats-ventes" && (
-          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {/* ACHATS Section */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                  <span className="w-2 h-8 bg-blue-500 rounded-full"></span>
-                  Achats
-                </h3>
-                <span className="text-lg font-bold text-slate-600 bg-slate-100 px-4 py-1 rounded-xl">
-                  Total : {filteredEntries.filter(e => e.journal === 'ACH').reduce((sum, e) => sum + e.amount, 0).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
-                </span>
-              </div>
-              <EntryTable 
-                entries={filteredEntries.filter(e => e.journal === 'ACH')} 
-                selectedEntries={selectedEntries}
-                onToggleSelect={toggleEntrySelection}
-                onIgnore={handleIgnoreEntry}
-              />
-            </div>
-
-            {/* VENTES Section */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                  <span className="w-2 h-8 bg-green-500 rounded-full"></span>
-                  Ventes
-                </h3>
-                <span className="text-lg font-bold text-slate-600 bg-slate-100 px-4 py-1 rounded-xl">
-                  Total : {filteredEntries.filter(e => e.journal === 'VTE').reduce((sum, e) => sum + e.amount, 0).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
-                </span>
-              </div>
-              <EntryTable 
-                entries={filteredEntries.filter(e => e.journal === 'VTE')} 
-                selectedEntries={selectedEntries}
-                onToggleSelect={toggleEntrySelection}
-                onIgnore={handleIgnoreEntry}
-              />
+            
+            <div className="flex items-center gap-4 bg-white p-2 rounded-2xl shadow-sm border border-slate-100">
+               <div className="flex items-center gap-2 px-3">
+                  <Bird className="h-5 w-5 text-blue-500 animate-pulse" />
+                  <div className="text-sm">
+                    <p className="text-slate-500 text-xs font-semibold uppercase">Dernier envoi</p>
+                    <p className="text-slate-800 font-bold">Hier à 14:30</p>
+                  </div>
+               </div>
+               <div className="h-8 w-px bg-slate-100"></div>
+               <div className="flex items-center gap-2 px-3">
+                  <span className="text-sm font-medium text-slate-600">Montant min. :</span>
+                  <div className="relative w-24">
+                    <Input 
+                      type="number" 
+                      value={minAmount} 
+                      onChange={(e) => setMinAmount(Number(e.target.value))}
+                      className="h-8 rounded-lg pl-6 pr-2 text-right"
+                      placeholder="0"
+                    />
+                    <span className="absolute left-2 top-1.5 text-slate-400 text-xs">€</span>
+                  </div>
+               </div>
             </div>
           </div>
-        )}
 
-        {viewMode === "encaissements" && (
-          <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_2px_20px_rgba(0,0,0,0.02)] overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
-                  <TableHead className="w-[150px] font-bold text-slate-600">N° de compte</TableHead>
-                  <TableHead className="font-bold text-slate-600">Libellé compte</TableHead>
-                  <TableHead className="text-center font-bold text-slate-600">Justificatifs manquants</TableHead>
-                  <TableHead className="text-right font-bold text-slate-600 pr-8">Montant Total</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {entriesByAccount.map((group) => (
-                  <AccountGroupRow 
-                    key={group.account} 
-                    group={group} 
-                    selectedEntries={selectedEntries}
-                    onToggleSelect={toggleEntrySelection}
-                    onIgnore={handleIgnoreEntry}
-                  />
-                ))}
-              </TableBody>
-            </Table>
+          {/* View Switcher */}
+          <div className="flex justify-center">
+            <Tabs value={viewMode} onValueChange={(v: any) => setViewMode(v)} className="w-full max-w-3xl">
+              <TabsList className="grid w-full grid-cols-3 rounded-2xl p-1 bg-white border border-slate-200 shadow-sm">
+                <TabsTrigger value="achats-ventes" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">Achats / Ventes</TabsTrigger>
+                <TabsTrigger value="journaux" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">Journaux</TabsTrigger>
+                <TabsTrigger value="encaissements" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">Encaissements / Décaissements</TabsTrigger>
+              </TabsList>
+            </Tabs>
           </div>
-        )}
+
+          {/* Summary Cards */}
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* Missing Docs Section */}
+            <Card className="rounded-3xl border-none shadow-[0_4px_20px_rgba(0,0,0,0.03)] bg-gradient-to-br from-red-50/50 to-white overflow-hidden relative group">
+              <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <AlertCircle className="h-24 w-24 text-red-500 transform rotate-12" />
+              </div>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-red-600 flex items-center gap-2">
+                  <div className="p-2 bg-red-100 rounded-xl">
+                    <AlertCircle className="h-5 w-5" />
+                  </div>
+                  Pièces Manquantes
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex justify-between items-end mt-4">
+                  <div>
+                    <p className="text-4xl font-extrabold text-slate-800">{missingDocsCount}</p>
+                    <p className="text-slate-500 font-medium">justificatifs à réclamer</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-bold text-red-600">{missingAmount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</p>
+                    <p className="text-slate-400 text-sm">montant total non justifié</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Received Docs Section */}
+            <Card className="rounded-3xl border-none shadow-[0_4px_20px_rgba(0,0,0,0.03)] bg-gradient-to-br from-green-50/50 to-white overflow-hidden relative group">
+              <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <CheckSquare className="h-24 w-24 text-green-500 transform -rotate-12" />
+              </div>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-green-600 flex items-center gap-2">
+                  <div className="p-2 bg-green-100 rounded-xl">
+                    <CheckSquare className="h-5 w-5" />
+                  </div>
+                  Pièces Reçues
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex justify-between items-end mt-4">
+                  <div>
+                    <p className="text-4xl font-extrabold text-slate-800">124</p>
+                    <p className="text-slate-500 font-medium">justificatifs traités</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-bold text-green-600">{(45230.50).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</p>
+                    <p className="text-slate-400 text-sm">montant total justifié</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Content based on View Mode */}
+          {viewMode === "achats-ventes" && (
+            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              {/* ACHATS Section */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <span className="w-2 h-8 bg-blue-500 rounded-full"></span>
+                    Achats
+                  </h3>
+                  <span className="text-lg font-bold text-slate-600 bg-slate-100 px-4 py-1 rounded-xl">
+                    Total : {filteredEntries.filter(e => e.journal === 'ACH').reduce((sum, e) => sum + e.amount, 0).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+                  </span>
+                </div>
+                <EntryTable 
+                  entries={filteredEntries.filter(e => e.journal === 'ACH')} 
+                  selectedEntries={selectedEntries}
+                  onToggleSelect={toggleEntrySelection}
+                  onIgnore={handleIgnoreEntry}
+                />
+              </div>
+
+              {/* VENTES Section */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <span className="w-2 h-8 bg-green-500 rounded-full"></span>
+                    Ventes
+                  </h3>
+                  <span className="text-lg font-bold text-slate-600 bg-slate-100 px-4 py-1 rounded-xl">
+                    Total : {filteredEntries.filter(e => e.journal === 'VTE').reduce((sum, e) => sum + e.amount, 0).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+                  </span>
+                </div>
+                <EntryTable 
+                  entries={filteredEntries.filter(e => e.journal === 'VTE')} 
+                  selectedEntries={selectedEntries}
+                  onToggleSelect={toggleEntrySelection}
+                  onIgnore={handleIgnoreEntry}
+                />
+              </div>
+            </div>
+          )}
+
+          {viewMode === "encaissements" && (
+            <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_2px_20px_rgba(0,0,0,0.02)] overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
+                    <TableHead className="w-[150px] font-bold text-slate-600">N° de compte</TableHead>
+                    <TableHead className="font-bold text-slate-600">Libellé compte</TableHead>
+                    <TableHead className="text-center font-bold text-slate-600">Justificatifs manquants</TableHead>
+                    <TableHead className="text-right font-bold text-slate-600 pr-8">Montant Total</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {entriesByAccount.map((group) => (
+                    <AccountGroupRow 
+                      key={group.account} 
+                      group={group} 
+                      selectedEntries={selectedEntries}
+                      onToggleSelect={toggleEntrySelection}
+                      onIgnore={handleIgnoreEntry}
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </div>
 
         {/* Action Bar */}
         <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-30">
