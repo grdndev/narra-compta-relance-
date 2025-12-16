@@ -7,8 +7,9 @@ import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import Clients from "@/pages/clients";
 import ClientDetail from "@/pages/client-detail";
-import ImportFEC from "@/pages/import";
+import Connectors from "@/pages/connectors";
 import Templates from "@/pages/templates";
+import Campaigns from "@/pages/campaigns";
 
 function Router() {
   return (
@@ -16,8 +17,9 @@ function Router() {
       <Route path="/" component={Dashboard} />
       <Route path="/clients" component={Clients} />
       <Route path="/clients/:id" component={ClientDetail} />
-      <Route path="/import" component={ImportFEC} />
+      <Route path="/connectors" component={Connectors} />
       <Route path="/templates" component={Templates} />
+      <Route path="/campaigns" component={Campaigns} />
       <Route component={NotFound} />
     </Switch>
   );

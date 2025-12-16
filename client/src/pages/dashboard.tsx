@@ -2,11 +2,13 @@ import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { mockClients, mockDocuments, mockReminders } from "@/lib/mockData";
-import { ArrowUpRight, Clock, AlertCircle, CheckCircle2, MoreHorizontal } from "lucide-react";
+import { ArrowUpRight, AlertCircle, PieChart as PieChartIcon, Filter } from "lucide-react";
 import { Link } from "wouter";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+import { useState } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const data = [
+const weeklyData = [
   { name: 'Lun', sent: 4, opened: 2 },
   { name: 'Mar', sent: 7, opened: 4 },
   { name: 'Mer', sent: 5, opened: 3 },
@@ -16,17 +18,58 @@ const data = [
   { name: 'Dim', sent: 0, opened: 0 },
 ];
 
+const COLORS = ['hsl(215 40% 20%)', 'hsl(210 60% 50%)', 'hsl(142 71% 45%)', 'hsl(45 93% 47%)', 'hsl(0 84% 60%)'];
+
 export default function Dashboard() {
-  const totalClients = mockClients.length;
-  const pendingDocs = mockDocuments.filter(d => d.status === 'missing').length;
-  const remindersSent = mockReminders.filter(r => r.status === 'sent' || r.status === 'opened').length;
+  const [sectorFilter, setSectorFilter] = useState("All");
+
+  const filteredClients = sectorFilter === "All" 
+    ? mockClients 
+    : mockClients.filter(c => c.sector === sectorFilter);
+
+  const totalClients = filteredClients.length;
   
+  // Calculate docs for filtered clients only
+  const pendingDocs = mockDocuments.filter(d => 
+    d.status === 'missing' && filteredClients.map(c => c.id).includes(d.clientId)
+  ).length;
+
+  const remindersSent = mockReminders.filter(r => 
+    (r.status === 'sent' || r.status === 'opened') && filteredClients.map(c => c.id).includes(r.clientId)
+  ).length;
+
+  // Sector Data for Pie Chart
+  const sectorData = Array.from(new Set(mockClients.map(c => c.sector))).map(sector => ({
+    name: sector,
+    value: mockClients.filter(c => c.sector === sector).length
+  }));
+
+  const uniqueSectors = Array.from(new Set(mockClients.map(c => c.sector)));
+
   return (
     <Layout>
       <div className="space-y-8">
-        <div>
-          <h1 className="text-3xl font-serif font-bold text-slate-900">Tableau de Bord</h1>
-          <p className="text-slate-500 mt-2">Aperçu de l'activité du cabinet et des relances en cours.</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-serif font-bold text-slate-900">Tableau de Bord</h1>
+            <p className="text-slate-500 mt-2">Vue d'ensemble et pilotage de l'activité.</p>
+          </div>
+          <div className="flex items-center gap-3">
+             <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-md border border-slate-200">
+               <Filter className="h-4 w-4 text-slate-500" />
+               <Select value={sectorFilter} onValueChange={setSectorFilter}>
+                 <SelectTrigger className="border-none h-auto p-0 focus:ring-0 w-[150px]">
+                   <SelectValue placeholder="Tous secteurs" />
+                 </SelectTrigger>
+                 <SelectContent>
+                   <SelectItem value="All">Tous secteurs</SelectItem>
+                   {uniqueSectors.map(s => (
+                     <SelectItem key={s} value={s}>{s}</SelectItem>
+                   ))}
+                 </SelectContent>
+               </Select>
+             </div>
+          </div>
         </div>
 
         {/* KPI Cards */}
@@ -38,7 +81,9 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-slate-900">{totalClients}</div>
-              <p className="text-xs text-slate-500 mt-1">+2 depuis le mois dernier</p>
+              <p className="text-xs text-slate-500 mt-1">
+                {sectorFilter === 'All' ? 'Total cabinet' : `Secteur ${sectorFilter}`}
+              </p>
             </CardContent>
           </Card>
           
@@ -49,7 +94,7 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-orange-700">{pendingDocs}</div>
-              <p className="text-xs text-orange-600 mt-1">Nécessitent une relance</p>
+              <p className="text-xs text-orange-600 mt-1">À relancer</p>
             </CardContent>
           </Card>
 
@@ -71,13 +116,13 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-slate-900">68%</div>
-              <p className="text-xs text-slate-500 mt-1">+4% vs semaine dernière</p>
+              <p className="text-xs text-slate-500 mt-1">Global</p>
             </CardContent>
           </Card>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-          {/* Chart */}
+          {/* Main Chart */}
           <Card className="col-span-4 shadow-sm">
             <CardHeader>
               <CardTitle>Activité des Relances</CardTitle>
@@ -85,7 +130,7 @@ export default function Dashboard() {
             <CardContent className="pl-2">
               <div className="h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={data}>
+                  <BarChart data={weeklyData}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                     <XAxis 
                       dataKey="name" 
@@ -113,39 +158,33 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* Recent Activity / Missing Docs Preview */}
+          {/* Sector Distribution or Missing Docs */}
           <Card className="col-span-3 shadow-sm">
             <CardHeader>
-              <CardTitle>Documents en Retard</CardTitle>
+              <CardTitle>Répartition par Secteur</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-6">
-                {mockDocuments.filter(d => d.status === 'missing').slice(0, 5).map((doc) => {
-                  const client = mockClients.find(c => c.id === doc.clientId);
-                  return (
-                    <div key={doc.id} className="flex items-start justify-between group">
-                      <div className="space-y-1">
-                        <p className="text-sm font-medium leading-none text-slate-900 group-hover:text-blue-600 transition-colors">
-                          {doc.name}
-                        </p>
-                        <p className="text-xs text-slate-500">
-                          {client?.company} • Échéance : {new Date(doc.dueDate).toLocaleDateString('fr-FR')}
-                        </p>
-                      </div>
-                      <div className="flex items-center">
-                        <span className="inline-flex items-center rounded-full border border-red-200 bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700">
-                          J+{Math.floor((Date.now() - new Date(doc.dueDate).getTime()) / (1000 * 60 * 60 * 24))}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="mt-6">
-                <Link href="/clients">
-                  <Button variant="outline" className="w-full">Voir tous les documents manquants</Button>
-                </Link>
-              </div>
+               <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={sectorData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {sectorData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}} />
+                    <Legend verticalAlign="bottom" height={36}/>
+                  </PieChart>
+                </ResponsiveContainer>
+               </div>
             </CardContent>
           </Card>
         </div>

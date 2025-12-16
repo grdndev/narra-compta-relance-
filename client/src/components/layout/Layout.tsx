@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Users, FileText, Mail, Upload, Settings, LogOut, Bell } from "lucide-react";
+import { LayoutDashboard, Users, Mail, Settings, LogOut, Bell, Megaphone, Link2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { 
@@ -20,9 +20,10 @@ export default function Layout({ children }: LayoutProps) {
 
   const navItems = [
     { href: "/", label: "Tableau de Bord", icon: LayoutDashboard },
-    { href: "/clients", label: "Clients", icon: Users },
-    { href: "/import", label: "Import FEC", icon: Upload },
-    { href: "/templates", label: "Modèles Relances", icon: Mail },
+    { href: "/clients", label: "Clients & Relances", icon: Users },
+    { href: "/campaigns", label: "Campagnes", icon: Megaphone },
+    { href: "/connectors", label: "Connecteurs", icon: Link2 },
+    { href: "/templates", label: "Modèles", icon: Mail },
     { href: "/settings", label: "Paramètres", icon: Settings },
   ];
 
@@ -84,6 +85,11 @@ export default function Layout({ children }: LayoutProps) {
           </h2>
 
           <div className="flex items-center gap-4">
+            <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-green-50 text-green-700 text-xs font-medium rounded-full border border-green-100">
+              <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+              Synchronisé avec Sage Coala
+            </div>
+
             <Button variant="ghost" size="icon" className="text-slate-500 hover:text-slate-700">
               <Bell className="h-5 w-5" />
             </Button>

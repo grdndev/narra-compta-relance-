@@ -11,33 +11,69 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { mockClients } from "@/lib/mockData";
-import { Search, Filter, MoreVertical, Mail, FileText } from "lucide-react";
+import { Search, Filter, MoreVertical, Mail, Send, CheckSquare, Square } from "lucide-react";
 import { useState } from "react";
 import { Link } from "wouter";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 
 export default function Clients() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedClients, setSelectedClients] = useState<string[]>([]);
+  const { toast } = useToast();
 
   const filteredClients = mockClients.filter(client => 
     client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    client.company.toLowerCase().includes(searchTerm.toLowerCase())
+    client.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    client.sector.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const toggleSelectAll = () => {
+    if (selectedClients.length === filteredClients.length) {
+      setSelectedClients([]);
+    } else {
+      setSelectedClients(filteredClients.map(c => c.id));
+    }
+  };
+
+  const toggleSelectClient = (clientId: string) => {
+    if (selectedClients.includes(clientId)) {
+      setSelectedClients(selectedClients.filter(id => id !== clientId));
+    } else {
+      setSelectedClients([...selectedClients, clientId]);
+    }
+  };
+
+  const handleBulkReminder = () => {
+    toast({
+      title: "Relances envoyées",
+      description: `${selectedClients.length} clients ont été relancés pour leurs documents manquants.`,
+    });
+    setSelectedClients([]);
+  };
 
   return (
     <Layout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-serif font-bold text-slate-900">Clients</h1>
-            <p className="text-slate-500 mt-2">Gérez vos dossiers clients et suivez les pièces manquantes.</p>
+            <h1 className="text-3xl font-serif font-bold text-slate-900">Clients & Relances</h1>
+            <p className="text-slate-500 mt-2">Gérez vos dossiers clients et effectuez des relances groupées.</p>
           </div>
           <div className="flex gap-3">
+            {selectedClients.length > 0 && (
+              <Button onClick={handleBulkReminder} className="bg-blue-600 hover:bg-blue-700 text-white animate-in fade-in slide-in-from-right-4">
+                <Send className="h-4 w-4 mr-2" />
+                Relancer ({selectedClients.length})
+              </Button>
+            )}
             <Button variant="outline" className="gap-2">
               <Filter className="h-4 w-4" />
               Filtres
@@ -53,30 +89,45 @@ export default function Clients() {
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
               <Input 
-                placeholder="Rechercher un client ou une entreprise..." 
+                placeholder="Rechercher un client, entreprise ou secteur..." 
                 className="pl-9 bg-white"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
+            </div>
+            <div className="text-sm text-slate-500 ml-auto">
+              {filteredClients.length} dossiers trouvés
             </div>
           </div>
 
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
+                <TableHead className="w-[50px]">
+                  <Checkbox 
+                    checked={selectedClients.length === filteredClients.length && filteredClients.length > 0}
+                    onCheckedChange={toggleSelectAll}
+                  />
+                </TableHead>
                 <TableHead className="w-[300px]">Client / Entreprise</TableHead>
+                <TableHead>Secteur</TableHead>
                 <TableHead>État des pièces</TableHead>
                 <TableHead>Dernier Contact</TableHead>
-                <TableHead>Statut</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredClients.map((client) => (
-                <TableRow key={client.id} className="group cursor-pointer hover:bg-slate-50">
+                <TableRow key={client.id} className="group hover:bg-slate-50">
+                  <TableCell>
+                    <Checkbox 
+                      checked={selectedClients.includes(client.id)}
+                      onCheckedChange={() => toggleSelectClient(client.id)}
+                    />
+                  </TableCell>
                   <TableCell className="font-medium">
                     <Link href={`/clients/${client.id}`} className="block">
-                      <div className="flex flex-col">
+                      <div className="flex flex-col cursor-pointer">
                         <span className="text-slate-900 font-semibold group-hover:text-blue-600 transition-colors">
                           {client.company}
                         </span>
@@ -85,6 +136,11 @@ export default function Clients() {
                         </span>
                       </div>
                     </Link>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="font-normal text-slate-600 bg-slate-50">
+                      {client.sector}
+                    </Badge>
                   </TableCell>
                   <TableCell>
                     {client.pendingDocs > 0 ? (
@@ -99,11 +155,6 @@ export default function Clients() {
                   </TableCell>
                   <TableCell className="text-slate-600">
                     {new Date(client.lastContact).toLocaleDateString('fr-FR')}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="text-slate-600 border-slate-300">
-                      {client.status === 'active' ? 'Actif' : 'Archivé'}
-                    </Badge>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
@@ -121,6 +172,7 @@ export default function Clients() {
                             <Link href={`/clients/${client.id}`} className="flex w-full">Voir le dossier</Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem>Modifier</DropdownMenuItem>
+                          <DropdownMenuSeparator />
                           <DropdownMenuItem className="text-red-600">Archiver</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
