@@ -29,6 +29,10 @@ export default function ClientDetail() {
   const [minAmount, setMinAmount] = useState<number>(0);
   const [journalFilter, setJournalFilter] = useState<string>("ALL");
 
+  const [entries, setEntries] = useState(mockAccountingEntries);
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [tempComment, setTempComment] = useState("");
+
   const client = mockClients.find(c => c.id === params?.id);
   const [clientContacts, setClientContacts] = useState(client?.contacts || []);
 
@@ -36,16 +40,20 @@ export default function ClientDetail() {
   const reminders = mockReminders.filter(r => r.clientId === params?.id);
   
   // Filter entries for this client
-  const activeEntries = mockAccountingEntries.filter(e => e.clientId === params?.id && !ignoredEntries.includes(e.id));
+  const activeEntries = entries.filter(e => e.clientId === params?.id && !ignoredEntries.includes(e.id));
   const filteredEntries = activeEntries.filter(e => e.amount >= minAmount);
   
   const purchases = filteredEntries.filter(e => e.journal === 'ACH');
   const sales = filteredEntries.filter(e => e.journal === 'VTE');
   const bankEntries = filteredEntries.filter(e => e.journal === 'BQ');
+  
+  // Split bank entries for display
+  const bankReceipts = bankEntries.filter(e => e.type === 'Debit'); // Encaissements (Debit au journal de banque = Entrée d'argent)
+  const bankDisbursements = bankEntries.filter(e => e.type === 'Credit'); // Décaissements (Crédit au journal de banque = Sortie d'argent)
 
   // Helper to group entries
-  const groupEntries = (entries: typeof mockAccountingEntries) => {
-    return Object.values(entries.reduce((acc, entry) => {
+  const groupEntries = (entriesList: typeof mockAccountingEntries) => {
+    return Object.values(entriesList.reduce((acc, entry) => {
       if (!acc[entry.account]) {
         acc[entry.account] = {
           account: entry.account,
@@ -64,7 +72,8 @@ export default function ClientDetail() {
 
   const purchasesGrouped = groupEntries(purchases);
   const salesGrouped = groupEntries(sales);
-  const bankGrouped = groupEntries(bankEntries);
+  const bankReceiptsGrouped = groupEntries(bankReceipts);
+  const bankDisbursementsGrouped = groupEntries(bankDisbursements);
 
   if (!client) {
     return (
@@ -120,11 +129,38 @@ export default function ClientDetail() {
   };
 
   const handleToggleUrgent = (id: string) => {
-    // In a real app, this would update backend. Here we mock it by forcing a re-render or just showing toast
+    setEntries(entries.map(e => {
+      if (e.id === id) {
+        return { ...e, isUrgent: !e.isUrgent };
+      }
+      return e;
+    }));
     toast({
       title: "Urgence mise à jour",
       description: "Le statut d'urgence de l'écriture a été modifié.",
     });
+  };
+
+  const handleOpenComment = (id: string, currentComment?: string) => {
+    setEditingCommentId(id);
+    setTempComment(currentComment || "");
+  };
+
+  const handleSaveComment = () => {
+    if (editingCommentId) {
+      setEntries(entries.map(e => {
+        if (e.id === editingCommentId) {
+          return { ...e, comment: tempComment };
+        }
+        return e;
+      }));
+      setEditingCommentId(null);
+      setTempComment("");
+      toast({
+        title: "Commentaire ajouté",
+        description: "Le commentaire a été enregistré sur l'écriture.",
+      });
+    }
   };
 
   return (
@@ -184,7 +220,7 @@ export default function ClientDetail() {
             <TabsTrigger value="synthesis" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">Synthèse</TabsTrigger>
             <TabsTrigger value="achats-ventes" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">Achats / Ventes</TabsTrigger>
             <TabsTrigger value="journaux" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">Journaux</TabsTrigger>
-            <TabsTrigger value="encaissements" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">Encaissements</TabsTrigger>
+            <TabsTrigger value="encaissements" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">Encaissements / Décaissements</TabsTrigger>
             <TabsTrigger value="informations" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">Informations</TabsTrigger>
           </TabsList>
 
@@ -438,6 +474,7 @@ export default function ClientDetail() {
                             onToggleSelect={toggleEntrySelection}
                             onIgnore={handleIgnoreEntry}
                             onToggleUrgent={handleToggleUrgent}
+                            onEditComment={handleOpenComment}
                           />
                         ))
                       )}
@@ -477,6 +514,7 @@ export default function ClientDetail() {
                             onToggleSelect={toggleEntrySelection}
                             onIgnore={handleIgnoreEntry}
                             onToggleUrgent={handleToggleUrgent}
+                            onEditComment={handleOpenComment}
                           />
                         ))
                       )}
@@ -593,36 +631,86 @@ export default function ClientDetail() {
           </TabsContent>
 
           <TabsContent value="encaissements" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_2px_20px_rgba(0,0,0,0.02)] overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
-                    <TableHead className="w-[150px] font-bold text-slate-600">N° de compte</TableHead>
-                    <TableHead className="font-bold text-slate-600">Libellé compte</TableHead>
-                    <TableHead className="text-center font-bold text-slate-600">Justificatifs manquants</TableHead>
-                    <TableHead className="text-right font-bold text-slate-600 pr-8">Montant Total</TableHead>
-                    <TableHead className="w-[50px]"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {bankGrouped.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center text-slate-400 py-8">Aucune écriture de banque trouvée.</TableCell>
-                    </TableRow>
-                  ) : (
-                    bankGrouped.map((group) => (
-                      <AccountGroupRow 
-                        key={group.account} 
-                        group={group} 
-                        selectedEntries={selectedEntries}
-                        onToggleSelect={toggleEntrySelection}
-                        onIgnore={handleIgnoreEntry}
-                        onToggleUrgent={handleToggleUrgent}
-                      />
-                    ))
-                  )}
-                </TableBody>
-              </Table>
+            <div className="space-y-8">
+              {/* ENCAISSEMENTS */}
+              <div className="space-y-4">
+                <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                  <span className="w-2 h-8 bg-green-500 rounded-full"></span>
+                  Encaissements
+                </h3>
+                <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_2px_20px_rgba(0,0,0,0.02)] overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
+                        <TableHead className="w-[150px] font-bold text-slate-600">N° de compte</TableHead>
+                        <TableHead className="font-bold text-slate-600">Libellé compte</TableHead>
+                        <TableHead className="text-center font-bold text-slate-600">Justificatifs manquants</TableHead>
+                        <TableHead className="text-right font-bold text-slate-600 pr-8">Montant Total</TableHead>
+                        <TableHead className="w-[50px]"></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {bankReceiptsGrouped.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={5} className="text-center text-slate-400 py-8">Aucun encaissement trouvé.</TableCell>
+                        </TableRow>
+                      ) : (
+                        bankReceiptsGrouped.map((group) => (
+                          <AccountGroupRow 
+                            key={group.account} 
+                            group={group} 
+                            selectedEntries={selectedEntries}
+                            onToggleSelect={toggleEntrySelection}
+                            onIgnore={handleIgnoreEntry}
+                            onToggleUrgent={handleToggleUrgent}
+                            onEditComment={handleOpenComment}
+                          />
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+
+              {/* DECAISSEMENTS */}
+              <div className="space-y-4">
+                <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                  <span className="w-2 h-8 bg-orange-500 rounded-full"></span>
+                  Décaissements
+                </h3>
+                <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_2px_20px_rgba(0,0,0,0.02)] overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
+                        <TableHead className="w-[150px] font-bold text-slate-600">N° de compte</TableHead>
+                        <TableHead className="font-bold text-slate-600">Libellé compte</TableHead>
+                        <TableHead className="text-center font-bold text-slate-600">Justificatifs manquants</TableHead>
+                        <TableHead className="text-right font-bold text-slate-600 pr-8">Montant Total</TableHead>
+                        <TableHead className="w-[50px]"></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {bankDisbursementsGrouped.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={5} className="text-center text-slate-400 py-8">Aucun décaissement trouvé.</TableCell>
+                        </TableRow>
+                      ) : (
+                        bankDisbursementsGrouped.map((group) => (
+                          <AccountGroupRow 
+                            key={group.account} 
+                            group={group} 
+                            selectedEntries={selectedEntries}
+                            onToggleSelect={toggleEntrySelection}
+                            onIgnore={handleIgnoreEntry}
+                            onToggleUrgent={handleToggleUrgent}
+                            onEditComment={handleOpenComment}
+                          />
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
             </div>
           </TabsContent>
         </Tabs>
@@ -693,6 +781,30 @@ Votre Expert-Comptable`}
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        {/* Comment Modal */}
+        <Dialog open={!!editingCommentId} onOpenChange={(open) => !open && setEditingCommentId(null)}>
+          <DialogContent className="sm:max-w-[425px] rounded-3xl p-6">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold text-slate-800">Ajouter un commentaire</DialogTitle>
+              <DialogDescription>
+                Ce commentaire sera visible pour vous et le client.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <Textarea
+                id="comment"
+                placeholder="Ex: Montant élevé, à vérifier..."
+                className="col-span-3 min-h-[100px] border-slate-200 rounded-xl"
+                value={tempComment}
+                onChange={(e) => setTempComment(e.target.value)}
+              />
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditingCommentId(null)} className="rounded-xl border-slate-200">Annuler</Button>
+              <Button onClick={handleSaveComment} className="rounded-xl bg-slate-900 text-white hover:bg-slate-800">Enregistrer</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );
@@ -720,7 +832,7 @@ function UsersIcon(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-function AccountGroupRow({ group, selectedEntries, onToggleSelect, onIgnore, onToggleUrgent }: any) {
+function AccountGroupRow({ group, selectedEntries, onToggleSelect, onIgnore, onToggleUrgent, onEditComment }: any) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -768,7 +880,7 @@ function AccountGroupRow({ group, selectedEntries, onToggleSelect, onIgnore, onT
                     </TableHeader>
                     <TableBody>
                       {group.entries.map((entry: any) => (
-                        <TableRow key={entry.id} className={`group hover:bg-blue-50/10 border-slate-50 transition-colors ${entry.isUrgent ? 'bg-red-50/30' : ''}`}>
+                        <TableRow key={entry.id} className={`group hover:bg-blue-50/10 border-slate-50 transition-colors ${entry.isUrgent ? 'bg-red-50' : ''}`}>
                           <TableCell className="pl-4">
                             <Checkbox 
                               checked={selectedEntries.includes(entry.id)}
@@ -803,11 +915,20 @@ function AccountGroupRow({ group, selectedEntries, onToggleSelect, onIgnore, onT
                               <Button 
                                 variant="ghost" 
                                 size="icon" 
-                                className={`h-8 w-8 rounded-lg ${entry.isUrgent ? 'text-red-600 bg-red-50' : 'text-slate-300 hover:text-red-600 hover:bg-red-50'}`}
+                                className={`h-8 w-8 rounded-lg ${entry.isUrgent ? 'text-red-600 bg-red-100 border-red-200 border' : 'text-slate-300 hover:text-red-600 hover:bg-red-50'}`}
                                 onClick={() => onToggleUrgent(entry.id)}
                                 title="Marquer comme urgent"
                               >
                                 <AlertTriangle className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 text-slate-300 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
+                                onClick={() => onEditComment(entry.id, entry.comment)}
+                                title="Ajouter un commentaire"
+                              >
+                                <MessageSquare className="h-4 w-4" />
                               </Button>
                               <Button 
                                 variant="ghost" 
