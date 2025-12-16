@@ -7,8 +7,8 @@ import { mockClients, mockDocuments, mockReminders, mockAccountingEntries } from
 import { useRoute } from "wouter";
 import { 
   ArrowLeft, Mail, Phone, Building2, Calendar, 
-  AlertCircle, CheckCircle2, History, Send, Search, CheckSquare, MessageSquare, ZoomIn, Eye, AlertTriangle,
-  User, Link2, FileText, Trash2, Plus, Save
+  AlertCircle, CheckCircle2, History, Send, Search, CheckSquare, MessageSquare, ZoomIn, Eye, EyeOff, AlertTriangle,
+  User, Link2, FileText, Trash2, Plus, Save, RotateCcw
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
