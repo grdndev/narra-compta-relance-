@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Users, Mail, Settings, LogOut, Bell, Megaphone, Link2, Sparkles } from "lucide-react";
+import { LayoutDashboard, Users, Mail, Settings, LogOut, Bell, Megaphone, Link2, Sparkles, Building2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { 
@@ -20,10 +20,8 @@ export default function Layout({ children }: LayoutProps) {
 
   const navItems = [
     { href: "/", label: "Tableau de Bord", icon: LayoutDashboard },
-    { href: "/clients", label: "Clients & Relances", icon: Users },
+    { href: "/clients", label: "Relances Clients", icon: Users },
     { href: "/campaigns", label: "Campagnes", icon: Megaphone },
-    { href: "/connectors", label: "Connecteurs", icon: Link2 },
-    { href: "/templates", label: "Modèles", icon: Mail },
     { href: "/settings", label: "Paramètres", icon: Settings },
   ];
 

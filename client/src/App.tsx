@@ -7,9 +7,8 @@ import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import Clients from "@/pages/clients";
 import ClientDetail from "@/pages/client-detail";
-import Connectors from "@/pages/connectors";
-import Templates from "@/pages/templates";
 import Campaigns from "@/pages/campaigns";
+import Settings from "@/pages/settings";
 
 function Router() {
   return (
@@ -17,9 +16,8 @@ function Router() {
       <Route path="/" component={Dashboard} />
       <Route path="/clients" component={Clients} />
       <Route path="/clients/:id" component={ClientDetail} />
-      <Route path="/connectors" component={Connectors} />
-      <Route path="/templates" component={Templates} />
       <Route path="/campaigns" component={Campaigns} />
+      <Route path="/settings" component={Settings} />
       <Route component={NotFound} />
     </Switch>
   );
