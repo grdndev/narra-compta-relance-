@@ -40,6 +40,22 @@ export interface Campaign {
   openRate?: number;
 }
 
+export interface AccountingEntry {
+  id: string;
+  date: string;
+  label: string;
+  journal: 'ACH' | 'VTE' | 'BQ';
+  amount: number;
+  type: 'Debit' | 'Credit';
+  account: string;
+  accountLabel: string;
+  pieceRef?: string;
+  status: 'missing_doc' | 'validated' | 'pending';
+  comment?: string;
+  isUrgent?: boolean;
+  ignored?: boolean; // If user unchecks it (e.g. sent by email/wait 6 months)
+}
+
 export const mockClients: Client[] = [
   {
     id: '1',
@@ -140,4 +156,13 @@ export const mockCampaigns: Campaign[] = [
   { id: 'c1', name: 'Rappel Paiement CFE', status: 'sent', sentDate: '2023-12-10', recipientCount: 40, openRate: 82, targetSector: 'All' },
   { id: 'c2', name: 'Collecte TVA Trimestrielle', status: 'scheduled', sentDate: '2024-01-05', recipientCount: 15, targetSector: 'All' },
   { id: 'c3', name: 'Info Secteur BTP - Changement Taux', status: 'draft', recipientCount: 8, targetSector: 'BTP' },
+];
+
+export const mockAccountingEntries: AccountingEntry[] = [
+  { id: 'e1', date: '2023-10-15', label: 'FACTURE ORANGE', journal: 'ACH', amount: 45.90, type: 'Debit', account: '401ORANGE', accountLabel: 'Orange SA', status: 'missing_doc', isUrgent: false },
+  { id: 'e2', date: '2023-10-22', label: 'LEROY MERLIN MATERIAUX', journal: 'ACH', amount: 1250.00, type: 'Debit', account: '401LEROY', accountLabel: 'Leroy Merlin Pro', status: 'missing_doc', isUrgent: true, comment: "Gros montant" },
+  { id: 'e3', date: '2023-10-25', label: 'RESTAURANT LE GOURMET', journal: 'ACH', amount: 85.50, type: 'Debit', account: '401RESTO', accountLabel: 'Resto Le Gourmet', status: 'missing_doc' },
+  { id: 'e4', date: '2023-10-28', label: 'FACTURE EDF PRO', journal: 'ACH', amount: 312.45, type: 'Debit', account: '401EDF', accountLabel: 'EDF Entreprises', status: 'missing_doc' },
+  { id: 'e5', date: '2023-10-05', label: 'VENTE CLIENT X', journal: 'VTE', amount: 5000.00, type: 'Credit', account: '411CLIENTX', accountLabel: 'Client X SARL', status: 'missing_doc' },
+  { id: 'e6', date: '2023-10-12', label: 'PRESTATION CONSEIL', journal: 'VTE', amount: 1500.00, type: 'Credit', account: '411CONSEIL', accountLabel: 'Conseil & Co', status: 'missing_doc' },
 ];
