@@ -163,6 +163,15 @@ export default function ClientDetail() {
     }
   };
 
+  const handleBulkIgnore = () => {
+    setIgnoredEntries([...ignoredEntries, ...selectedEntries]);
+    setSelectedEntries([]);
+    toast({
+      title: "Écritures ignorées",
+      description: `${selectedEntries.length} écritures ont été ignorées.`,
+    });
+  };
+
   return (
     <Layout>
       <div className="space-y-8">
@@ -201,18 +210,42 @@ export default function ClientDetail() {
         </div>
 
         {/* Global Filters */}
-        <div className="flex items-center justify-end gap-2 bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-100 w-fit ml-auto mb-4">
-            <span className="text-sm font-medium text-slate-600">Montant min. :</span>
-            <div className="relative w-24">
-              <Input 
-                type="number" 
-                value={minAmount} 
-                onChange={(e) => setMinAmount(Number(e.target.value))}
-                className="h-8 rounded-lg pl-6 pr-2 text-right border-slate-200"
-                placeholder="0"
-              />
-              <span className="absolute left-2 top-1.5 text-slate-400 text-xs">€</span>
+        <div className="flex flex-col items-end gap-2 ml-auto mb-4 w-fit">
+            <div className="flex items-center justify-end gap-2 bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-100">
+                <span className="text-sm font-medium text-slate-600">Montant min. :</span>
+                <div className="relative w-24">
+                  <Input 
+                    type="number" 
+                    value={minAmount} 
+                    onChange={(e) => setMinAmount(Number(e.target.value))}
+                    className="h-8 rounded-lg pl-6 pr-2 text-right border-slate-200"
+                    placeholder="0"
+                  />
+                  <span className="absolute left-2 top-1.5 text-slate-400 text-xs">€</span>
+                </div>
             </div>
+            {selectedEntries.length > 0 && (
+              <div className="flex items-center gap-1 self-start mr-auto">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleBulkIgnore} 
+                  className="text-slate-400 hover:text-red-600 h-6 px-2 text-xs"
+                >
+                  <EyeOff className="h-3 w-3 mr-1.5" />
+                  Ignorer
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setSelectedEntries([])} 
+                  className="text-slate-400 hover:text-slate-600 h-6 px-2 text-xs"
+                >
+                  <RotateCcw className="h-3 w-3 mr-1.5" />
+                  Décocher
+                </Button>
+              </div>
+            )}
         </div>
 
         <Tabs defaultValue="synthesis" className="w-full">
