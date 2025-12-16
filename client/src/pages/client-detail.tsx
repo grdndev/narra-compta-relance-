@@ -29,6 +29,7 @@ export default function ClientDetail() {
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [minAmount, setMinAmount] = useState<number>(0);
   const [journalFilter, setJournalFilter] = useState<string>("ALL");
+  const [activeTab, setActiveTab] = useState("synthesis");
 
   const [entries, setEntries] = useState(mockAccountingEntries);
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
@@ -192,7 +193,18 @@ export default function ClientDetail() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-serif font-bold text-slate-900">{client.company}</h1>
+            <h1 className="text-3xl font-serif font-bold text-slate-900 flex items-center gap-3">
+              {client.company}
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-slate-400 hover:text-blue-600 hover:bg-blue-50 gap-2 font-sans font-medium text-sm ml-2" 
+                onClick={() => setActiveTab("informations")}
+              >
+                <AlertCircle className="h-5 w-5" />
+                Informations
+              </Button>
+            </h1>
             <div className="flex flex-wrap items-center gap-4 mt-2 text-slate-500 text-sm">
               <span className="flex items-center gap-1"><UsersIcon className="h-4 w-4" /> {client.name}</span>
               <span className="flex items-center gap-1"><Mail className="h-4 w-4" /> {client.email}</span>
@@ -273,7 +285,7 @@ export default function ClientDetail() {
             )}
         </div>
 
-        <Tabs defaultValue="synthesis" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4 rounded-2xl p-1 bg-white border border-slate-200 shadow-sm mb-6">
             <TabsTrigger value="synthesis" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">Synthèse</TabsTrigger>
             <TabsTrigger value="achats-ventes" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">Achats / Ventes</TabsTrigger>
