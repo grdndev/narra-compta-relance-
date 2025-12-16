@@ -42,6 +42,7 @@ export interface Campaign {
 
 export interface AccountingEntry {
   id: string;
+  clientId: string; // Added clientId
   date: string;
   label: string;
   journal: 'ACH' | 'VTE' | 'BQ';
@@ -159,10 +160,15 @@ export const mockCampaigns: Campaign[] = [
 ];
 
 export const mockAccountingEntries: AccountingEntry[] = [
-  { id: 'e1', date: '2023-10-15', label: 'FACTURE ORANGE', journal: 'ACH', amount: 45.90, type: 'Debit', account: '401ORANGE', accountLabel: 'Orange SA', status: 'missing_doc', isUrgent: false },
-  { id: 'e2', date: '2023-10-22', label: 'LEROY MERLIN MATERIAUX', journal: 'ACH', amount: 1250.00, type: 'Debit', account: '401LEROY', accountLabel: 'Leroy Merlin Pro', status: 'missing_doc', isUrgent: true, comment: "Gros montant" },
-  { id: 'e3', date: '2023-10-25', label: 'RESTAURANT LE GOURMET', journal: 'ACH', amount: 85.50, type: 'Debit', account: '401RESTO', accountLabel: 'Resto Le Gourmet', status: 'missing_doc' },
-  { id: 'e4', date: '2023-10-28', label: 'FACTURE EDF PRO', journal: 'ACH', amount: 312.45, type: 'Debit', account: '401EDF', accountLabel: 'EDF Entreprises', status: 'missing_doc' },
-  { id: 'e5', date: '2023-10-05', label: 'VENTE CLIENT X', journal: 'VTE', amount: 5000.00, type: 'Credit', account: '411CLIENTX', accountLabel: 'Client X SARL', status: 'missing_doc' },
-  { id: 'e6', date: '2023-10-12', label: 'PRESTATION CONSEIL', journal: 'VTE', amount: 1500.00, type: 'Credit', account: '411CONSEIL', accountLabel: 'Conseil & Co', status: 'missing_doc' },
+  { id: 'e1', clientId: '1', date: '2023-10-15', label: 'FACTURE ORANGE', journal: 'ACH', amount: 45.90, type: 'Debit', account: '401ORANGE', accountLabel: 'Orange SA', status: 'missing_doc', isUrgent: false },
+  { id: 'e2', clientId: '3', date: '2023-10-22', label: 'LEROY MERLIN MATERIAUX', journal: 'ACH', amount: 1250.00, type: 'Debit', account: '401LEROY', accountLabel: 'Leroy Merlin Pro', status: 'missing_doc', isUrgent: true, comment: "Gros montant" },
+  { id: 'e3', clientId: '2', date: '2023-10-25', label: 'RESTAURANT LE GOURMET', journal: 'ACH', amount: 85.50, type: 'Debit', account: '401RESTO', accountLabel: 'Resto Le Gourmet', status: 'missing_doc' },
+  { id: 'e4', clientId: '1', date: '2023-10-28', label: 'FACTURE EDF PRO', journal: 'ACH', amount: 312.45, type: 'Debit', account: '401EDF', accountLabel: 'EDF Entreprises', status: 'missing_doc' },
+  { id: 'e5', clientId: '4', date: '2023-10-05', label: 'VENTE CLIENT X', journal: 'VTE', amount: 5000.00, type: 'Credit', account: '411CLIENTX', accountLabel: 'Client X SARL', status: 'missing_doc' },
+  { id: 'e6', clientId: '1', date: '2023-10-12', label: 'PRESTATION CONSEIL', journal: 'VTE', amount: 1500.00, type: 'Credit', account: '411CONSEIL', accountLabel: 'Conseil & Co', status: 'missing_doc' },
+  
+  // Adding more entries for full testing
+  { id: 'e7', clientId: '3', date: '2023-11-01', label: 'KILOUTOU', journal: 'ACH', amount: 450.00, type: 'Debit', account: '401KILOUTOU', accountLabel: 'Kiloutou', status: 'missing_doc' },
+  { id: 'e8', clientId: '3', date: '2023-11-05', label: 'TOTAL ENERGIES', journal: 'ACH', amount: 120.00, type: 'Debit', account: '401TOTAL', accountLabel: 'Total Energies', status: 'missing_doc' },
+  { id: 'e9', clientId: '2', date: '2023-11-10', label: 'METRO CASH CARRY', journal: 'ACH', amount: 840.20, type: 'Debit', account: '401METRO', accountLabel: 'Metro', status: 'missing_doc', isUrgent: true },
 ];

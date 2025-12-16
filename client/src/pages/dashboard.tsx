@@ -1,10 +1,13 @@
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { mockClients, mockDocuments, mockReminders } from "@/lib/mockData";
-import { ArrowUpRight, AlertCircle, Filter, Activity, Clock } from "lucide-react";
+import { mockClients, mockDocuments, mockReminders, mockAccountingEntries } from "@/lib/mockData";
+import { ArrowUpRight, AlertCircle, Filter, Activity, Clock, ChevronRight } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Link } from "wouter";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 const weeklyData = [
   { name: 'Lun', sent: 4, opened: 2 },
@@ -35,6 +38,12 @@ export default function Dashboard() {
   const remindersSent = mockReminders.filter(r => 
     (r.status === 'sent' || r.status === 'opened') && filteredClients.map(c => c.id).includes(r.clientId)
   ).length;
+
+  // Identify clients needing attention (urgent entries or high pending docs)
+  const urgentClients = filteredClients.filter(client => {
+    const clientEntries = mockAccountingEntries.filter(e => e.clientId === client.id && e.isUrgent);
+    return client.pendingDocs > 2 || clientEntries.length > 0;
+  }).slice(0, 3); // Top 3
 
   // Sector Data for Pie Chart
   const sectorData = Array.from(new Set(mockClients.map(c => c.sector))).map(sector => ({
@@ -69,6 +78,55 @@ export default function Dashboard() {
              </div>
           </div>
         </div>
+
+        {/* Clients Needing Attention Section */}
+        {urgentClients.length > 0 && (
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                <AlertCircle className="h-5 w-5 text-red-500" />
+                Clients nécessitant une attention
+              </h2>
+            </div>
+            <div className="grid gap-4 md:grid-cols-3">
+              {urgentClients.map(client => {
+                 const urgentCount = mockAccountingEntries.filter(e => e.clientId === client.id && e.isUrgent).length;
+                 return (
+                  <Link key={client.id} href={`/clients/${client.id}`}>
+                    <Card className="rounded-3xl border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-all cursor-pointer group bg-gradient-to-br from-red-50/30 to-white">
+                      <CardContent className="p-6">
+                        <div className="flex justify-between items-start mb-4">
+                           <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center shadow-sm text-lg font-bold text-slate-700 group-hover:bg-red-500 group-hover:text-white transition-colors">
+                              {client.company.charAt(0)}
+                           </div>
+                           <Badge variant="destructive" className="bg-red-100 text-red-600 hover:bg-red-200 border-none">
+                              Action requise
+                           </Badge>
+                        </div>
+                        <h3 className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors truncate">{client.company}</h3>
+                        <div className="flex flex-col gap-1 mt-2 text-sm text-slate-500">
+                           {client.pendingDocs > 0 && (
+                             <span className="flex items-center gap-1.5 text-red-600 font-medium">
+                               <AlertCircle className="h-3.5 w-3.5" /> {client.pendingDocs} docs manquants
+                             </span>
+                           )}
+                           {urgentCount > 0 && (
+                             <span className="flex items-center gap-1.5 text-orange-600 font-medium">
+                               <Clock className="h-3.5 w-3.5" /> {urgentCount} écritures urgentes
+                             </span>
+                           )}
+                        </div>
+                        <div className="mt-4 flex items-center text-sm font-medium text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity transform translate-x-[-10px] group-hover:translate-x-0 duration-300">
+                          Gérer le dossier <ChevronRight className="h-4 w-4 ml-1" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                 );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* KPI Cards */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
