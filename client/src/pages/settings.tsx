@@ -13,6 +13,7 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "@/components/theme-provider";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from "@/components/ui/select";
@@ -267,52 +268,25 @@ Votre Expert-Comptable`}
                   Mode Sombre
                 </CardTitle>
                 <CardDescription>
-                  Choisissez l'apparence de l'interface.
+                  Activez le mode sombre pour réduire la fatigue visuelle.
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-3 gap-4">
-                  <button
-                    onClick={() => setTheme("light")}
-                    className={`flex flex-col items-center justify-between rounded-xl border-2 p-4 hover:bg-slate-50 transition-all ${
-                      theme === "light" ? "border-blue-500 bg-blue-50/50" : "border-slate-200 bg-transparent"
-                    }`}
-                  >
-                    <div className="flex items-center justify-center w-full h-24 bg-slate-100 rounded-lg mb-4 border border-slate-200 overflow-hidden relative">
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <Sun className="h-8 w-8 text-orange-500" />
-                      </div>
+                <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
+                  <div className="flex items-center gap-4">
+                    <div className="h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-600">
+                      {theme === 'dark' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
                     </div>
-                    <span className="font-semibold text-slate-900">Clair</span>
-                  </button>
-                  
-                  <button
-                    onClick={() => setTheme("dark")}
-                    className={`flex flex-col items-center justify-between rounded-xl border-2 p-4 hover:bg-slate-800 hover:text-white transition-all ${
-                      theme === "dark" ? "border-blue-500 bg-slate-900 text-white" : "border-slate-200 bg-transparent"
-                    }`}
-                  >
-                    <div className="flex items-center justify-center w-full h-24 bg-slate-900 rounded-lg mb-4 border border-slate-700 overflow-hidden relative">
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <Moon className="h-8 w-8 text-blue-400" />
-                      </div>
+                    <div>
+                      <Label htmlFor="dark-mode" className="font-bold text-slate-900 block cursor-pointer">Mode Sombre</Label>
+                      <p className="text-sm text-slate-500">Basculer entre le thème clair et sombre</p>
                     </div>
-                    <span className="font-semibold">Sombre</span>
-                  </button>
-
-                  <button
-                    onClick={() => setTheme("system")}
-                    className={`flex flex-col items-center justify-between rounded-xl border-2 p-4 hover:bg-slate-50 transition-all ${
-                      theme === "system" ? "border-blue-500 bg-blue-50/50" : "border-slate-200 bg-transparent"
-                    }`}
-                  >
-                    <div className="flex items-center justify-center w-full h-24 bg-gradient-to-br from-slate-100 to-slate-900 rounded-lg mb-4 border border-slate-200 overflow-hidden relative">
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <Laptop className="h-8 w-8 text-slate-500 mix-blend-difference" />
-                      </div>
-                    </div>
-                    <span className="font-semibold text-slate-900">Système</span>
-                  </button>
+                  </div>
+                  <Switch 
+                    id="dark-mode"
+                    checked={theme === 'dark'}
+                    onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+                  />
                 </div>
               </CardContent>
             </Card>
