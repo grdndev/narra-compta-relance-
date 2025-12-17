@@ -244,7 +244,7 @@ export default function ClientDetail() {
                       onClick={() => setShowIgnored(!showIgnored)}
                       className={`h-8 px-3 text-xs font-medium border-slate-200 ${showIgnored ? "bg-slate-900 text-white hover:bg-slate-800" : "text-slate-600 hover:bg-slate-50"}`}
                     >
-                      IGG <span className="ml-1.5 bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded-full text-[10px]">{ignoredEntries.length}</span>
+                      IGN <span className="ml-1.5 bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded-full text-[10px]">{ignoredEntries.length}</span>
                     </Button>
                     <div className="w-px h-4 bg-slate-200 mx-2" />
                   </>
