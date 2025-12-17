@@ -7,10 +7,11 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Building2, User, Phone, Mail, Link2, FileText, CheckCircle2, 
-  RefreshCw, Plus, Trash2, Save 
+  RefreshCw, Plus, Trash2, Save, Moon, Sun, Laptop
 } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useTheme } from "@/components/theme-provider";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
@@ -18,6 +19,7 @@ import {
 
 export default function Settings() {
   const { toast } = useToast();
+  const { theme, setTheme } = useTheme();
 
   const handleSave = () => {
     toast({
@@ -36,7 +38,7 @@ export default function Settings() {
         </div>
 
         <Tabs defaultValue="cabinet" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 rounded-2xl p-1 bg-white border border-slate-200 shadow-sm mb-8">
+          <TabsList className="grid w-full grid-cols-4 rounded-2xl p-1 bg-white border border-slate-200 shadow-sm mb-8">
             <TabsTrigger value="cabinet" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 gap-2">
               <Building2 className="h-4 w-4" /> Mon Cabinet
             </TabsTrigger>
@@ -44,7 +46,10 @@ export default function Settings() {
               <Link2 className="h-4 w-4" /> Connecteurs
             </TabsTrigger>
             <TabsTrigger value="modeles" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 gap-2">
-              <FileText className="h-4 w-4" /> Modèles de Relance
+              <FileText className="h-4 w-4" /> Modèles
+            </TabsTrigger>
+            <TabsTrigger value="apparence" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 gap-2">
+              <Moon className="h-4 w-4" /> Apparence
             </TabsTrigger>
           </TabsList>
 
@@ -247,6 +252,67 @@ Votre Expert-Comptable`}
                     <Save className="h-4 w-4 mr-2" />
                     Enregistrer le modèle
                   </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          {/* =======================
+              ONGLET APPARENCE
+             ======================= */}
+          <TabsContent value="apparence" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <Card className="border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] rounded-3xl">
+              <CardHeader>
+                <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                  <Moon className="h-5 w-5 text-blue-500" />
+                  Mode Sombre
+                </CardTitle>
+                <CardDescription>
+                  Choisissez l'apparence de l'interface.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-3 gap-4">
+                  <button
+                    onClick={() => setTheme("light")}
+                    className={`flex flex-col items-center justify-between rounded-xl border-2 p-4 hover:bg-slate-50 transition-all ${
+                      theme === "light" ? "border-blue-500 bg-blue-50/50" : "border-slate-200 bg-transparent"
+                    }`}
+                  >
+                    <div className="flex items-center justify-center w-full h-24 bg-slate-100 rounded-lg mb-4 border border-slate-200 overflow-hidden relative">
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Sun className="h-8 w-8 text-orange-500" />
+                      </div>
+                    </div>
+                    <span className="font-semibold text-slate-900">Clair</span>
+                  </button>
+                  
+                  <button
+                    onClick={() => setTheme("dark")}
+                    className={`flex flex-col items-center justify-between rounded-xl border-2 p-4 hover:bg-slate-800 hover:text-white transition-all ${
+                      theme === "dark" ? "border-blue-500 bg-slate-900 text-white" : "border-slate-200 bg-transparent"
+                    }`}
+                  >
+                    <div className="flex items-center justify-center w-full h-24 bg-slate-900 rounded-lg mb-4 border border-slate-700 overflow-hidden relative">
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Moon className="h-8 w-8 text-blue-400" />
+                      </div>
+                    </div>
+                    <span className="font-semibold">Sombre</span>
+                  </button>
+
+                  <button
+                    onClick={() => setTheme("system")}
+                    className={`flex flex-col items-center justify-between rounded-xl border-2 p-4 hover:bg-slate-50 transition-all ${
+                      theme === "system" ? "border-blue-500 bg-blue-50/50" : "border-slate-200 bg-transparent"
+                    }`}
+                  >
+                    <div className="flex items-center justify-center w-full h-24 bg-gradient-to-br from-slate-100 to-slate-900 rounded-lg mb-4 border border-slate-200 overflow-hidden relative">
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Laptop className="h-8 w-8 text-slate-500 mix-blend-difference" />
+                      </div>
+                    </div>
+                    <span className="font-semibold text-slate-900">Système</span>
+                  </button>
                 </div>
               </CardContent>
             </Card>
