@@ -1,7 +1,7 @@
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { mockClients, mockDocuments, mockReminders, mockAccountingEntries, mockCampaigns } from "@/lib/mockData";
-import { ArrowUpRight, AlertCircle, Filter, Activity, Clock, ChevronRight, Calendar as CalendarIcon, Mail, Send, CheckCircle2, XCircle } from "lucide-react";
+import { ArrowUpRight, AlertCircle, Filter, Activity, Clock, ChevronRight, Calendar as CalendarIcon, Mail, Send, XCircle, AlertTriangle, ArrowUpDown } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -14,22 +14,12 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { addDays, format, subDays, isWithinInterval, parseISO } from "date-fns";
+import { addDays, format, subDays, isWithinInterval, parseISO, eachDayOfInterval, isSameDay } from "date-fns";
 import { fr } from "date-fns/locale";
 import { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
-
-const weeklyData = [
-  { name: 'Lun', sent: 4, opened: 2 },
-  { name: 'Mar', sent: 7, opened: 4 },
-  { name: 'Mer', sent: 5, opened: 3 },
-  { name: 'Jeu', sent: 12, opened: 8 },
-  { name: 'Ven', sent: 9, opened: 6 },
-  { name: 'Sam', sent: 2, opened: 1 },
-  { name: 'Dim', sent: 0, opened: 0 },
-];
 
 const COLORS = ['hsl(225 73% 57%)', 'hsl(48 96% 53%)', 'hsl(150 60% 45%)', 'hsl(340 80% 65%)', 'hsl(260 60% 65%)'];
 
@@ -47,6 +37,7 @@ export default function Dashboard() {
   const [missingDocsOpen, setMissingDocsOpen] = useState(false);
   const [remindersOpen, setRemindersOpen] = useState(false);
   const [openRateOpen, setOpenRateOpen] = useState(false);
+  const [attentionClientsOpen, setAttentionClientsOpen] = useState(false); // New dialog for Attention Clients
 
   // Email Modal State (inside Missing Docs)
   const [emailModalOpen, setEmailModalOpen] = useState(false);
@@ -55,16 +46,16 @@ export default function Dashboard() {
 
   // Filtering Logic
   const isInDateRange = (dateString: string) => {
-    if (!date?.from || !date?.to) return true;
+    if (!date?.from) return false;
+    // For single date selection, assume "to" is same as "from" if undefined, or handle open ended
+    // But react-day-picker usually gives range.
+    const end = date.to || date.from;
     const d = parseISO(dateString);
-    return isWithinInterval(d, { start: date.from, end: date.to });
+    return isWithinInterval(d, { start: date.from, end: end });
   };
 
   const filteredClients = mockClients.filter(c => {
     const sectorMatch = sectorFilter === "All" || c.sector === sectorFilter;
-    // For clients, we might filter by lastContact if we want to show "active in period", 
-    // but typically "Active Clients" means status='active'. 
-    // Let's stick to status='active' AND sector match.
     return sectorMatch && c.status === 'active';
   });
 
@@ -73,8 +64,7 @@ export default function Dashboard() {
   const filteredDocs = mockDocuments.filter(d => 
     d.status === 'missing' && 
     filteredClients.map(c => c.id).includes(d.clientId) &&
-    // Check due date or just assume all missing are relevant? 
-    // Let's filter by due date roughly falling in range or recently overdue
+    // Show missing documents that were due in the period or are overdue
     (isInDateRange(d.dueDate) || new Date(d.dueDate) < new Date()) 
   );
   
@@ -88,21 +78,50 @@ export default function Dashboard() {
 
   const remindersSent = filteredReminders.length;
 
+  // Generate dynamic chart data based on date range
+  const generateChartData = () => {
+    if (!date?.from) return [];
+    
+    const end = date.to || date.from;
+    const days = eachDayOfInterval({ start: date.from, end: end });
+    
+    // If range is large (> 14 days), maybe group by week? For now, let's just show days or limit
+    // If range is > 30 days, we might want to aggregate. But let's keep it simple for now.
+    
+    return days.map(d => {
+      const dayReminders = filteredReminders.filter(r => isSameDay(parseISO(r.date), d));
+      return {
+        name: format(d, 'EEE d', { locale: fr }),
+        sent: dayReminders.length,
+        opened: dayReminders.filter(r => r.status === 'opened').length
+      };
+    });
+  };
+
+  const chartData = generateChartData();
+
   // Open Rate Logic
   const campaignsInRange = mockCampaigns.filter(c => 
     c.status === 'sent' && c.sentDate && isInDateRange(c.sentDate)
   );
+  
+  // If no campaigns in range, maybe we shouldn't show 0? Or maybe show global average?
+  // Let's show calculated if possible, or 0 if no data in period (which is accurate)
   const avgOpenRate = campaignsInRange.length > 0 
     ? Math.round(campaignsInRange.reduce((acc, c) => acc + (c.openRate || 0), 0) / campaignsInRange.length) 
-    : 68; // Default fallback
+    : 0; 
 
   // Identify clients needing attention (Top 10)
   const urgentClients = filteredClients.filter(client => {
     const clientEntries = mockAccountingEntries.filter(e => e.clientId === client.id && e.isUrgent);
     return client.pendingDocs > 0 || clientEntries.length > 0;
   })
-  .sort((a, b) => b.pendingDocs - a.pendingDocs)
+  .sort((a, b) => b.pendingDocs - a.pendingDocs) // Default sort by urgency
   .slice(0, 10);
+
+  // Sorted list for Dialog (by Open Rate)
+  const clientsSortedByOpenRate = [...urgentClients].sort((a, b) => (a.openRate || 0) - (b.openRate || 0));
+
 
   // Sector Data for Pie Chart
   const sectorData = Array.from(new Set(mockClients.map(c => c.sector))).map(sector => ({
@@ -159,7 +178,7 @@ export default function Dashboard() {
                     )}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 rounded-2xl" align="end">
+                <PopoverContent className="w-auto p-0 rounded-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl" align="end">
                   <Calendar
                     initialFocus
                     mode="range"
@@ -167,6 +186,8 @@ export default function Dashboard() {
                     selected={date}
                     onSelect={setDate}
                     numberOfMonths={2}
+                    locale={fr}
+                    className="p-3"
                   />
                 </PopoverContent>
               </Popover>
@@ -273,30 +294,37 @@ export default function Dashboard() {
             <CardContent className="pl-2">
               <div className="h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={weeklyData} barGap={8}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" className="dark:stroke-slate-800" />
-                    <XAxis 
-                      dataKey="name" 
-                      stroke="#94a3b8" 
-                      fontSize={12} 
-                      tickLine={false} 
-                      axisLine={false} 
-                      dy={10}
-                    />
-                    <YAxis 
-                      stroke="#94a3b8" 
-                      fontSize={12} 
-                      tickLine={false} 
-                      axisLine={false} 
-                      tickFormatter={(value) => `${value}`} 
-                    />
-                    <Tooltip 
-                      cursor={{fill: 'transparent', radius: 8}}
-                      contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}}
-                    />
-                    <Bar dataKey="sent" name="Envoyés" fill="hsl(225 73% 57%)" radius={[6, 6, 6, 6]} barSize={20} />
-                    <Bar dataKey="opened" name="Ouverts" fill="hsl(48 96% 53%)" radius={[6, 6, 6, 6]} barSize={20} />
-                  </BarChart>
+                  {chartData.length > 0 ? (
+                    <BarChart data={chartData} barGap={8}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" className="dark:stroke-slate-800" />
+                      <XAxis 
+                        dataKey="name" 
+                        stroke="#94a3b8" 
+                        fontSize={12} 
+                        tickLine={false} 
+                        axisLine={false} 
+                        dy={10}
+                      />
+                      <YAxis 
+                        stroke="#94a3b8" 
+                        fontSize={12} 
+                        tickLine={false} 
+                        axisLine={false} 
+                        tickFormatter={(value) => `${value}`} 
+                        allowDecimals={false}
+                      />
+                      <Tooltip 
+                        cursor={{fill: 'transparent', radius: 8}}
+                        contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}}
+                      />
+                      <Bar dataKey="sent" name="Envoyés" fill="hsl(225 73% 57%)" radius={[6, 6, 6, 6]} barSize={20} />
+                      <Bar dataKey="opened" name="Ouverts" fill="hsl(48 96% 53%)" radius={[6, 6, 6, 6]} barSize={20} />
+                    </BarChart>
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-slate-400">
+                      Aucune donnée sur cette période
+                    </div>
+                  )}
                 </ResponsiveContainer>
               </div>
             </CardContent>
@@ -339,14 +367,22 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        {/* Clients Needing Attention List - Top 10 */}
+        {/* Clients Needing Attention List */}
         {urgentClients.length > 0 && (
-          <Card className="rounded-3xl border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] animate-in fade-in slide-in-from-bottom-4 duration-500 dark:bg-slate-900">
-            <CardHeader>
-               <CardTitle className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                 <AlertCircle className="h-5 w-5 text-red-500" />
-                 Clients nécessitant une attention (Top 10)
-               </CardTitle>
+          <Card 
+            className="rounded-3xl border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] animate-in fade-in slide-in-from-bottom-4 duration-500 dark:bg-slate-900"
+          >
+            <CardHeader className="cursor-pointer hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors rounded-t-3xl" onClick={() => setAttentionClientsOpen(true)}>
+               <div className="flex items-center justify-between">
+                 <CardTitle className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                   <AlertCircle className="h-5 w-5 text-red-500" />
+                   Clients nécessitant une attention
+                 </CardTitle>
+                 <Badge variant="destructive" className="px-3 py-1 flex items-center gap-1.5 bg-red-100 text-red-700 hover:bg-red-200 border-none dark:bg-red-900/30 dark:text-red-400">
+                    <AlertTriangle className="h-3.5 w-3.5" />
+                    Top 10
+                 </Badge>
+               </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -367,14 +403,21 @@ export default function Dashboard() {
                       </div>
                       
                       <div className="flex items-center gap-8">
+                         <div className="text-right">
+                           <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Taux d'ouv.</p>
+                           <p className={`text-lg font-bold ${client.openRate && client.openRate > 50 ? 'text-green-600 dark:text-green-400' : 'text-orange-500 dark:text-orange-400'}`}>
+                             {client.openRate || 0}%
+                           </p>
+                         </div>
+
                         <div className="text-right">
-                          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Pièces manquantes</p>
+                          <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Pièces manq.</p>
                           <p className="text-lg font-bold text-red-600 dark:text-red-400">{client.pendingDocs}</p>
                         </div>
                         <div className="text-right w-32">
-                          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Montant total</p>
+                          <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Montant</p>
                           <p className="text-lg font-bold text-slate-900 dark:text-white">
-                            {totalAmount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+                            {totalAmount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
                           </p>
                         </div>
                         <Link href={`/clients/${client.id}`}>
@@ -532,6 +575,11 @@ export default function Dashboard() {
                      </TableRow>
                     );
                  })}
+                 {filteredReminders.length === 0 && (
+                   <TableRow>
+                     <TableCell colSpan={4} className="text-center py-8 text-slate-500 dark:text-slate-400">Aucune relance sur cette période.</TableCell>
+                   </TableRow>
+                 )}
                </TableBody>
              </Table>
           </div>
@@ -583,6 +631,61 @@ export default function Dashboard() {
              </div>
           </div>
         </DialogContent>
+      </Dialog>
+
+      {/* Dialog: Attention Clients (Sorted by Open Rate) */}
+      <Dialog open={attentionClientsOpen} onOpenChange={setAttentionClientsOpen}>
+         <DialogContent className="max-w-4xl rounded-3xl dark:bg-slate-900 dark:border-slate-800">
+           <DialogHeader>
+             <DialogTitle className="text-2xl font-bold dark:text-white flex items-center gap-2">
+               <AlertCircle className="h-6 w-6 text-red-500" />
+               Clients nécessitant une attention
+             </DialogTitle>
+             <DialogDescription className="dark:text-slate-400">Classement par taux d'ouverture (du plus faible au plus fort).</DialogDescription>
+           </DialogHeader>
+           <div className="max-h-[600px] overflow-auto">
+             <Table>
+               <TableHeader>
+                 <TableRow className="dark:border-slate-800 hover:bg-transparent">
+                   <TableHead className="dark:text-slate-400 w-16">Rang</TableHead>
+                   <TableHead className="dark:text-slate-400">Client</TableHead>
+                   <TableHead className="dark:text-slate-400 text-center flex items-center justify-center gap-2">
+                      Taux d'ouverture
+                      <ArrowUpDown className="h-3 w-3" />
+                   </TableHead>
+                   <TableHead className="dark:text-slate-400 text-center">Pièces Manquantes</TableHead>
+                   <TableHead className="dark:text-slate-400 text-right">Actions</TableHead>
+                 </TableRow>
+               </TableHeader>
+               <TableBody>
+                 {clientsSortedByOpenRate.map((client, index) => (
+                   <TableRow key={client.id} className="dark:border-slate-800">
+                     <TableCell className="font-bold text-slate-500 dark:text-slate-400">#{index + 1}</TableCell>
+                     <TableCell className="font-medium dark:text-white">
+                        <div>{client.company}</div>
+                        <div className="text-xs text-slate-400">{client.name}</div>
+                     </TableCell>
+                     <TableCell className="text-center">
+                        <Badge variant="outline" className={`
+                          ${(client.openRate || 0) < 50 ? 'bg-red-50 text-red-600 border-red-100 dark:bg-red-900/20 dark:text-red-400 dark:border-red-900/50' : 'bg-green-50 text-green-600 border-green-100 dark:bg-green-900/20 dark:text-green-400 dark:border-green-900/50'}
+                        `}>
+                          {client.openRate || 0}%
+                        </Badge>
+                     </TableCell>
+                     <TableCell className="text-center font-bold dark:text-slate-300">{client.pendingDocs}</TableCell>
+                     <TableCell className="text-right">
+                        <Link href={`/clients/${client.id}`}>
+                           <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                             <ChevronRight className="h-4 w-4" />
+                           </Button>
+                        </Link>
+                     </TableCell>
+                   </TableRow>
+                 ))}
+               </TableBody>
+             </Table>
+           </div>
+         </DialogContent>
       </Dialog>
 
       {/* Nested Dialog: Edit Email */}

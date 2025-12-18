@@ -1,3 +1,8 @@
+import { subDays, format } from "date-fns";
+
+const today = new Date();
+const formatDate = (date: Date) => format(date, 'yyyy-MM-dd');
+
 export interface Contact {
   id: string;
   name: string;
@@ -21,6 +26,7 @@ export interface Client {
   lastContact: string;
   pendingDocs: number;
   totalDocs: number;
+  openRate: number; // Added openRate
   
   // New detailed fields
   legalForm?: string;
@@ -87,9 +93,10 @@ export const mockClients: Client[] = [
     manager: 'Sarah L.',
     sector: 'Services',
     status: 'active',
-    lastContact: '2023-11-15',
+    lastContact: formatDate(subDays(today, 2)),
     pendingDocs: 3,
     totalDocs: 45,
+    openRate: 85,
     legalForm: 'SAS',
     ape: '6201Z',
     creationDate: '2018-03-12',
@@ -109,9 +116,10 @@ export const mockClients: Client[] = [
     manager: 'Marc D.',
     sector: 'Restauration',
     status: 'active',
-    lastContact: '2023-11-20',
+    lastContact: formatDate(subDays(today, 1)),
     pendingDocs: 1,
     totalDocs: 28,
+    openRate: 45,
   },
   {
     id: '3',
@@ -123,9 +131,10 @@ export const mockClients: Client[] = [
     manager: 'Sarah L.',
     sector: 'BTP',
     status: 'active',
-    lastContact: '2023-10-30',
+    lastContact: formatDate(subDays(today, 5)),
     pendingDocs: 5,
     totalDocs: 120,
+    openRate: 20,
   },
   {
     id: '4',
@@ -137,9 +146,10 @@ export const mockClients: Client[] = [
     manager: 'Marc D.',
     sector: 'Services',
     status: 'active',
-    lastContact: '2023-11-22',
+    lastContact: formatDate(subDays(today, 10)),
     pendingDocs: 0,
     totalDocs: 15,
+    openRate: 92,
   },
   {
     id: '5',
@@ -151,9 +161,10 @@ export const mockClients: Client[] = [
     manager: 'Sarah L.',
     sector: 'Santé',
     status: 'active',
-    lastContact: '2023-11-25',
+    lastContact: formatDate(subDays(today, 3)),
     pendingDocs: 2,
     totalDocs: 30,
+    openRate: 60,
   },
   {
     id: '6',
@@ -165,57 +176,60 @@ export const mockClients: Client[] = [
     manager: 'Marc D.',
     sector: 'Commerce',
     status: 'active',
-    lastContact: '2023-11-18',
+    lastContact: formatDate(subDays(today, 1)),
     pendingDocs: 4,
     totalDocs: 50,
+    openRate: 75,
   }
 ];
 
 export const mockDocuments: Document[] = [
-  { id: 'd1', clientId: '1', name: 'Facture Orange Octobre', type: 'Facture', status: 'missing', dueDate: '2023-11-30', accountCode: '401' },
-  { id: 'd2', clientId: '1', name: 'Relevé Bancaire Septembre', type: 'Relevé', status: 'missing', dueDate: '2023-10-31', accountCode: '512' },
-  { id: 'd3', clientId: '1', name: 'TVA T3 2023', type: 'Autre', status: 'received', dueDate: '2023-10-20' },
-  { id: 'd4', clientId: '1', name: 'Facture EDF', type: 'Facture', status: 'missing', dueDate: '2023-11-15', accountCode: '401' },
+  { id: 'd1', clientId: '1', name: 'Facture Orange Octobre', type: 'Facture', status: 'missing', dueDate: formatDate(subDays(today, 2)), accountCode: '401' },
+  { id: 'd2', clientId: '1', name: 'Relevé Bancaire Septembre', type: 'Relevé', status: 'missing', dueDate: formatDate(subDays(today, 35)), accountCode: '512' },
+  { id: 'd3', clientId: '1', name: 'TVA T3 2023', type: 'Autre', status: 'received', dueDate: formatDate(subDays(today, 40)) },
+  { id: 'd4', clientId: '1', name: 'Facture EDF', type: 'Facture', status: 'missing', dueDate: formatDate(subDays(today, 1)), accountCode: '401' },
   
-  { id: 'd5', clientId: '2', name: 'Justificatif URSSAF', type: 'Autre', status: 'missing', dueDate: '2023-11-05', accountCode: '431' },
+  { id: 'd5', clientId: '2', name: 'Justificatif URSSAF', type: 'Autre', status: 'missing', dueDate: formatDate(subDays(today, 5)), accountCode: '431' },
   
-  { id: 'd6', clientId: '3', name: 'Facture Matériaux Bois', type: 'Facture', status: 'missing', dueDate: '2023-11-10', accountCode: '401' },
-  { id: 'd7', clientId: '3', name: 'Facture Location Engin', type: 'Facture', status: 'missing', dueDate: '2023-11-12', accountCode: '401' },
-  { id: 'd8', clientId: '3', name: 'Relevé Octobre', type: 'Relevé', status: 'missing', dueDate: '2023-11-30', accountCode: '512' },
-  { id: 'd9', clientId: '3', name: 'Facture Carburant', type: 'Facture', status: 'missing', dueDate: '2023-11-25', accountCode: '401' },
-  { id: 'd10', clientId: '3', name: 'Note de Frais Octobre', type: 'Autre', status: 'missing', dueDate: '2023-11-30', accountCode: '471' },
+  { id: 'd6', clientId: '3', name: 'Facture Matériaux Bois', type: 'Facture', status: 'missing', dueDate: formatDate(subDays(today, 1)), accountCode: '401' },
+  { id: 'd7', clientId: '3', name: 'Facture Location Engin', type: 'Facture', status: 'missing', dueDate: formatDate(subDays(today, 2)), accountCode: '401' },
+  { id: 'd8', clientId: '3', name: 'Relevé Octobre', type: 'Relevé', status: 'missing', dueDate: formatDate(subDays(today, 3)), accountCode: '512' },
+  { id: 'd9', clientId: '3', name: 'Facture Carburant', type: 'Facture', status: 'missing', dueDate: formatDate(subDays(today, 1)), accountCode: '401' },
+  { id: 'd10', clientId: '3', name: 'Note de Frais Octobre', type: 'Autre', status: 'missing', dueDate: formatDate(subDays(today, 4)), accountCode: '471' },
 ];
 
 export const mockReminders: Reminder[] = [
-  { id: 'r1', clientId: '1', date: '2023-11-15', type: 'automatic', status: 'opened', subject: 'Rappel : Documents manquants' },
-  { id: 'r2', clientId: '3', date: '2023-10-30', type: 'email', status: 'sent', subject: 'Relance urgente - Clôture' },
-  { id: 'r3', clientId: '2', date: '2023-11-20', type: 'automatic', status: 'sent', subject: 'Vos documents comptables' },
+  { id: 'r1', clientId: '1', date: formatDate(subDays(today, 1)), type: 'automatic', status: 'opened', subject: 'Rappel : Documents manquants' },
+  { id: 'r2', clientId: '3', date: formatDate(subDays(today, 2)), type: 'email', status: 'sent', subject: 'Relance urgente - Clôture' },
+  { id: 'r3', clientId: '2', date: formatDate(today), type: 'automatic', status: 'sent', subject: 'Vos documents comptables' },
+  { id: 'r4', clientId: '1', date: formatDate(subDays(today, 3)), type: 'email', status: 'opened', subject: 'Relance Manuelle' },
+  { id: 'r5', clientId: '6', date: formatDate(subDays(today, 1)), type: 'sms', status: 'sent', subject: 'Rappel SMS' },
 ];
 
 export const mockCampaigns: Campaign[] = [
-  { id: 'c1', name: 'Rappel Paiement CFE', status: 'sent', sentDate: '2023-12-10', recipientCount: 40, openRate: 82, targetSector: 'All' },
-  { id: 'c2', name: 'Collecte TVA Trimestrielle', status: 'scheduled', sentDate: '2024-01-05', recipientCount: 15, targetSector: 'All' },
+  { id: 'c1', name: 'Rappel Paiement CFE', status: 'sent', sentDate: formatDate(subDays(today, 2)), recipientCount: 40, openRate: 82, targetSector: 'All' },
+  { id: 'c2', name: 'Collecte TVA Trimestrielle', status: 'scheduled', sentDate: formatDate(subDays(today, -15)), recipientCount: 15, targetSector: 'All' },
   { id: 'c3', name: 'Info Secteur BTP - Changement Taux', status: 'draft', recipientCount: 8, targetSector: 'BTP' },
 ];
 
 export const mockAccountingEntries: AccountingEntry[] = [
-  { id: 'e1', clientId: '1', date: '2023-10-15', label: 'FACTURE ORANGE', journal: 'ACH', amount: 45.90, type: 'Debit', account: '401ORANGE', accountLabel: 'Orange SA', status: 'missing_doc', pieceRef: 'AC-23-450', isUrgent: false },
-  { id: 'e2', clientId: '3', date: '2023-10-22', label: 'LEROY MERLIN MATERIAUX', journal: 'ACH', amount: 1250.00, type: 'Debit', account: '401LEROY', accountLabel: 'Leroy Merlin Pro', status: 'missing_doc', pieceRef: 'AC-23-451', isUrgent: true, comment: "Gros montant" },
-  { id: 'e3', clientId: '2', date: '2023-10-25', label: 'RESTAURANT LE GOURMET', journal: 'ACH', amount: 85.50, type: 'Debit', account: '401RESTO', accountLabel: 'Resto Le Gourmet', status: 'missing_doc', pieceRef: 'AC-23-452' },
-  { id: 'e4', clientId: '1', date: '2023-10-28', label: 'FACTURE EDF PRO', journal: 'ACH', amount: 312.45, type: 'Debit', account: '401EDF', accountLabel: 'EDF Entreprises', status: 'missing_doc', pieceRef: 'AC-23-453' },
-  { id: 'e5', clientId: '4', date: '2023-10-05', label: 'VENTE CLIENT X', journal: 'VTE', amount: 5000.00, type: 'Credit', account: '411CLIENTX', accountLabel: 'Client X SARL', status: 'missing_doc', pieceRef: 'VT-23-101' },
-  { id: 'e6', clientId: '1', date: '2023-10-12', label: 'PRESTATION CONSEIL', journal: 'VTE', amount: 1500.00, type: 'Credit', account: '411CONSEIL', accountLabel: 'Conseil & Co', status: 'missing_doc', pieceRef: 'VT-23-102' },
+  { id: 'e1', clientId: '1', date: formatDate(subDays(today, 35)), label: 'FACTURE ORANGE', journal: 'ACH', amount: 45.90, type: 'Debit', account: '401ORANGE', accountLabel: 'Orange SA', status: 'missing_doc', pieceRef: 'AC-23-450', isUrgent: false },
+  { id: 'e2', clientId: '3', date: formatDate(subDays(today, 20)), label: 'LEROY MERLIN MATERIAUX', journal: 'ACH', amount: 1250.00, type: 'Debit', account: '401LEROY', accountLabel: 'Leroy Merlin Pro', status: 'missing_doc', pieceRef: 'AC-23-451', isUrgent: true, comment: "Gros montant" },
+  { id: 'e3', clientId: '2', date: formatDate(subDays(today, 15)), label: 'RESTAURANT LE GOURMET', journal: 'ACH', amount: 85.50, type: 'Debit', account: '401RESTO', accountLabel: 'Resto Le Gourmet', status: 'missing_doc', pieceRef: 'AC-23-452' },
+  { id: 'e4', clientId: '1', date: formatDate(subDays(today, 12)), label: 'FACTURE EDF PRO', journal: 'ACH', amount: 312.45, type: 'Debit', account: '401EDF', accountLabel: 'EDF Entreprises', status: 'missing_doc', pieceRef: 'AC-23-453' },
+  { id: 'e5', clientId: '4', date: formatDate(subDays(today, 40)), label: 'VENTE CLIENT X', journal: 'VTE', amount: 5000.00, type: 'Credit', account: '411CLIENTX', accountLabel: 'Client X SARL', status: 'missing_doc', pieceRef: 'VT-23-101' },
+  { id: 'e6', clientId: '1', date: formatDate(subDays(today, 38)), label: 'PRESTATION CONSEIL', journal: 'VTE', amount: 1500.00, type: 'Credit', account: '411CONSEIL', accountLabel: 'Conseil & Co', status: 'missing_doc', pieceRef: 'VT-23-102' },
   
   // More entries for testing groups
-  { id: 'e7', clientId: '3', date: '2023-11-01', label: 'KILOUTOU', journal: 'ACH', amount: 450.00, type: 'Debit', account: '401KILOUTOU', accountLabel: 'Kiloutou', status: 'missing_doc', pieceRef: 'AC-23-460' },
-  { id: 'e8', clientId: '3', date: '2023-11-05', label: 'TOTAL ENERGIES', journal: 'ACH', amount: 120.00, type: 'Debit', account: '401TOTAL', accountLabel: 'Total Energies', status: 'missing_doc', pieceRef: 'AC-23-461' },
-  { id: 'e9', clientId: '2', date: '2023-11-10', label: 'METRO CASH CARRY', journal: 'ACH', amount: 840.20, type: 'Debit', account: '401METRO', accountLabel: 'Metro', status: 'missing_doc', isUrgent: true, pieceRef: 'AC-23-462' },
+  { id: 'e7', clientId: '3', date: formatDate(subDays(today, 5)), label: 'KILOUTOU', journal: 'ACH', amount: 450.00, type: 'Debit', account: '401KILOUTOU', accountLabel: 'Kiloutou', status: 'missing_doc', pieceRef: 'AC-23-460' },
+  { id: 'e8', clientId: '3', date: formatDate(subDays(today, 4)), label: 'TOTAL ENERGIES', journal: 'ACH', amount: 120.00, type: 'Debit', account: '401TOTAL', accountLabel: 'Total Energies', status: 'missing_doc', pieceRef: 'AC-23-461' },
+  { id: 'e9', clientId: '2', date: formatDate(subDays(today, 2)), label: 'METRO CASH CARRY', journal: 'ACH', amount: 840.20, type: 'Debit', account: '401METRO', accountLabel: 'Metro', status: 'missing_doc', isUrgent: true, pieceRef: 'AC-23-462' },
   
   // Encaissements / Bank entries
-  { id: 'e10', clientId: '1', date: '2023-10-01', label: 'VIREMENT RECU', journal: 'BQ', amount: 1500.00, type: 'Debit', account: '512000', accountLabel: 'Banque Populaire', status: 'missing_doc', pieceRef: 'BQ-10-001' },
-  { id: 'e11', clientId: '1', date: '2023-10-05', label: 'PRLV URSSAF', journal: 'BQ', amount: 450.00, type: 'Credit', account: '512000', accountLabel: 'Banque Populaire', status: 'missing_doc', pieceRef: 'BQ-10-005' },
+  { id: 'e10', clientId: '1', date: formatDate(subDays(today, 45)), label: 'VIREMENT RECU', journal: 'BQ', amount: 1500.00, type: 'Debit', account: '512000', accountLabel: 'Banque Populaire', status: 'missing_doc', pieceRef: 'BQ-10-001' },
+  { id: 'e11', clientId: '1', date: formatDate(subDays(today, 42)), label: 'PRLV URSSAF', journal: 'BQ', amount: 450.00, type: 'Credit', account: '512000', accountLabel: 'Banque Populaire', status: 'missing_doc', pieceRef: 'BQ-10-005' },
   
   // OD Entries
-  { id: 'e12', clientId: '1', date: '2023-10-31', label: 'TVA A DECAISSER', journal: 'OD', amount: 2340.00, type: 'Credit', account: '445510', accountLabel: 'TVA à décaisser', status: 'validated', pieceRef: 'OD-10-001' },
-  { id: 'e13', clientId: '1', date: '2023-10-31', label: 'SALAIRES OCTOBRE', journal: 'OD', amount: 12500.00, type: 'Debit', account: '421000', accountLabel: 'Personnel - Rémunérations', status: 'validated', pieceRef: 'OD-10-002' },
+  { id: 'e12', clientId: '1', date: formatDate(subDays(today, 30)), label: 'TVA A DECAISSER', journal: 'OD', amount: 2340.00, type: 'Credit', account: '445510', accountLabel: 'TVA à décaisser', status: 'validated', pieceRef: 'OD-10-001' },
+  { id: 'e13', clientId: '1', date: formatDate(subDays(today, 30)), label: 'SALAIRES OCTOBRE', journal: 'OD', amount: 12500.00, type: 'Debit', account: '421000', accountLabel: 'Personnel - Rémunérations', status: 'validated', pieceRef: 'OD-10-002' },
 ];
