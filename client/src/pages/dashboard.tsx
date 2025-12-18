@@ -30,7 +30,8 @@ import {
   isSameWeek, 
   isSameMonth,
   getWeek,
-  getMonth
+  getMonth,
+  isWeekend
 } from "date-fns";
 import { fr } from "date-fns/locale";
 import { DateRange } from "react-day-picker";
@@ -116,9 +117,12 @@ export default function Dashboard() {
         const days = eachDayOfInterval({ start, end });
         data = days.map(d => {
             const seed = d.getTime();
+            const isWknd = isWeekend(d);
+            
             // Generate some random realistic numbers if no mock data exists for that day
-            const baseSent = Math.floor(pseudoRandom(seed) * 15) + 2; 
-            const baseOpened = Math.floor(baseSent * (0.4 + pseudoRandom(seed + 1) * 0.4)); // 40-80% open rate
+            // If weekend, set to 0
+            const baseSent = isWknd ? 0 : Math.floor(pseudoRandom(seed) * 15) + 2; 
+            const baseOpened = isWknd ? 0 : Math.floor(baseSent * (0.4 + pseudoRandom(seed + 1) * 0.4)); // 40-80% open rate
             
             // Check if we have actual mock data (override random if yes, but mock data is sparse so we mostly use random)
             const realReminders = filteredReminders.filter(r => isSameDay(parseISO(r.date), d));
@@ -136,6 +140,8 @@ export default function Dashboard() {
         const weeks = eachWeekOfInterval({ start, end }, { locale: fr });
         data = weeks.map(w => {
             const seed = w.getTime();
+            // Assuming weekly data aggregates weekdays, so no need to zero out unless the whole week is holiday, 
+            // but simplified just generate random numbers
             const baseSent = Math.floor(pseudoRandom(seed) * 50) + 10;
             const baseOpened = Math.floor(baseSent * (0.4 + pseudoRandom(seed + 1) * 0.4));
 

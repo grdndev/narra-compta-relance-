@@ -36,6 +36,10 @@ function Calendar({
       )}
       captionLayout={captionLayout}
       formatters={{
+        formatWeekdayName: (date) => {
+          const days = ["DI", "LU", "MA", "ME", "JE", "VE", "SA"];
+          return days[date.getDay()];
+        },
         formatMonthDropdown: (date) =>
           date.toLocaleString("default", { month: "short" }),
         ...formatters,
@@ -85,7 +89,7 @@ function Calendar({
           defaultClassNames.caption_label
         ),
         table: "w-full border-collapse",
-        weekdays: cn("flex", defaultClassNames.weekdays),
+        weekdays: cn("flex gap-1", defaultClassNames.weekdays),
         weekday: cn(
           "text-muted-foreground select-none rounded-md text-[0.8rem] font-normal w-[--cell-size]",
           defaultClassNames.weekday
