@@ -62,6 +62,38 @@ export default function Dashboard() {
   const [selectedMissingDocs, setSelectedMissingDocs] = useState<string[]>([]);
   const [emailContent, setEmailContent] = useState("Bonjour,\n\nSauf erreur de notre part, nous n'avons pas reçu les documents suivants...\n\nCordialement,");
 
+  // Diplomatic Email State
+  const [diplomaticEmailModalOpen, setDiplomaticEmailModalOpen] = useState(false);
+  const [selectedDiplomaticClient, setSelectedDiplomaticClient] = useState<any>(null);
+  const [diplomaticEmailContent, setDiplomaticEmailContent] = useState("");
+
+  const handleOpenDiplomaticEmail = (client: any) => {
+    setSelectedDiplomaticClient(client);
+    setDiplomaticEmailContent(
+`Bonjour ${client.name},
+
+Nous avons constaté que nos récents échanges n'ont pas abouti et que votre taux d'ouverture de nos communications reste faible.
+
+Nous tenons à vous informer que ce manque de réactivité peut entraîner des risques fiscaux et complique le suivi de votre activité en temps réel.
+
+Une communication fluide est essentielle pour garantir la bonne gestion de votre dossier.
+
+Cordialement,
+Votre Expert-Comptable`
+    );
+    setDiplomaticEmailModalOpen(true);
+  };
+
+  const handleSendDiplomaticEmail = () => {
+    toast({
+      title: "Email envoyé",
+      description: `Le message de sensibilisation a été envoyé à ${selectedDiplomaticClient?.company}.`,
+      className: "bg-blue-600 text-white border-none"
+    });
+    setDiplomaticEmailModalOpen(false);
+    setSelectedDiplomaticClient(null);
+  };
+
   // Filtering Logic
   const isInDateRange = (dateString: string) => {
     if (!date?.from) return false;
@@ -189,7 +221,7 @@ export default function Dashboard() {
     return client.pendingDocs > 0 || clientEntries.length > 0;
   })
   .sort((a, b) => b.pendingDocs - a.pendingDocs) // Default sort by urgency
-  .slice(0, 10);
+  .slice(0, 5);
 
   // Sorted list for Dialog (by Open Rate)
   const clientsSortedByOpenRate = [...urgentClients].sort((a, b) => (a.openRate || 0) - (b.openRate || 0));
@@ -452,7 +484,7 @@ export default function Dashboard() {
                  </CardTitle>
                  <Badge variant="destructive" className="px-3 py-1 flex items-center gap-1.5 bg-red-100 text-red-700 hover:bg-red-200 border-none dark:bg-red-900/30 dark:text-red-400">
                     <AlertTriangle className="h-3.5 w-3.5" />
-                    Top 10
+                    Top 5
                  </Badge>
                </div>
             </CardHeader>
@@ -713,7 +745,7 @@ export default function Dashboard() {
                <AlertCircle className="h-6 w-6 text-red-500" />
                Clients nécessitant une attention
              </DialogTitle>
-             <DialogDescription className="dark:text-slate-400">Classement par taux d'ouverture (du plus faible au plus fort).</DialogDescription>
+             <DialogDescription className="dark:text-slate-400">Classement par taux d'ouverture.</DialogDescription>
            </DialogHeader>
            <div className="max-h-[600px] overflow-auto">
              <Table>
@@ -746,11 +778,22 @@ export default function Dashboard() {
                      </TableCell>
                      <TableCell className="text-center font-bold dark:text-slate-300">{client.pendingDocs}</TableCell>
                      <TableCell className="text-right">
-                        <Link href={`/clients/${client.id}`}>
-                           <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-                             <ChevronRight className="h-4 w-4" />
+                        <div className="flex justify-end gap-2">
+                           <Button 
+                             size="sm" 
+                             variant="outline" 
+                             className="h-8 w-8 p-0 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20"
+                             onClick={() => handleOpenDiplomaticEmail(client)}
+                             title="Envoyer un rappel diplomatique"
+                           >
+                             <Mail className="h-4 w-4" />
                            </Button>
-                        </Link>
+                           <Link href={`/clients/${client.id}`}>
+                              <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                                <ChevronRight className="h-4 w-4" />
+                              </Button>
+                           </Link>
+                        </div>
                      </TableCell>
                    </TableRow>
                  ))}
@@ -758,6 +801,39 @@ export default function Dashboard() {
              </Table>
            </div>
          </DialogContent>
+      </Dialog>
+
+      {/* Diplomatic Email Modal */}
+      <Dialog open={diplomaticEmailModalOpen} onOpenChange={setDiplomaticEmailModalOpen}>
+        <DialogContent className="max-w-xl rounded-3xl dark:bg-slate-900 dark:border-slate-800">
+          <DialogHeader>
+            <DialogTitle className="dark:text-white flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-orange-500" />
+              Sensibilisation Client
+            </DialogTitle>
+            <DialogDescription className="dark:text-slate-400">
+              Envoyer un message de sensibilisation concernant le faible taux d'ouverture et les risques associés.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+             <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-sm rounded-xl border border-blue-100 dark:border-blue-900/50">
+               <p className="font-medium">💡 Conseil Expert</p>
+               Ce message adopte un ton diplomatique pour alerter le client sur les conséquences de son manque de réactivité (risques fiscaux, suivi temps réel).
+             </div>
+             <Label className="mb-2 block dark:text-slate-300">Message</Label>
+             <Textarea 
+               value={diplomaticEmailContent}
+               onChange={(e) => setDiplomaticEmailContent(e.target.value)}
+               className="min-h-[250px] dark:bg-slate-950 dark:border-slate-800 dark:text-slate-300"
+             />
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setDiplomaticEmailModalOpen(false)} className="dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">Annuler</Button>
+            <Button onClick={handleSendDiplomaticEmail} className="bg-slate-900 text-white hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700">
+              <Send className="mr-2 h-4 w-4" /> Envoyer
+            </Button>
+          </div>
+        </DialogContent>
       </Dialog>
 
       {/* Nested Dialog: Edit Email */}
