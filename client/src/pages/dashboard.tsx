@@ -14,7 +14,24 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { addDays, format, subDays, isWithinInterval, parseISO, eachDayOfInterval, isSameDay } from "date-fns";
+import { 
+  addDays, 
+  format, 
+  subDays, 
+  isWithinInterval, 
+  parseISO, 
+  eachDayOfInterval, 
+  isSameDay, 
+  differenceInDays, 
+  eachWeekOfInterval, 
+  eachMonthOfInterval, 
+  startOfWeek, 
+  endOfWeek, 
+  isSameWeek, 
+  isSameMonth,
+  getWeek,
+  getMonth
+} from "date-fns";
 import { fr } from "date-fns/locale";
 import { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
@@ -82,20 +99,69 @@ export default function Dashboard() {
   const generateChartData = () => {
     if (!date?.from) return [];
     
+    const start = date.from;
     const end = date.to || date.from;
-    const days = eachDayOfInterval({ start: date.from, end: end });
+    const daysDiff = differenceInDays(end, start);
     
-    // If range is large (> 14 days), maybe group by week? For now, let's just show days or limit
-    // If range is > 30 days, we might want to aggregate. But let's keep it simple for now.
+    // Seeded random number generator for consistency
+    const pseudoRandom = (seed: number) => {
+        const x = Math.sin(seed++) * 10000;
+        return x - Math.floor(x);
+    };
+
+    let data = [];
+
+    if (daysDiff <= 30) {
+        // Daily granularity
+        const days = eachDayOfInterval({ start, end });
+        data = days.map(d => {
+            const seed = d.getTime();
+            // Generate some random realistic numbers if no mock data exists for that day
+            const baseSent = Math.floor(pseudoRandom(seed) * 15) + 2; 
+            const baseOpened = Math.floor(baseSent * (0.4 + pseudoRandom(seed + 1) * 0.4)); // 40-80% open rate
+            
+            // Check if we have actual mock data (override random if yes, but mock data is sparse so we mostly use random)
+            const realReminders = filteredReminders.filter(r => isSameDay(parseISO(r.date), d));
+            const sent = realReminders.length > 0 ? realReminders.length : baseSent;
+            const opened = realReminders.length > 0 ? realReminders.filter(r => r.status === 'opened').length : baseOpened;
+
+            return {
+                name: format(d, 'EEE d', { locale: fr }), // Lun 12
+                sent,
+                opened
+            };
+        });
+    } else if (daysDiff <= 90) {
+        // Weekly granularity
+        const weeks = eachWeekOfInterval({ start, end }, { locale: fr });
+        data = weeks.map(w => {
+            const seed = w.getTime();
+            const baseSent = Math.floor(pseudoRandom(seed) * 50) + 10;
+            const baseOpened = Math.floor(baseSent * (0.4 + pseudoRandom(seed + 1) * 0.4));
+
+            return {
+                name: `Sem ${getWeek(w, { locale: fr })}`, // Sem 42
+                sent: baseSent,
+                opened: baseOpened
+            };
+        });
+    } else {
+        // Monthly granularity (covers 91 days to >12 months)
+        const months = eachMonthOfInterval({ start, end });
+        data = months.map(m => {
+            const seed = m.getTime();
+            const baseSent = Math.floor(pseudoRandom(seed) * 200) + 50;
+            const baseOpened = Math.floor(baseSent * (0.4 + pseudoRandom(seed + 1) * 0.4));
+
+            return {
+                name: format(m, 'MMM yyyy', { locale: fr }), // Janv 2024
+                sent: baseSent,
+                opened: baseOpened
+            };
+        });
+    }
     
-    return days.map(d => {
-      const dayReminders = filteredReminders.filter(r => isSameDay(parseISO(r.date), d));
-      return {
-        name: format(d, 'EEE d', { locale: fr }),
-        sent: dayReminders.length,
-        opened: dayReminders.filter(r => r.status === 'opened').length
-      };
-    });
+    return data;
   };
 
   const chartData = generateChartData();
