@@ -189,36 +189,36 @@ export default function ClientDetail() {
     <Layout>
       <div className="space-y-8">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => window.history.back()}>
+          <Button variant="ghost" size="icon" onClick={() => window.history.back()} className="dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800">
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-serif font-bold text-slate-900 flex items-center gap-3">
+            <h1 className="text-3xl font-serif font-bold text-slate-900 dark:text-white flex items-center gap-3">
               {client.company}
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="text-slate-400 hover:text-blue-600 hover:bg-blue-50 gap-2 font-sans font-medium text-sm ml-2" 
+                className="text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:text-slate-500 dark:hover:text-blue-400 dark:hover:bg-blue-900/20 gap-2 font-sans font-medium text-sm ml-2" 
                 onClick={() => setActiveTab("informations")}
               >
                 <AlertCircle className="h-5 w-5" />
                 Informations
               </Button>
             </h1>
-            <div className="flex flex-wrap items-center gap-4 mt-2 text-slate-500 text-sm">
-              <span className="flex items-center gap-1"><UsersIcon className="h-4 w-4" /> {client.name}</span>
+            <div className="flex flex-wrap items-center gap-4 mt-2 text-slate-500 dark:text-slate-400 text-sm">
+              <span className="flex items-center gap-1"><User className="h-4 w-4" /> {client.name}</span>
               <span className="flex items-center gap-1"><Mail className="h-4 w-4" /> {client.email}</span>
               <span className="flex items-center gap-1"><Phone className="h-4 w-4" /> {client.phone}</span>
-              <span className="flex items-center gap-1 border-l border-slate-300 pl-4"><Building2 className="h-4 w-4" /> SIREN : {client.siren}</span>
-              <span className="flex items-center gap-1 border-l border-slate-300 pl-4">
-                 <Badge variant="secondary" className="font-normal bg-blue-50 text-blue-700 hover:bg-blue-100 border-none">
+              <span className="flex items-center gap-1 border-l border-slate-300 dark:border-slate-700 pl-4"><Building2 className="h-4 w-4" /> SIREN : {client.siren}</span>
+              <span className="flex items-center gap-1 border-l border-slate-300 dark:border-slate-700 pl-4">
+                 <Badge variant="secondary" className="font-normal bg-blue-50 text-blue-700 hover:bg-blue-100 border-none dark:bg-blue-900/30 dark:text-blue-400">
                     Resp: {client.manager}
                  </Badge>
               </span>
             </div>
           </div>
           <div className="ml-auto flex gap-3">
-             <Button variant="destructive" className="bg-red-50 text-red-600 hover:bg-red-100 border-red-200 border shadow-none" onClick={() => {
+             <Button variant="destructive" className="bg-red-50 text-red-600 hover:bg-red-100 border-red-200 border shadow-none dark:bg-red-900/20 dark:text-red-400 dark:border-red-900/50 dark:hover:bg-red-900/40" onClick={() => {
                  toast({
                      title: "Données supprimées",
                      description: "Les données du client ont été supprimées conformément au RGPD.",
@@ -226,7 +226,7 @@ export default function ClientDetail() {
              }}>
                 Supprimer (RGPD)
              </Button>
-            <Button className="bg-slate-900 text-white hover:bg-slate-800" onClick={() => setIsEmailModalOpen(true)}>
+            <Button className="bg-slate-900 text-white hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700" onClick={() => setIsEmailModalOpen(true)}>
               <Send className="h-4 w-4 mr-2" />
               Relancer le client
             </Button>
@@ -235,27 +235,27 @@ export default function ClientDetail() {
 
         {/* Global Filters */}
         <div className="flex flex-col items-end gap-2 ml-auto mb-4 w-fit">
-            <div className="flex items-center justify-end gap-2 bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-100">
+            <div className="flex items-center justify-end gap-2 bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-100 dark:bg-slate-900 dark:border-slate-800">
                 {ignoredEntries.length > 0 && (
                   <>
                     <Button
                       variant={showIgnored ? "default" : "outline"}
                       size="sm"
                       onClick={() => setShowIgnored(!showIgnored)}
-                      className={`h-8 px-3 text-xs font-medium border-slate-200 ${showIgnored ? "bg-slate-900 text-white hover:bg-slate-800" : "text-slate-600 hover:bg-slate-50"}`}
+                      className={`h-8 px-3 text-xs font-medium border-slate-200 dark:border-slate-700 ${showIgnored ? "bg-slate-900 text-white hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700" : "text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"}`}
                     >
-                      IGN <span className="ml-1.5 bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded-full text-[10px]">{ignoredEntries.length}</span>
+                      IGN <span className="ml-1.5 bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300 px-1.5 py-0.5 rounded-full text-[10px]">{ignoredEntries.length}</span>
                     </Button>
-                    <div className="w-px h-4 bg-slate-200 mx-2" />
+                    <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-2" />
                   </>
                 )}
-                <span className="text-sm font-medium text-slate-600">Montant min. :</span>
+                <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Montant min. :</span>
                 <div className="relative w-24">
                   <Input 
                     type="number" 
                     value={minAmount} 
                     onChange={(e) => setMinAmount(Number(e.target.value))}
-                    className="h-8 rounded-lg pl-6 pr-2 text-right border-slate-200"
+                    className="h-8 rounded-lg pl-6 pr-2 text-right border-slate-200 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                     placeholder="0"
                   />
                   <span className="absolute left-2 top-1.5 text-slate-400 text-xs">€</span>
@@ -267,7 +267,7 @@ export default function ClientDetail() {
                   variant="ghost" 
                   size="sm" 
                   onClick={handleBulkIgnore} 
-                  className="text-slate-400 hover:text-red-600 h-6 px-2 text-xs"
+                  className="text-slate-400 hover:text-red-600 dark:hover:text-red-400 h-6 px-2 text-xs"
                 >
                   <EyeOff className="h-3 w-3 mr-1.5" />
                   Ignorer
@@ -276,7 +276,7 @@ export default function ClientDetail() {
                   variant="ghost" 
                   size="sm" 
                   onClick={() => setSelectedEntries([])} 
-                  className="text-slate-400 hover:text-slate-600 h-6 px-2 text-xs"
+                  className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 h-6 px-2 text-xs"
                 >
                   <RotateCcw className="h-3 w-3 mr-1.5" />
                   Décocher
@@ -286,12 +286,12 @@ export default function ClientDetail() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 rounded-2xl p-1 bg-white border border-slate-200 shadow-sm mb-6">
-            <TabsTrigger value="synthesis" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">Synthèse</TabsTrigger>
-            <TabsTrigger value="achats-ventes" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">Achats / Ventes</TabsTrigger>
-            <TabsTrigger value="journaux" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">Journaux</TabsTrigger>
-            <TabsTrigger value="encaissements" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">Encaissements / Décaissements</TabsTrigger>
-            <TabsTrigger value="informations" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">Informations</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 rounded-2xl p-1 bg-white border border-slate-200 shadow-sm mb-6 dark:bg-slate-900 dark:border-slate-800">
+            <TabsTrigger value="synthesis" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900/20 dark:data-[state=active]:text-blue-400 dark:text-slate-400">Synthèse</TabsTrigger>
+            <TabsTrigger value="achats-ventes" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900/20 dark:data-[state=active]:text-blue-400 dark:text-slate-400">Achats / Ventes</TabsTrigger>
+            <TabsTrigger value="journaux" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900/20 dark:data-[state=active]:text-blue-400 dark:text-slate-400">Journaux</TabsTrigger>
+            <TabsTrigger value="encaissements" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900/20 dark:data-[state=active]:text-blue-400 dark:text-slate-400">Encaissements / Décaissements</TabsTrigger>
+            <TabsTrigger value="informations" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900/20 dark:data-[state=active]:text-blue-400 dark:text-slate-400">Informations</TabsTrigger>
           </TabsList>
 
           <TabsContent value="informations" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
