@@ -112,8 +112,8 @@ export default function Dashboard() {
 
     let data = [];
 
-    if (daysDiff <= 30) {
-        // Daily granularity
+    if (daysDiff <= 7) {
+        // Daily granularity (1 to 7 days)
         const days = eachDayOfInterval({ start, end });
         data = days.map(d => {
             const seed = d.getTime();
