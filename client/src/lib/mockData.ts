@@ -10,7 +10,7 @@ export interface Contact {
   email: string;
   phone: string;
   isPrimary: boolean;
-  preferredChannel: 'email' | 'phone' | 'whatsapp';
+  preferredChannels: ('email' | 'phone' | 'whatsapp')[];
   active?: boolean;
 }
 
@@ -104,8 +104,8 @@ export const mockClients: Client[] = [
     creationDate: '2018-03-12',
     address: '15 Rue de la République, 75001 Paris',
     contacts: [
-      { id: 'c1', name: 'Jean Dupont', role: 'Président', email: 'jean.dupont@techsol.fr', phone: '06 12 34 56 78', isPrimary: true, preferredChannel: 'email', active: true },
-      { id: 'c2', name: 'Sophie Martin', role: 'Office Manager', email: 'sophie.m@techsol.fr', phone: '06 99 88 77 66', isPrimary: false, preferredChannel: 'whatsapp', active: true }
+      { id: 'c1', name: 'Jean Dupont', role: 'Président', email: 'jean.dupont@techsol.fr', phone: '06 12 34 56 78', isPrimary: true, preferredChannels: ['email'], active: true },
+      { id: 'c2', name: 'Sophie Martin', role: 'Office Manager', email: 'sophie.m@techsol.fr', phone: '06 99 88 77 66', isPrimary: false, preferredChannels: ['whatsapp', 'email'], active: true }
     ]
   },
   {
