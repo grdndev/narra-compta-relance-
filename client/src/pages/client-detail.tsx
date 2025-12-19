@@ -439,7 +439,7 @@ export default function ClientDetail() {
               <span className="flex items-center gap-1"><Mail className="h-4 w-4" /> {client.email}</span>
               <span className="flex items-center gap-1"><Phone className="h-4 w-4" /> {client.phone}</span>
               <span className="flex items-center gap-1 border-l border-slate-300 dark:border-slate-700 pl-4"><Building2 className="h-4 w-4" /> SIREN : {client.siren}</span>
-              {clientContacts.map(contact => (
+              {clientContacts.slice(1).map(contact => (
                 <span key={contact.id} className="flex items-center gap-1 border-l border-slate-300 dark:border-slate-700 pl-4">
                    <Badge variant="secondary" className="font-normal bg-slate-50 text-slate-700 hover:bg-slate-100 border-none dark:bg-slate-800 dark:text-slate-300">
                       {contact.role || 'Contact'} : {contact.name}
