@@ -330,7 +330,7 @@ Votre Expert-Comptable`
             <h1 className="text-3xl font-bold text-slate-800 dark:text-white tracking-tight">Bonjour, Cabinet ! 👋</h1>
             <p className="text-slate-500 dark:text-slate-400 mt-1 font-medium">Vue d'ensemble de l'activité.</p>
           </div>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-start gap-3">
              {/* Date Picker */}
              <div className="grid gap-2">
               <Popover>
