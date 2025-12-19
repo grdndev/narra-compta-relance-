@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -240,9 +240,199 @@ export default function ClientDetail() {
           <div>
             <h1 className="text-3xl font-serif font-bold text-slate-900 dark:text-white flex items-center gap-3">
               {client.company}
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400">
-                <Info className="h-5 w-5" />
-              </Button>
+              <Dialog>
+                  <DialogTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400">
+                        <Info className="h-5 w-5" />
+                      </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto rounded-3xl p-6 dark:bg-slate-900 dark:border-slate-800">
+                    <DialogHeader>
+                        <DialogTitle className="text-2xl font-bold text-slate-800 dark:text-white mb-4">Informations Client</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid gap-6 md:grid-cols-3">
+               {/* Client Identification */}
+               <Card className="md:col-span-1 border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] rounded-3xl h-fit dark:bg-slate-900 dark:border dark:border-slate-800">
+                 <CardHeader>
+                   <CardTitle className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                     <Building2 className="h-5 w-5 text-blue-500" />
+                     Identification
+                   </CardTitle>
+                 </CardHeader>
+                 <CardContent className="space-y-4">
+                   <div className="space-y-2">
+                     <Label className="dark:text-slate-300">Dénomination Sociale</Label>
+                     <Input defaultValue={client.company} className="rounded-xl border-slate-200 dark:bg-slate-950 dark:border-slate-800" />
+                   </div>
+                   <div className="space-y-2">
+                     <Label className="dark:text-slate-300">Forme Juridique</Label>
+                     <Input defaultValue={client.legalForm || 'SAS'} className="rounded-xl border-slate-200 dark:bg-slate-950 dark:border-slate-800" />
+                   </div>
+                   <div className="grid grid-cols-2 gap-4">
+                     <div className="space-y-2">
+                       <Label className="dark:text-slate-300">SIREN</Label>
+                       <Input defaultValue={client.siren} className="rounded-xl border-slate-200 dark:bg-slate-950 dark:border-slate-800" />
+                     </div>
+                     <div className="space-y-2">
+                       <Label className="dark:text-slate-300">Code APE</Label>
+                       <Input defaultValue={client.ape || '6201Z'} className="rounded-xl border-slate-200 dark:bg-slate-950 dark:border-slate-800" />
+                     </div>
+                   </div>
+                   <div className="space-y-2">
+                     <Label className="dark:text-slate-300">Date de création</Label>
+                     <Input type="date" defaultValue={client.creationDate || '2020-01-01'} className="rounded-xl border-slate-200 dark:bg-slate-950 dark:border-slate-800" />
+                   </div>
+                   <div className="space-y-2">
+                     <Label className="dark:text-slate-300">Adresse Siège</Label>
+                     <Textarea defaultValue={client.address || ''} className="rounded-xl border-slate-200 min-h-[80px] dark:bg-slate-950 dark:border-slate-800" />
+                   </div>
+                   <Button className="w-full rounded-xl bg-slate-900 text-white hover:bg-slate-800 mt-2 dark:bg-blue-600 dark:hover:bg-blue-700">
+                      <Save className="h-4 w-4 mr-2" /> Enregistrer
+                   </Button>
+                 </CardContent>
+               </Card>
+
+               {/* Contacts */}
+               <div className="md:col-span-2 space-y-6">
+                 {clientContacts.length === 0 ? (
+                    <div className="text-center p-8 bg-white rounded-3xl border border-slate-100 shadow-sm dark:bg-slate-900 dark:border-slate-800">
+                        <User className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+                        <h3 className="text-lg font-medium text-slate-900 dark:text-white">Aucun contact</h3>
+                        <p className="text-slate-500 mb-4 dark:text-slate-400">Ajoutez des contacts pour ce dossier.</p>
+                        <Button variant="outline" onClick={() => setClientContacts([...clientContacts, { id: Date.now().toString(), name: '', role: '', email: '', phone: '', isPrimary: false, preferredChannels: ['email'] }])}>
+                            Ajouter un contact
+                        </Button>
+                    </div>
+                 ) : (
+                    clientContacts.map((contact, index) => (
+                     <Card key={contact.id} className={`border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] rounded-3xl relative group dark:bg-slate-900 dark:border dark:border-slate-800 ${!contact.active ? 'opacity-60 grayscale' : ''}`}>
+                     <div className="absolute top-4 right-4 flex items-center gap-2">
+                       <div className="flex items-center space-x-2">
+                         <Label htmlFor={`active-${contact.id}`} className="text-xs text-slate-500 dark:text-slate-400">Actif</Label>
+                         <Switch 
+                           id={`active-${contact.id}`}
+                           checked={contact.active !== false}
+                           onCheckedChange={(checked) => {
+                             setClientContacts(clientContacts.map(c => 
+                               c.id === contact.id ? { ...c, active: checked } : c
+                             ));
+                             toast({
+                               title: checked ? "Contact activé" : "Contact désactivé",
+                               description: `Le contact ${contact.name} a été ${checked ? 'activé' : 'désactivé'}.`
+                             });
+                           }}
+                         />
+                       </div>
+                       <Button 
+                         variant="ghost" 
+                         size="icon" 
+                         className="text-slate-400 hover:text-red-500 rounded-xl"
+                         onClick={() => setClientContacts(clientContacts.filter(c => c.id !== contact.id))}
+                       >
+                         <Trash2 className="h-4 w-4" />
+                       </Button>
+                     </div>
+                     <CardHeader>
+                       <CardTitle className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                         <User className={`h-5 w-5 ${contact.isPrimary ? 'text-blue-500' : 'text-slate-400'}`} />
+                         {contact.name || 'Nouveau contact'} {contact.isPrimary && <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-none ml-2 dark:bg-blue-900/30 dark:text-blue-400">Principal</Badge>}
+                       </CardTitle>
+                     </CardHeader>
+                     <CardContent>
+                       <div className="grid md:grid-cols-2 gap-4">
+                         <div className="space-y-2">
+                           <Label className="dark:text-slate-300">Nom / Prénom</Label>
+                           <Input defaultValue={contact.name} className="rounded-xl border-slate-200 dark:bg-slate-950 dark:border-slate-800" />
+                         </div>
+                         <div className="space-y-2">
+                           <Label className="dark:text-slate-300">Fonction</Label>
+                           <Input defaultValue={contact.role} className="rounded-xl border-slate-200 dark:bg-slate-950 dark:border-slate-800" />
+                         </div>
+                         <div className="space-y-2">
+                           <Label className="dark:text-slate-300">Email</Label>
+                           <div className="relative">
+                             <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                             <Input defaultValue={contact.email} className="pl-10 rounded-xl border-slate-200 dark:bg-slate-950 dark:border-slate-800" />
+                           </div>
+                         </div>
+                         <div className="space-y-2">
+                           <Label className="dark:text-slate-300">Téléphone</Label>
+                           <div className="relative">
+                             <Phone className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                             <Input defaultValue={contact.phone} className="pl-10 rounded-xl border-slate-200 dark:bg-slate-950 dark:border-slate-800" />
+                           </div>
+                         </div>
+                         <div className="md:col-span-2 space-y-2">
+                           <Label className="dark:text-slate-300">Canaux préférés (2 max)</Label>
+                          <div className="flex gap-4">
+                            <Button 
+                                variant="outline" 
+                                className={`flex-1 rounded-xl transition-all ${contact.preferredChannels?.includes('email') ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-500'}`}
+                                onClick={() => {
+                                    const current = contact.preferredChannels || [];
+                                    let updated: ('email' | 'phone' | 'whatsapp')[];
+                                    if (current.includes('email')) {
+                                        updated = current.filter(c => c !== 'email');
+                                    } else {
+                                        if (current.length >= 2) return;
+                                        updated = [...current, 'email'] as ('email' | 'phone' | 'whatsapp')[];
+                                    }
+                                    setClientContacts(clientContacts.map(c => c.id === contact.id ? { ...c, preferredChannels: updated } : c));
+                                }}
+                            >
+                                <Mail className="w-4 h-4 mr-2" /> Email
+                            </Button>
+                            <Button 
+                                variant="outline" 
+                                className={`flex-1 rounded-xl transition-all ${contact.preferredChannels?.includes('phone') ? 'border-purple-500 bg-purple-50 text-purple-700' : 'border-slate-200 text-slate-500'}`}
+                                onClick={() => {
+                                    const current = contact.preferredChannels || [];
+                                    let updated: ('email' | 'phone' | 'whatsapp')[];
+                                    if (current.includes('phone')) {
+                                        updated = current.filter(c => c !== 'phone');
+                                    } else {
+                                        if (current.length >= 2) return;
+                                        updated = [...current, 'phone'] as ('email' | 'phone' | 'whatsapp')[];
+                                    }
+                                    setClientContacts(clientContacts.map(c => c.id === contact.id ? { ...c, preferredChannels: updated } : c));
+                                }}
+                            >
+                                <Phone className="w-4 h-4 mr-2" /> SMS
+                            </Button>
+                            <Button 
+                                variant="outline" 
+                                className={`flex-1 rounded-xl transition-all ${contact.preferredChannels?.includes('whatsapp') ? 'border-green-500 bg-green-50 text-green-700' : 'border-slate-200 text-slate-500'}`}
+                                onClick={() => {
+                                    const current = contact.preferredChannels || [];
+                                    let updated: ('email' | 'phone' | 'whatsapp')[];
+                                    if (current.includes('whatsapp')) {
+                                        updated = current.filter(c => c !== 'whatsapp');
+                                    } else {
+                                        if (current.length >= 2) return;
+                                        updated = [...current, 'whatsapp'] as ('email' | 'phone' | 'whatsapp')[];
+                                    }
+                                    setClientContacts(clientContacts.map(c => c.id === contact.id ? { ...c, preferredChannels: updated } : c));
+                                }}
+                            >
+                                <Send className="w-4 h-4 mr-2" /> WhatsApp
+                            </Button>
+                          </div>
+                           <p className="text-xs text-slate-400 mt-1">Sélectionnez jusqu'à 2 canaux de communication privilégiés.</p>
+                         </div>
+                       </div>
+                     </CardContent>
+                   </Card>
+                 )))}
+                 
+                 <Button variant="outline" className="w-full rounded-2xl border-dashed border-2 border-slate-200 py-8 hover:bg-slate-50 hover:border-slate-300 text-slate-500 gap-2 dark:border-slate-700 dark:hover:bg-slate-800" 
+                    onClick={() => setClientContacts([...clientContacts, { id: Date.now().toString(), name: '', role: '', email: '', phone: '', isPrimary: false, preferredChannels: ['email'], active: true }])}
+                 >
+                   <Plus className="h-5 w-5" /> Ajouter un autre contact
+                 </Button>
+               </div>
+             </div>
+                  </DialogContent>
+              </Dialog>
             </h1>
             <div className="flex flex-wrap items-center gap-4 mt-2 text-slate-500 dark:text-slate-400 text-sm">
               <span className="flex items-center gap-1"><User className="h-4 w-4" /> {client.name}</span>
@@ -330,191 +520,8 @@ export default function ClientDetail() {
             <TabsTrigger value="achats-ventes" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900/20 dark:data-[state=active]:text-blue-400 dark:text-slate-400">Achats / Ventes</TabsTrigger>
             <TabsTrigger value="journaux" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900/20 dark:data-[state=active]:text-blue-400 dark:text-slate-400">Journaux</TabsTrigger>
             <TabsTrigger value="encaissements" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900/20 dark:data-[state=active]:text-blue-400 dark:text-slate-400">Encaissements / Décaissements</TabsTrigger>
-            <TabsTrigger value="informations" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900/20 dark:data-[state=active]:text-blue-400 dark:text-slate-400">Informations</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="informations" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-             <div className="grid gap-6 md:grid-cols-3">
-               {/* Client Identification */}
-               <Card className="md:col-span-1 border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] rounded-3xl h-fit">
-                 <CardHeader>
-                   <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                     <Building2 className="h-5 w-5 text-blue-500" />
-                     Identification
-                   </CardTitle>
-                 </CardHeader>
-                 <CardContent className="space-y-4">
-                   <div className="space-y-2">
-                     <Label>Dénomination Sociale</Label>
-                     <Input defaultValue={client.company} className="rounded-xl border-slate-200" />
-                   </div>
-                   <div className="space-y-2">
-                     <Label>Forme Juridique</Label>
-                     <Input defaultValue={client.legalForm || 'SAS'} className="rounded-xl border-slate-200" />
-                   </div>
-                   <div className="grid grid-cols-2 gap-4">
-                     <div className="space-y-2">
-                       <Label>SIREN</Label>
-                       <Input defaultValue={client.siren} className="rounded-xl border-slate-200" />
-                     </div>
-                     <div className="space-y-2">
-                       <Label>Code APE</Label>
-                       <Input defaultValue={client.ape || '6201Z'} className="rounded-xl border-slate-200" />
-                     </div>
-                   </div>
-                   <div className="space-y-2">
-                     <Label>Date de création</Label>
-                     <Input type="date" defaultValue={client.creationDate || '2020-01-01'} className="rounded-xl border-slate-200" />
-                   </div>
-                   <div className="space-y-2">
-                     <Label>Adresse Siège</Label>
-                     <Textarea defaultValue={client.address || ''} className="rounded-xl border-slate-200 min-h-[80px]" />
-                   </div>
-                   <Button className="w-full rounded-xl bg-slate-900 text-white hover:bg-slate-800 mt-2">
-                      <Save className="h-4 w-4 mr-2" /> Enregistrer
-                   </Button>
-                 </CardContent>
-               </Card>
-
-               {/* Contacts */}
-               <div className="md:col-span-2 space-y-6">
-                 {clientContacts.length === 0 ? (
-                    <div className="text-center p-8 bg-white rounded-3xl border border-slate-100 shadow-sm">
-                        <User className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-                        <h3 className="text-lg font-medium text-slate-900">Aucun contact</h3>
-                        <p className="text-slate-500 mb-4">Ajoutez des contacts pour ce dossier.</p>
-                        <Button variant="outline" onClick={() => setClientContacts([...clientContacts, { id: Date.now().toString(), name: '', role: '', email: '', phone: '', isPrimary: false, preferredChannels: ['email'] }])}>
-                            Ajouter un contact
-                        </Button>
-                    </div>
-                 ) : (
-                    clientContacts.map((contact, index) => (
-                     <Card key={contact.id} className={`border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] rounded-3xl relative group ${!contact.active ? 'opacity-60 grayscale' : ''}`}>
-                     <div className="absolute top-4 right-4 flex items-center gap-2">
-                       <div className="flex items-center space-x-2">
-                         <Label htmlFor={`active-${contact.id}`} className="text-xs text-slate-500">Actif</Label>
-                         <Switch 
-                           id={`active-${contact.id}`}
-                           checked={contact.active !== false}
-                           onCheckedChange={(checked) => {
-                             setClientContacts(clientContacts.map(c => 
-                               c.id === contact.id ? { ...c, active: checked } : c
-                             ));
-                             toast({
-                               title: checked ? "Contact activé" : "Contact désactivé",
-                               description: `Le contact ${contact.name} a été ${checked ? 'activé' : 'désactivé'}.`
-                             });
-                           }}
-                         />
-                       </div>
-                       <Button 
-                         variant="ghost" 
-                         size="icon" 
-                         className="text-slate-400 hover:text-red-500 rounded-xl"
-                         onClick={() => setClientContacts(clientContacts.filter(c => c.id !== contact.id))}
-                       >
-                         <Trash2 className="h-4 w-4" />
-                       </Button>
-                     </div>
-                     <CardHeader>
-                       <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                         <User className={`h-5 w-5 ${contact.isPrimary ? 'text-blue-500' : 'text-slate-400'}`} />
-                         {contact.name || 'Nouveau contact'} {contact.isPrimary && <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-none ml-2">Principal</Badge>}
-                       </CardTitle>
-                     </CardHeader>
-                     <CardContent>
-                       <div className="grid md:grid-cols-2 gap-4">
-                         <div className="space-y-2">
-                           <Label>Nom / Prénom</Label>
-                           <Input defaultValue={contact.name} className="rounded-xl border-slate-200" />
-                         </div>
-                         <div className="space-y-2">
-                           <Label>Fonction</Label>
-                           <Input defaultValue={contact.role} className="rounded-xl border-slate-200" />
-                         </div>
-                         <div className="space-y-2">
-                           <Label>Email</Label>
-                           <div className="relative">
-                             <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                             <Input defaultValue={contact.email} className="pl-10 rounded-xl border-slate-200" />
-                           </div>
-                         </div>
-                         <div className="space-y-2">
-                           <Label>Téléphone</Label>
-                           <div className="relative">
-                             <Phone className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                             <Input defaultValue={contact.phone} className="pl-10 rounded-xl border-slate-200" />
-                           </div>
-                         </div>
-                         <div className="md:col-span-2 space-y-2">
-                           <Label>Canaux préférés (2 max)</Label>
-                          <div className="flex gap-4">
-                            <Button 
-                                variant="outline" 
-                                className={`flex-1 rounded-xl transition-all ${contact.preferredChannels?.includes('email') ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-500'}`}
-                                onClick={() => {
-                                    const current = contact.preferredChannels || [];
-                                    let updated: ('email' | 'phone' | 'whatsapp')[];
-                                    if (current.includes('email')) {
-                                        updated = current.filter(c => c !== 'email');
-                                    } else {
-                                        if (current.length >= 2) return;
-                                        updated = [...current, 'email'] as ('email' | 'phone' | 'whatsapp')[];
-                                    }
-                                    setClientContacts(clientContacts.map(c => c.id === contact.id ? { ...c, preferredChannels: updated } : c));
-                                }}
-                            >
-                                <Mail className="w-4 h-4 mr-2" /> Email
-                            </Button>
-                            <Button 
-                                variant="outline" 
-                                className={`flex-1 rounded-xl transition-all ${contact.preferredChannels?.includes('phone') ? 'border-purple-500 bg-purple-50 text-purple-700' : 'border-slate-200 text-slate-500'}`}
-                                onClick={() => {
-                                    const current = contact.preferredChannels || [];
-                                    let updated: ('email' | 'phone' | 'whatsapp')[];
-                                    if (current.includes('phone')) {
-                                        updated = current.filter(c => c !== 'phone');
-                                    } else {
-                                        if (current.length >= 2) return;
-                                        updated = [...current, 'phone'] as ('email' | 'phone' | 'whatsapp')[];
-                                    }
-                                    setClientContacts(clientContacts.map(c => c.id === contact.id ? { ...c, preferredChannels: updated } : c));
-                                }}
-                            >
-                                <Phone className="w-4 h-4 mr-2" /> SMS
-                            </Button>
-                            <Button 
-                                variant="outline" 
-                                className={`flex-1 rounded-xl transition-all ${contact.preferredChannels?.includes('whatsapp') ? 'border-green-500 bg-green-50 text-green-700' : 'border-slate-200 text-slate-500'}`}
-                                onClick={() => {
-                                    const current = contact.preferredChannels || [];
-                                    let updated: ('email' | 'phone' | 'whatsapp')[];
-                                    if (current.includes('whatsapp')) {
-                                        updated = current.filter(c => c !== 'whatsapp');
-                                    } else {
-                                        if (current.length >= 2) return;
-                                        updated = [...current, 'whatsapp'] as ('email' | 'phone' | 'whatsapp')[];
-                                    }
-                                    setClientContacts(clientContacts.map(c => c.id === contact.id ? { ...c, preferredChannels: updated } : c));
-                                }}
-                            >
-                                <Send className="w-4 h-4 mr-2" /> WhatsApp
-                            </Button>
-                          </div>
-                         </div>
-                       </div>
-                     </CardContent>
-                   </Card>
-                 )))}
-                 
-                 <Button variant="outline" className="w-full rounded-2xl border-dashed border-2 border-slate-200 py-8 hover:bg-slate-50 hover:border-slate-300 text-slate-500 gap-2" 
-                    onClick={() => setClientContacts([...clientContacts, { id: Date.now().toString(), name: '', role: '', email: '', phone: '', isPrimary: false, preferredChannels: ['email'], active: true }])}
-                 >
-                   <Plus className="h-5 w-5" /> Ajouter un autre contact
-                 </Button>
-               </div>
-             </div>
-          </TabsContent>
 
           <TabsContent value="synthesis" className="space-y-8">
             <div className="grid grid-cols-3 gap-8">
