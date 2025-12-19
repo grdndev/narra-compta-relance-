@@ -1,9 +1,11 @@
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { mockClients, mockDocuments, mockReminders, mockAccountingEntries, mockCampaigns } from "@/lib/mockData";
-import { ArrowUpRight, AlertCircle, Filter, Activity, Clock, ChevronRight, Calendar as CalendarIcon, Mail, Send, XCircle, AlertTriangle, ArrowUpDown } from "lucide-react";
+import { ArrowUpRight, AlertCircle, Filter, Activity, Clock, ChevronRight, Calendar as CalendarIcon, Mail, Send, XCircle, AlertTriangle, ArrowUpDown, Download } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { useState } from "react";
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Link, useLocation } from "wouter";
 import { Badge } from "@/components/ui/badge";
@@ -246,9 +248,83 @@ Votre Expert-Comptable`
     setMissingDocsOpen(false);
   };
 
+  const handleExportDashboard = async () => {
+    const element = document.getElementById('dashboard-content');
+    if (!element) return;
+
+    toast({
+        title: "Génération du rapport...",
+        description: "Veuillez patienter pendant la création du PDF.",
+    });
+
+    try {
+        const canvas = await html2canvas(element, {
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            backgroundColor: '#ffffff', // Ensure white background
+            ignoreElements: (element) => element.classList.contains('no-export'), // Helper class to hide elements during export if needed
+        });
+
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF({
+            orientation: 'landscape',
+            unit: 'mm',
+            format: 'a4',
+        });
+
+        const imgProps = pdf.getImageProperties(imgData);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+        // Header Title
+        pdf.setFontSize(22);
+        pdf.setTextColor(30, 41, 59); // Slate 800
+        pdf.text("Rapport d'activité des relances", 14, 20);
+        
+        // Subtitle & Metadata
+        pdf.setFontSize(10);
+        pdf.setTextColor(100, 116, 139); // Slate 500
+        
+        const periodText = date?.from 
+            ? `${format(date.from, "d MMMM yyyy", { locale: fr })} au ${date.to ? format(date.to, "d MMMM yyyy", { locale: fr }) : "..."}`
+            : "Période complète";
+            
+        pdf.text(`Période : ${periodText}`, 14, 28);
+        pdf.text(`Généré le : ${format(new Date(), "d MMMM yyyy à HH:mm", { locale: fr })}`, 14, 33);
+        pdf.text(`Secteur : ${sectorFilter === "All" ? "Tous secteurs" : sectorFilter}`, 14, 38);
+
+        // Add the dashboard image below the header
+        // Start image at y=45
+        pdf.addImage(imgData, 'PNG', 0, 45, pdfWidth, pdfHeight);
+        
+        // Footer
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        pdf.setFontSize(8);
+        pdf.setTextColor(148, 163, 184); // Slate 400
+        pdf.text("Relance Expert - Application de gestion des relances clients", 14, pageHeight - 10);
+
+        pdf.save(`Rapport_Relances_${format(new Date(), "yyyy-MM-dd")}.pdf`);
+
+        toast({
+            title: "Export réussi",
+            description: "Le tableau de bord a été téléchargé.",
+            className: "bg-green-600 text-white border-none"
+        });
+
+    } catch (error) {
+        console.error("Export error:", error);
+        toast({
+            title: "Erreur",
+            description: "Impossible de générer le PDF.",
+            variant: "destructive"
+        });
+    }
+  };
+
   return (
     <Layout>
-      <div className="space-y-8">
+      <div id="dashboard-content" className="space-y-8 p-1">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-slate-800 dark:text-white tracking-tight">Bonjour, Cabinet ! 👋</h1>
@@ -311,6 +387,14 @@ Votre Expert-Comptable`
                  </SelectContent>
                </Select>
              </div>
+             
+             <Button 
+                onClick={handleExportDashboard}
+                className="bg-slate-900 text-white hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700 rounded-2xl shadow-lg shadow-slate-900/20 px-4 no-export"
+             >
+                <Download className="h-4 w-4 mr-2" />
+                Exporter
+             </Button>
           </div>
         </div>
 
