@@ -444,6 +444,13 @@ export default function ClientDetail() {
                     Resp: {client.manager}
                  </Badge>
               </span>
+              {clientContacts.filter(c => !c.isPrimary).map(contact => (
+                <span key={contact.id} className="flex items-center gap-1">
+                   <Badge variant="secondary" className="font-normal bg-slate-50 text-slate-700 hover:bg-slate-100 border-none dark:bg-slate-800 dark:text-slate-300">
+                      {contact.role || 'Contact'} : {contact.name}
+                   </Badge>
+                </span>
+              ))}
             </div>
           </div>
           <div className="ml-auto flex gap-3">
