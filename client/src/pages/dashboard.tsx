@@ -373,28 +373,29 @@ Votre Expert-Comptable`
               </Popover>
             </div>
 
-             <div className="flex items-center gap-2 bg-white dark:bg-slate-900 px-4 py-2 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
-               <Filter className="h-4 w-4 text-slate-500 dark:text-slate-400" />
-               <Select value={sectorFilter} onValueChange={setSectorFilter}>
-                 <SelectTrigger className="border-none h-auto p-0 focus:ring-0 w-[150px] font-medium text-slate-700 dark:text-slate-300 bg-transparent">
-                   <SelectValue placeholder="Tous secteurs" />
-                 </SelectTrigger>
-                 <SelectContent className="rounded-xl border-slate-100 dark:border-slate-800 dark:bg-slate-900 shadow-lg">
-                   <SelectItem value="All" className="rounded-lg cursor-pointer dark:text-slate-300 dark:focus:bg-slate-800">Tous secteurs</SelectItem>
-                   {uniqueSectors.map(s => (
-                     <SelectItem key={s} value={s} className="rounded-lg cursor-pointer dark:text-slate-300 dark:focus:bg-slate-800">{s}</SelectItem>
-                   ))}
-                 </SelectContent>
-               </Select>
+             <div className="flex flex-col items-end gap-1">
+               <div className="flex items-center gap-2 bg-white dark:bg-slate-900 px-4 py-2 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
+                 <Filter className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+                 <Select value={sectorFilter} onValueChange={setSectorFilter}>
+                   <SelectTrigger className="border-none h-auto p-0 focus:ring-0 w-[150px] font-medium text-slate-700 dark:text-slate-300 bg-transparent">
+                     <SelectValue placeholder="Tous secteurs" />
+                   </SelectTrigger>
+                   <SelectContent className="rounded-xl border-slate-100 dark:border-slate-800 dark:bg-slate-900 shadow-lg">
+                     <SelectItem value="All" className="rounded-lg cursor-pointer dark:text-slate-300 dark:focus:bg-slate-800">Tous secteurs</SelectItem>
+                     {uniqueSectors.map(s => (
+                       <SelectItem key={s} value={s} className="rounded-lg cursor-pointer dark:text-slate-300 dark:focus:bg-slate-800">{s}</SelectItem>
+                     ))}
+                   </SelectContent>
+                 </Select>
+               </div>
+               <button 
+                  onClick={handleExportDashboard}
+                  className="text-xs text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:underline cursor-pointer flex items-center gap-1 no-export transition-colors pr-2"
+               >
+                  <Download className="h-3 w-3" />
+                  Exporter le rapport
+               </button>
              </div>
-             
-             <Button 
-                onClick={handleExportDashboard}
-                className="bg-slate-900 text-white hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700 rounded-2xl shadow-lg shadow-slate-900/20 px-4 no-export"
-             >
-                <Download className="h-4 w-4 mr-2" />
-                Exporter
-             </Button>
           </div>
         </div>
 
