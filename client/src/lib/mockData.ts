@@ -11,6 +11,7 @@ export interface Contact {
   phone: string;
   isPrimary: boolean;
   preferredChannel: 'email' | 'phone' | 'whatsapp';
+  active?: boolean;
 }
 
 export interface Client {
@@ -51,6 +52,7 @@ export interface Reminder {
   clientId: string;
   date: string;
   type: 'email' | 'sms' | 'automatic';
+  channels?: ('email' | 'sms' | 'whatsapp')[];
   status: 'sent' | 'failed' | 'opened';
   subject: string;
 }
@@ -102,8 +104,8 @@ export const mockClients: Client[] = [
     creationDate: '2018-03-12',
     address: '15 Rue de la République, 75001 Paris',
     contacts: [
-      { id: 'c1', name: 'Jean Dupont', role: 'Président', email: 'jean.dupont@techsol.fr', phone: '06 12 34 56 78', isPrimary: true, preferredChannel: 'email' },
-      { id: 'c2', name: 'Sophie Martin', role: 'Office Manager', email: 'sophie.m@techsol.fr', phone: '06 99 88 77 66', isPrimary: false, preferredChannel: 'whatsapp' }
+      { id: 'c1', name: 'Jean Dupont', role: 'Président', email: 'jean.dupont@techsol.fr', phone: '06 12 34 56 78', isPrimary: true, preferredChannel: 'email', active: true },
+      { id: 'c2', name: 'Sophie Martin', role: 'Office Manager', email: 'sophie.m@techsol.fr', phone: '06 99 88 77 66', isPrimary: false, preferredChannel: 'whatsapp', active: true }
     ]
   },
   {
@@ -199,11 +201,11 @@ export const mockDocuments: Document[] = [
 ];
 
 export const mockReminders: Reminder[] = [
-  { id: 'r1', clientId: '1', date: formatDate(subDays(today, 1)), type: 'automatic', status: 'opened', subject: 'Rappel : Documents manquants' },
-  { id: 'r2', clientId: '3', date: formatDate(subDays(today, 2)), type: 'email', status: 'sent', subject: 'Relance urgente - Clôture' },
-  { id: 'r3', clientId: '2', date: formatDate(today), type: 'automatic', status: 'sent', subject: 'Vos documents comptables' },
-  { id: 'r4', clientId: '1', date: formatDate(subDays(today, 3)), type: 'email', status: 'opened', subject: 'Relance Manuelle' },
-  { id: 'r5', clientId: '6', date: formatDate(subDays(today, 1)), type: 'sms', status: 'sent', subject: 'Rappel SMS' },
+  { id: 'r1', clientId: '1', date: formatDate(subDays(today, 1)), type: 'automatic', channels: ['email'], status: 'opened', subject: 'Rappel : Documents manquants' },
+  { id: 'r2', clientId: '3', date: formatDate(subDays(today, 2)), type: 'email', channels: ['email', 'sms'], status: 'sent', subject: 'Relance urgente - Clôture' },
+  { id: 'r3', clientId: '2', date: formatDate(today), type: 'automatic', channels: ['email'], status: 'sent', subject: 'Vos documents comptables' },
+  { id: 'r4', clientId: '1', date: formatDate(subDays(today, 3)), type: 'email', channels: ['email'], status: 'opened', subject: 'Relance Manuelle' },
+  { id: 'r5', clientId: '6', date: formatDate(subDays(today, 1)), type: 'sms', channels: ['sms'], status: 'sent', subject: 'Rappel SMS' },
 ];
 
 export const mockCampaigns: Campaign[] = [

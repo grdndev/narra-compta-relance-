@@ -46,6 +46,42 @@ export default function Clients() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedClients, setSelectedClients] = useState<string[]>([]);
   const [isNewClientDialogOpen, setIsNewClientDialogOpen] = useState(false);
+  const [reminderDialogOpen, setReminderDialogOpen] = useState(false);
+  const [selectedClientForReminder, setSelectedClientForReminder] = useState<any>(null);
+  const [reminderChannels, setReminderChannels] = useState<{email: boolean, sms: boolean, whatsapp: boolean}>({
+    email: true,
+    sms: false,
+    whatsapp: false
+  });
+
+  const handleOpenReminderDialog = (client: any) => {
+    setSelectedClientForReminder(client);
+    setReminderDialogOpen(true);
+  };
+
+  const handleSendReminder = () => {
+      const channels = Object.entries(reminderChannels)
+        .filter(([_, checked]) => checked)
+        .map(([channel]) => channel);
+
+      if (channels.length === 0) {
+        toast({
+          title: "Erreur",
+          description: "Veuillez sélectionner au moins un canal.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      toast({
+        title: "Relance envoyée",
+        description: `La relance a été envoyée à ${selectedClientForReminder?.company} via ${channels.join(', ')}.`,
+        className: "bg-green-600 text-white border-none"
+      });
+      setReminderDialogOpen(false);
+      setSelectedClientForReminder(null);
+      setReminderChannels({ email: true, sms: false, whatsapp: false });
+  };
 
   // Client List Logic
   const filteredClients = mockClients.filter(client => 
@@ -264,7 +300,12 @@ export default function Clients() {
                     </TableCell>
                     <TableCell className="text-right pr-4">
                       <div className="flex items-center justify-end gap-2">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 rounded-lg">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 rounded-lg"
+                          onClick={() => handleOpenReminderDialog(client)}
+                        >
                           <Mail className="h-4 w-4" />
                         </Button>
                         <DropdownMenu>
@@ -300,6 +341,51 @@ export default function Clients() {
             </div>
           )}
         </div>
+
+        {/* Reminder Dialog with Channels */}
+        <Dialog open={reminderDialogOpen} onOpenChange={setReminderDialogOpen}>
+          <DialogContent className="sm:max-w-[425px] rounded-3xl dark:bg-slate-900 dark:border-slate-800">
+            <DialogHeader>
+              <DialogTitle className="dark:text-white">Relancer {selectedClientForReminder?.company}</DialogTitle>
+              <DialogDescription className="dark:text-slate-400">
+                Choisissez les canaux de communication pour cette relance.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="flex items-center space-x-2 border p-4 rounded-xl dark:border-slate-800">
+                <Checkbox 
+                  id="email" 
+                  checked={reminderChannels.email}
+                  onCheckedChange={(checked) => setReminderChannels({...reminderChannels, email: checked as boolean})}
+                />
+                <Label htmlFor="email" className="flex-1 cursor-pointer dark:text-slate-300">Email</Label>
+                <Mail className="h-4 w-4 text-slate-400" />
+              </div>
+              <div className="flex items-center space-x-2 border p-4 rounded-xl dark:border-slate-800">
+                <Checkbox 
+                  id="sms" 
+                  checked={reminderChannels.sms}
+                  onCheckedChange={(checked) => setReminderChannels({...reminderChannels, sms: checked as boolean})}
+                />
+                <Label htmlFor="sms" className="flex-1 cursor-pointer dark:text-slate-300">SMS</Label>
+                <Phone className="h-4 w-4 text-slate-400" />
+              </div>
+              <div className="flex items-center space-x-2 border p-4 rounded-xl dark:border-slate-800">
+                <Checkbox 
+                  id="whatsapp" 
+                  checked={reminderChannels.whatsapp}
+                  onCheckedChange={(checked) => setReminderChannels({...reminderChannels, whatsapp: checked as boolean})}
+                />
+                <Label htmlFor="whatsapp" className="flex-1 cursor-pointer dark:text-slate-300">WhatsApp</Label>
+                <Send className="h-4 w-4 text-slate-400" />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setReminderDialogOpen(false)} className="rounded-xl dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">Annuler</Button>
+              <Button onClick={handleSendReminder} className="rounded-xl bg-slate-900 text-white hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700">Envoyer</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );

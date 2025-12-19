@@ -18,6 +18,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 
 export default function ClientDetail() {
   const [match, params] = useRoute("/clients/:id");
@@ -195,15 +196,6 @@ export default function ClientDetail() {
           <div>
             <h1 className="text-3xl font-serif font-bold text-slate-900 dark:text-white flex items-center gap-3">
               {client.company}
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:text-slate-500 dark:hover:text-blue-400 dark:hover:bg-blue-900/20 gap-2 font-sans font-medium text-sm ml-2" 
-                onClick={() => setActiveTab("informations")}
-              >
-                <AlertCircle className="h-5 w-5" />
-                Informations
-              </Button>
             </h1>
             <div className="flex flex-wrap items-center gap-4 mt-2 text-slate-500 dark:text-slate-400 text-sm">
               <span className="flex items-center gap-1"><User className="h-4 w-4" /> {client.name}</span>
@@ -350,15 +342,33 @@ export default function ClientDetail() {
                     </div>
                  ) : (
                     clientContacts.map((contact, index) => (
-                   <Card key={contact.id} className="border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] rounded-3xl relative group">
-                     <Button 
-                       variant="ghost" 
-                       size="icon" 
-                       className="absolute top-4 right-4 text-slate-400 hover:text-red-500 rounded-xl"
-                       onClick={() => setClientContacts(clientContacts.filter(c => c.id !== contact.id))}
-                     >
-                       <Trash2 className="h-4 w-4" />
-                     </Button>
+                     <Card key={contact.id} className={`border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] rounded-3xl relative group ${!contact.active ? 'opacity-60 grayscale' : ''}`}>
+                     <div className="absolute top-4 right-4 flex items-center gap-2">
+                       <div className="flex items-center space-x-2">
+                         <Label htmlFor={`active-${contact.id}`} className="text-xs text-slate-500">Actif</Label>
+                         <Switch 
+                           id={`active-${contact.id}`}
+                           checked={contact.active !== false}
+                           onCheckedChange={(checked) => {
+                             setClientContacts(clientContacts.map(c => 
+                               c.id === contact.id ? { ...c, active: checked } : c
+                             ));
+                             toast({
+                               title: checked ? "Contact activé" : "Contact désactivé",
+                               description: `Le contact ${contact.name} a été ${checked ? 'activé' : 'désactivé'}.`
+                             });
+                           }}
+                         />
+                       </div>
+                       <Button 
+                         variant="ghost" 
+                         size="icon" 
+                         className="text-slate-400 hover:text-red-500 rounded-xl"
+                         onClick={() => setClientContacts(clientContacts.filter(c => c.id !== contact.id))}
+                       >
+                         <Trash2 className="h-4 w-4" />
+                       </Button>
+                     </div>
                      <CardHeader>
                        <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
                          <User className={`h-5 w-5 ${contact.isPrimary ? 'text-blue-500' : 'text-slate-400'}`} />
@@ -495,7 +505,7 @@ export default function ClientDetail() {
                                 {reminder.subject}
                               </span>
                               <span className="text-xs text-slate-500">
-                                {new Date(reminder.date).toLocaleDateString('fr-FR')} • Via {reminder.type}
+                                {new Date(reminder.date).toLocaleDateString('fr-FR')} • Via {reminder.channels?.map(c => c.charAt(0).toUpperCase() + c.slice(1)).join(', ') || reminder.type}
                               </span>
                               <Badge variant="outline" className="w-fit text-[10px] px-1.5 py-0 h-5 border-slate-200">
                                 {reminder.status}
