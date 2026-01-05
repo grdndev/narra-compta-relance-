@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Building2, User, Phone, Mail, Link2, FileText, CheckCircle2, 
-  RefreshCw, Plus, Trash2, Save, Moon, Sun, Laptop
+  RefreshCw, Plus, Trash2, Save, Moon, Sun, Laptop, Globe
 } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -21,6 +21,7 @@ import {
 export default function Settings() {
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
+  const [language, setLanguage] = useState("fr");
 
   const handleSave = () => {
     toast({
@@ -287,6 +288,47 @@ Votre Expert-Comptable`}
                     checked={theme === 'dark'}
                     onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
                   />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] rounded-3xl dark:bg-slate-900">
+              <CardHeader>
+                <CardTitle className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                  <Globe className="h-5 w-5 text-blue-500" />
+                  Langue de l'interface
+                </CardTitle>
+                <CardDescription className="dark:text-slate-400">
+                  Choisissez la langue d'affichage de l'application.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">
+                  <div className="flex items-center gap-4">
+                    <div className="h-10 w-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300">
+                      <span className="font-bold text-sm">{language.toUpperCase()}</span>
+                    </div>
+                    <div>
+                      <Label htmlFor="language-select" className="font-bold text-slate-900 dark:text-white block">Langue</Label>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">Sélectionnez votre langue préférée</p>
+                    </div>
+                  </div>
+                  <Select value={language} onValueChange={(val) => {
+                      setLanguage(val);
+                      toast({
+                        title: "Langue modifiée",
+                        description: `L'interface est maintenant en ${val === 'fr' ? 'Français' : 'Anglais'}.`,
+                        className: "bg-blue-600 text-white border-none"
+                      });
+                  }}>
+                    <SelectTrigger className="w-[180px] rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-900 dark:text-white">
+                      <SelectValue placeholder="Langue" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl border-slate-100 dark:border-slate-800 dark:bg-slate-900">
+                      <SelectItem value="fr" className="cursor-pointer">Français</SelectItem>
+                      <SelectItem value="en" className="cursor-pointer">English</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </CardContent>
             </Card>
