@@ -60,7 +60,20 @@ export default function Layout({ children }: LayoutProps) {
         <div className="p-6">
           <div className="flex items-center gap-3 mb-10">
             <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-blue-500/20">
-              <Sparkles className="h-5 w-5" />
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                className="h-6 w-6"
+              >
+                <path d="M12 2L2 22L12 18L22 22L12 2Z" />
+                <path d="M12 2L8 22" />
+                <path d="M12 2L16 22" />
+              </svg>
             </div>
             <h1 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight">{t("app.title")}</h1>
           </div>
