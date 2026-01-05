@@ -358,28 +358,6 @@ Votre Expert-Comptable`
             <h1 className="text-3xl font-bold text-slate-800 dark:text-white tracking-tight">{t("dashboard.welcome")}</h1>
             <div className="flex items-center gap-3 mt-1">
               <p className="text-slate-500 dark:text-slate-400 font-medium">{t("dashboard.subtitle")}</p>
-              
-              {/* Active Connector Badge with Text */}
-              <div className="flex items-center ml-2">
-                {activeIntegration === 'sage' && (
-                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800 gap-1.5 rounded-md px-3 py-1 h-7 text-sm font-medium">
-                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                    Synchronisé avec Sage Coala
-                  </Badge>
-                )}
-                {activeIntegration === 'inqom' && (
-                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800 gap-1.5 rounded-md px-3 py-1 h-7 text-sm font-medium">
-                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                    Synchronisé avec Inqom
-                  </Badge>
-                )}
-                {activeIntegration === 'acd' && (
-                  <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-400 dark:border-indigo-800 gap-1.5 rounded-md px-3 py-1 h-7 text-sm font-medium">
-                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                    Synchronisé avec ACD
-                  </Badge>
-                )}
-              </div>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row items-start gap-3">
