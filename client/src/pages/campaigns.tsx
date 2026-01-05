@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { mockCampaigns, mockClients, Campaign } from "@/lib/mockData";
-import { Plus, Megaphone, Calendar, Users, Send, BarChart2, Eye, XCircle, CheckCircle2 } from "lucide-react";
+import { Plus, Megaphone, Calendar, Users, Send, BarChart2, Eye, XCircle, CheckCircle2, Clock } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -35,6 +35,7 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export default function Campaigns() {
   const { toast } = useToast();
@@ -44,6 +45,10 @@ export default function Campaigns() {
   const [newCampaignName, setNewCampaignName] = useState("");
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  
+  // Follow-up state
+  const [followUpType, setFollowUpType] = useState<string>("none");
+  const [customDays, setCustomDays] = useState<string>("14");
 
   const handleCreateCampaign = () => {
     const newCampaign: Campaign = {
@@ -55,7 +60,8 @@ export default function Campaigns() {
         : mockClients.filter(c => c.sector === selectedSector && c.status === 'active').length,
       targetSector: selectedSector,
       sentDate: new Date().toISOString().split('T')[0],
-      openRate: 0
+      openRate: 0,
+      followUpDelay: null
     };
 
     setCampaigns([newCampaign, ...campaigns]);
@@ -65,6 +71,48 @@ export default function Campaigns() {
       title: "Campagne créée",
       description: "Votre campagne a été programmée avec succès.",
     });
+  };
+
+  const handleSaveFollowUp = () => {
+    if (!selectedCampaign) return;
+
+    let delay: number | 'immediate' | null = null;
+    if (followUpType === 'immediate') delay = 'immediate';
+    else if (followUpType === '3') delay = 3;
+    else if (followUpType === '7') delay = 7;
+    else if (followUpType === 'custom') delay = parseInt(customDays) || 14;
+
+    const updatedCampaigns = campaigns.map(c => 
+      c.id === selectedCampaign.id 
+        ? { ...c, followUpDelay: delay }
+        : c
+    );
+    
+    setCampaigns(updatedCampaigns);
+    setSelectedCampaign({ ...selectedCampaign, followUpDelay: delay });
+
+    toast({
+      title: "Configuration enregistrée",
+      description: "Les paramètres de relance ont été mis à jour.",
+    });
+  };
+  
+  const openDetails = (campaign: Campaign) => {
+    setSelectedCampaign(campaign);
+    // Initialize follow-up state from campaign
+    if (campaign.followUpDelay === 'immediate') {
+      setFollowUpType('immediate');
+    } else if (campaign.followUpDelay === 3) {
+      setFollowUpType('3');
+    } else if (campaign.followUpDelay === 7) {
+      setFollowUpType('7');
+    } else if (typeof campaign.followUpDelay === 'number') {
+      setFollowUpType('custom');
+      setCustomDays(campaign.followUpDelay.toString());
+    } else {
+      setFollowUpType('none');
+    }
+    setDetailsOpen(true);
   };
 
   const getRecipientsForCampaign = (campaign: Campaign) => {
@@ -179,9 +227,10 @@ export default function Campaigns() {
             
             {selectedCampaign && (
               <Tabs defaultValue="stats" className="flex-1 flex flex-col min-h-0">
-                <TabsList className="grid w-full grid-cols-2">
+                <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="stats">Statistiques</TabsTrigger>
                   <TabsTrigger value="recipients">Destinataires</TabsTrigger>
+                  <TabsTrigger value="followup">Relance Auto</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="stats" className="mt-4 space-y-4">
@@ -253,6 +302,103 @@ export default function Campaigns() {
                     </Table>
                   </ScrollArea>
                 </TabsContent>
+
+                <TabsContent value="followup" className="mt-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Clock className="h-5 w-5 text-slate-500" />
+                        Configuration de la relance
+                      </CardTitle>
+                      <CardDescription>
+                        Programmez une relance automatique pour les destinataires n'ayant pas ouvert l'email.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div className="space-y-4">
+                        <Label>Délai de relance</Label>
+                        <RadioGroup value={followUpType} onValueChange={setFollowUpType} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <RadioGroupItem value="none" id="none" className="peer sr-only" />
+                            <Label
+                              htmlFor="none"
+                              className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                            >
+                              <XCircle className="mb-2 h-6 w-6 text-slate-400" />
+                              Aucune relance
+                            </Label>
+                          </div>
+                          <div>
+                            <RadioGroupItem value="immediate" id="immediate" className="peer sr-only" />
+                            <Label
+                              htmlFor="immediate"
+                              className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                            >
+                              <Send className="mb-2 h-6 w-6 text-blue-500" />
+                              Immédiat
+                            </Label>
+                          </div>
+                          <div>
+                            <RadioGroupItem value="3" id="3" className="peer sr-only" />
+                            <Label
+                              htmlFor="3"
+                              className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                            >
+                              <Calendar className="mb-2 h-6 w-6 text-purple-500" />
+                              J+3
+                            </Label>
+                          </div>
+                          <div>
+                            <RadioGroupItem value="7" id="7" className="peer sr-only" />
+                            <Label
+                              htmlFor="7"
+                              className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                            >
+                              <Calendar className="mb-2 h-6 w-6 text-purple-500" />
+                              J+7
+                            </Label>
+                          </div>
+                          <div className="col-span-1 md:col-span-2">
+                             <RadioGroupItem value="custom" id="custom" className="peer sr-only" />
+                             <Label
+                              htmlFor="custom"
+                              className="flex flex-row items-center gap-4 rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer h-full"
+                            >
+                              <div className="flex flex-col items-center flex-shrink-0">
+                                <Clock className="mb-2 h-6 w-6 text-orange-500" />
+                                Personnalisé
+                              </div>
+                              <div className="flex-1 space-y-2">
+                                <p className="text-sm text-muted-foreground">Choisir le nombre de jours</p>
+                                <div className="flex items-center gap-2">
+                                  <Input 
+                                    type="number" 
+                                    min="1" 
+                                    max="90"
+                                    value={customDays}
+                                    onChange={(e) => setCustomDays(e.target.value)}
+                                    className="w-24"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setFollowUpType('custom');
+                                    }}
+                                  />
+                                  <span className="text-sm">jours après l'envoi</span>
+                                </div>
+                              </div>
+                            </Label>
+                          </div>
+                        </RadioGroup>
+                      </div>
+                      
+                      <div className="flex justify-end pt-4">
+                        <Button onClick={handleSaveFollowUp} className="bg-slate-900 text-white">
+                          Enregistrer la configuration
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
               </Tabs>
             )}
           </DialogContent>
@@ -263,10 +409,7 @@ export default function Campaigns() {
             <Card 
               key={campaign.id} 
               className="hover:shadow-md transition-all cursor-pointer hover:border-blue-200 active:scale-95 duration-200"
-              onClick={() => {
-                setSelectedCampaign(campaign);
-                setDetailsOpen(true);
-              }}
+              onClick={() => openDetails(campaign)}
             >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <div className="space-y-1">

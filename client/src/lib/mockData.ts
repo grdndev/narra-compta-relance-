@@ -65,6 +65,7 @@ export interface Campaign {
   targetSector?: string; // 'All' or specific sector
   recipientCount: number;
   openRate?: number;
+  followUpDelay?: number | 'immediate' | null;
 }
 
 export interface AccountingEntry {
