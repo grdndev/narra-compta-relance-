@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Building2, User, Phone, Mail, Link2, FileText, CheckCircle2, 
-  RefreshCw, Plus, Trash2, Save, Moon, Sun, Laptop, Globe
+  RefreshCw, Plus, Trash2, Save, Moon, Sun, Laptop, Globe, Power
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "@/components/theme-provider";
@@ -17,11 +17,45 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from "@/components/ui/select";
 import { useLanguage } from "@/lib/i18n";
+import { useState, useEffect } from "react";
 
 export default function Settings() {
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
   const { language, setLanguage, t } = useLanguage();
+  
+  // Integrations State
+  const [integrations, setIntegrations] = useState({
+    sage: true,
+    inqom: false,
+    acd: false
+  });
+
+  useEffect(() => {
+    const saved = localStorage.getItem('activeIntegrations');
+    if (saved) {
+      setIntegrations(JSON.parse(saved));
+    }
+  }, []);
+
+  const toggleIntegration = (key: 'sage' | 'inqom' | 'acd') => {
+    const newState = { ...integrations, [key]: !integrations[key] };
+    setIntegrations(newState);
+    localStorage.setItem('activeIntegrations', JSON.stringify(newState));
+    
+    if (newState[key]) {
+      toast({
+        title: "Connexion réussie",
+        description: `Le connecteur ${key === 'acd' ? 'ACD' : key.charAt(0).toUpperCase() + key.slice(1)} est maintenant actif.`,
+        className: "bg-green-600 text-white border-none"
+      });
+    } else {
+      toast({
+        title: "Déconnexion",
+        description: `Le connecteur ${key === 'acd' ? 'ACD' : key.charAt(0).toUpperCase() + key.slice(1)} a été désactivé.`,
+      });
+    }
+  };
 
   const handleSave = () => {
     toast({
@@ -167,7 +201,8 @@ export default function Settings() {
              ======================= */}
           <TabsContent value="connecteurs" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="grid gap-6">
-              <Card className="border-blue-200 bg-blue-50/30 dark:bg-blue-900/10 dark:border-blue-900 rounded-3xl">
+              {/* Sage Coala */}
+              <Card className={`rounded-3xl transition-all duration-300 ${integrations.sage ? 'border-blue-200 bg-blue-50/30 dark:bg-blue-900/10 dark:border-blue-900' : 'opacity-75 grayscale hover:grayscale-0 border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] dark:bg-slate-900'}`}>
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
@@ -176,43 +211,126 @@ export default function Settings() {
                       </div>
                       <div>
                         <CardTitle className="text-lg dark:text-white">Sage Coala</CardTitle>
-                        <CardDescription className="dark:text-slate-400">{t("settings.connectors.active")} • {t("settings.connectors.last_sync")}</CardDescription>
+                        <CardDescription className="dark:text-slate-400">
+                          {integrations.sage ? `${t("settings.connectors.active")} • ${t("settings.connectors.last_sync")}` : t("settings.connectors.available")}
+                        </CardDescription>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-4 py-1.5 rounded-full text-sm font-bold">
-                      <CheckCircle2 className="h-4 w-4" />
-                      {t("settings.connectors.connected")}
-                    </div>
+                    {integrations.sage ? (
+                      <div className="flex items-center gap-2 text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-4 py-1.5 rounded-full text-sm font-bold">
+                        <CheckCircle2 className="h-4 w-4" />
+                        {t("settings.connectors.connected")}
+                      </div>
+                    ) : (
+                      <Button variant="outline" onClick={() => toggleIntegration('sage')} className="rounded-xl dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">
+                        {t("settings.connectors.connect")}
+                      </Button>
+                    )}
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between border-t border-blue-100 dark:border-blue-900/30 pt-4 mt-2">
-                    <div className="text-sm text-slate-600 dark:text-slate-400 font-medium">
-                      <span className="font-bold text-blue-600 dark:text-blue-400 text-lg">142</span> {t("settings.connectors.synced_today")}
+                {integrations.sage && (
+                  <CardContent>
+                    <div className="flex items-center justify-between border-t border-blue-100 dark:border-blue-900/30 pt-4 mt-2">
+                      <div className="text-sm text-slate-600 dark:text-slate-400 font-medium">
+                        <span className="font-bold text-blue-600 dark:text-blue-400 text-lg">142</span> {t("settings.connectors.synced_today")}
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="ghost" size="sm" onClick={() => toggleIntegration('sage')} className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">
+                          <Power className="h-3 w-3 mr-2" />
+                          Déconnecter
+                        </Button>
+                        <Button variant="outline" size="sm" className="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-400">
+                          <RefreshCw className="h-3 w-3 mr-2" />
+                          {t("settings.connectors.force_sync")}
+                        </Button>
+                      </div>
                     </div>
-                    <Button variant="outline" size="sm" className="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-400">
-                      <RefreshCw className="h-3 w-3 mr-2" />
-                      {t("settings.connectors.force_sync")}
-                    </Button>
-                  </div>
-                </CardContent>
+                  </CardContent>
+                )}
               </Card>
 
-              <Card className="opacity-75 grayscale hover:grayscale-0 transition-all duration-300 rounded-3xl border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] dark:bg-slate-900">
+              {/* Inqom */}
+              <Card className={`rounded-3xl transition-all duration-300 ${integrations.inqom ? 'border-blue-200 bg-blue-50/30 dark:bg-blue-900/10 dark:border-blue-900' : 'opacity-75 grayscale hover:grayscale-0 border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] dark:bg-slate-900'}`}>
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div className="h-12 w-12 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 flex items-center justify-center shadow-sm">
-                        <span className="font-bold text-green-600 dark:text-green-400 text-lg">QB</span>
+                        <span className="font-bold text-blue-600 dark:text-blue-400 text-lg">IN</span>
                       </div>
                       <div>
-                        <CardTitle className="text-lg dark:text-white">Quickbooks</CardTitle>
-                        <CardDescription className="dark:text-slate-400">{t("settings.connectors.available")}</CardDescription>
+                        <CardTitle className="text-lg dark:text-white">Inqom</CardTitle>
+                        <CardDescription className="dark:text-slate-400">
+                           {integrations.inqom ? "Synchronisation active" : t("settings.connectors.available")}
+                        </CardDescription>
                       </div>
                     </div>
-                    <Button variant="outline" className="rounded-xl dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">{t("settings.connectors.connect")}</Button>
+                    {integrations.inqom ? (
+                      <div className="flex items-center gap-2 text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-4 py-1.5 rounded-full text-sm font-bold">
+                        <CheckCircle2 className="h-4 w-4" />
+                        {t("settings.connectors.connected")}
+                      </div>
+                    ) : (
+                      <Button variant="outline" onClick={() => toggleIntegration('inqom')} className="rounded-xl dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">
+                        {t("settings.connectors.connect")}
+                      </Button>
+                    )}
                   </div>
                 </CardHeader>
+                {integrations.inqom && (
+                  <CardContent>
+                    <div className="flex items-center justify-between border-t border-blue-100 dark:border-blue-900/30 pt-4 mt-2">
+                       <div className="text-sm text-slate-600 dark:text-slate-400 font-medium">
+                        <span className="font-bold text-blue-600 dark:text-blue-400 text-lg">En attente</span> de la prochaine synchro
+                      </div>
+                      <Button variant="ghost" size="sm" onClick={() => toggleIntegration('inqom')} className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">
+                        <Power className="h-3 w-3 mr-2" />
+                        Déconnecter
+                      </Button>
+                    </div>
+                  </CardContent>
+                )}
+              </Card>
+
+              {/* ACD */}
+              <Card className={`rounded-3xl transition-all duration-300 ${integrations.acd ? 'border-blue-200 bg-blue-50/30 dark:bg-blue-900/10 dark:border-blue-900' : 'opacity-75 grayscale hover:grayscale-0 border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] dark:bg-slate-900'}`}>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="h-12 w-12 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 flex items-center justify-center shadow-sm">
+                        <span className="font-bold text-indigo-600 dark:text-indigo-400 text-lg">ACD</span>
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg dark:text-white">ACD</CardTitle>
+                        <CardDescription className="dark:text-slate-400">
+                           {integrations.acd ? "Synchronisation active" : t("settings.connectors.available")}
+                        </CardDescription>
+                      </div>
+                    </div>
+                    {integrations.acd ? (
+                      <div className="flex items-center gap-2 text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-4 py-1.5 rounded-full text-sm font-bold">
+                        <CheckCircle2 className="h-4 w-4" />
+                        {t("settings.connectors.connected")}
+                      </div>
+                    ) : (
+                      <Button variant="outline" onClick={() => toggleIntegration('acd')} className="rounded-xl dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">
+                        {t("settings.connectors.connect")}
+                      </Button>
+                    )}
+                  </div>
+                </CardHeader>
+                {integrations.acd && (
+                  <CardContent>
+                    <div className="flex items-center justify-between border-t border-blue-100 dark:border-blue-900/30 pt-4 mt-2">
+                       <div className="text-sm text-slate-600 dark:text-slate-400 font-medium">
+                        <span className="font-bold text-blue-600 dark:text-blue-400 text-lg">En attente</span> de la prochaine synchro
+                      </div>
+                      <Button variant="ghost" size="sm" onClick={() => toggleIntegration('acd')} className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">
+                        <Power className="h-3 w-3 mr-2" />
+                        Déconnecter
+                      </Button>
+                    </div>
+                  </CardContent>
+                )}
               </Card>
             </div>
           </TabsContent>

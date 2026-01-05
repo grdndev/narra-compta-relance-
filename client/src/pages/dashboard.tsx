@@ -41,12 +41,26 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useLanguage } from "@/lib/i18n";
+import { useEffect } from "react";
 
 const COLORS = ['hsl(225 73% 57%)', 'hsl(48 96% 53%)', 'hsl(150 60% 45%)', 'hsl(340 80% 65%)', 'hsl(260 60% 65%)'];
 
 export default function Dashboard() {
   const { t, dateLocale } = useLanguage();
   const [sectorFilter, setSectorFilter] = useState("All");
+  const [activeConnectors, setActiveConnectors] = useState({
+    sage: true,
+    inqom: false,
+    acd: false
+  });
+
+  useEffect(() => {
+    const saved = localStorage.getItem('activeIntegrations');
+    if (saved) {
+      setActiveConnectors(JSON.parse(saved));
+    }
+  }, []);
+
   const [date, setDate] = useState<DateRange | undefined>({
     from: subDays(new Date(), 3),
     to: new Date(),
@@ -330,7 +344,31 @@ Votre Expert-Comptable`
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-slate-800 dark:text-white tracking-tight">{t("dashboard.welcome")}</h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-1 font-medium">{t("dashboard.subtitle")}</p>
+            <div className="flex items-center gap-3 mt-1">
+              <p className="text-slate-500 dark:text-slate-400 font-medium">{t("dashboard.subtitle")}</p>
+              
+              {/* Active Connectors Badges */}
+              <div className="flex items-center gap-2 ml-2">
+                {activeConnectors.sage && (
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800 gap-1 rounded-md px-2 py-0.5 h-6">
+                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+                    Sage
+                  </Badge>
+                )}
+                {activeConnectors.inqom && (
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800 gap-1 rounded-md px-2 py-0.5 h-6">
+                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+                    Inqom
+                  </Badge>
+                )}
+                {activeConnectors.acd && (
+                  <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-400 dark:border-indigo-800 gap-1 rounded-md px-2 py-0.5 h-6">
+                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+                    ACD
+                  </Badge>
+                )}
+              </div>
+            </div>
           </div>
           <div className="flex flex-col sm:flex-row items-start gap-3">
              {/* Date Picker */}
