@@ -69,10 +69,10 @@ export default function Layout({ children }: LayoutProps) {
                 strokeLinecap="round" 
                 strokeLinejoin="round" 
                 className="h-6 w-6"
+                style={{ transform: 'rotate(-45deg) translate(2px, 2px)' }}
               >
-                <path d="M12 2L2 22L12 18L22 22L12 2Z" />
-                <path d="M12 2L8 22" />
-                <path d="M12 2L16 22" />
+                <path d="M22 2L2 8.5l9 3.5 3.5 9L22 2z" />
+                <path d="M11 12l11-10" />
               </svg>
             </div>
             <h1 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight">{t("app.title")}</h1>
