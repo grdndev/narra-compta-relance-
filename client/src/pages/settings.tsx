@@ -25,34 +25,36 @@ export default function Settings() {
   const { language, setLanguage, t } = useLanguage();
   
   // Integrations State
-  const [integrations, setIntegrations] = useState({
-    sage: true,
-    inqom: false,
-    acd: false
-  });
+  const [activeIntegration, setActiveIntegration] = useState<string | null>('sage');
 
   useEffect(() => {
-    const saved = localStorage.getItem('activeIntegrations');
+    const saved = localStorage.getItem('activeIntegration');
     if (saved) {
-      setIntegrations(JSON.parse(saved));
+      setActiveIntegration(saved === 'null' ? null : saved);
     }
   }, []);
 
-  const toggleIntegration = (key: 'sage' | 'inqom' | 'acd') => {
-    const newState = { ...integrations, [key]: !integrations[key] };
-    setIntegrations(newState);
-    localStorage.setItem('activeIntegrations', JSON.stringify(newState));
+  const toggleIntegration = (key: string) => {
+    // If clicking the active one, disconnect it (set to null)
+    // If clicking a different one, switch to it
+    const newIntegration = activeIntegration === key ? null : key;
     
-    if (newState[key]) {
+    setActiveIntegration(newIntegration);
+    localStorage.setItem('activeIntegration', newIntegration || 'null');
+    
+    // Dispatch custom event to notify other components
+    window.dispatchEvent(new Event('integrationChanged'));
+    
+    if (newIntegration) {
       toast({
         title: "Connexion réussie",
-        description: `Le connecteur ${key === 'acd' ? 'ACD' : key.charAt(0).toUpperCase() + key.slice(1)} est maintenant actif.`,
+        description: `Le connecteur ${newIntegration === 'acd' ? 'ACD' : newIntegration === 'sage' ? 'Sage Coala' : 'Inqom'} est maintenant actif.`,
         className: "bg-green-600 text-white border-none"
       });
     } else {
       toast({
         title: "Déconnexion",
-        description: `Le connecteur ${key === 'acd' ? 'ACD' : key.charAt(0).toUpperCase() + key.slice(1)} a été désactivé.`,
+        description: `Le connecteur a été désactivé.`,
       });
     }
   };
@@ -202,7 +204,7 @@ export default function Settings() {
           <TabsContent value="connecteurs" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="grid gap-6">
               {/* Sage Coala */}
-              <Card className={`rounded-3xl transition-all duration-300 ${integrations.sage ? 'border-blue-200 bg-blue-50/30 dark:bg-blue-900/10 dark:border-blue-900' : 'opacity-75 grayscale hover:grayscale-0 border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] dark:bg-slate-900'}`}>
+              <Card className={`rounded-3xl transition-all duration-300 ${activeIntegration === 'sage' ? 'border-blue-200 bg-blue-50/30 dark:bg-blue-900/10 dark:border-blue-900' : 'opacity-75 grayscale hover:grayscale-0 border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] dark:bg-slate-900'}`}>
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
@@ -212,11 +214,11 @@ export default function Settings() {
                       <div>
                         <CardTitle className="text-lg dark:text-white">Sage Coala</CardTitle>
                         <CardDescription className="dark:text-slate-400">
-                          {integrations.sage ? `${t("settings.connectors.active")} • ${t("settings.connectors.last_sync")}` : t("settings.connectors.available")}
+                          {activeIntegration === 'sage' ? `${t("settings.connectors.active")} • ${t("settings.connectors.last_sync")}` : t("settings.connectors.available")}
                         </CardDescription>
                       </div>
                     </div>
-                    {integrations.sage ? (
+                    {activeIntegration === 'sage' ? (
                       <div className="flex items-center gap-2 text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-4 py-1.5 rounded-full text-sm font-bold">
                         <CheckCircle2 className="h-4 w-4" />
                         {t("settings.connectors.connected")}
@@ -228,7 +230,7 @@ export default function Settings() {
                     )}
                   </div>
                 </CardHeader>
-                {integrations.sage && (
+                {activeIntegration === 'sage' && (
                   <CardContent>
                     <div className="flex items-center justify-between border-t border-blue-100 dark:border-blue-900/30 pt-4 mt-2">
                       <div className="text-sm text-slate-600 dark:text-slate-400 font-medium">
@@ -250,7 +252,7 @@ export default function Settings() {
               </Card>
 
               {/* Inqom */}
-              <Card className={`rounded-3xl transition-all duration-300 ${integrations.inqom ? 'border-blue-200 bg-blue-50/30 dark:bg-blue-900/10 dark:border-blue-900' : 'opacity-75 grayscale hover:grayscale-0 border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] dark:bg-slate-900'}`}>
+              <Card className={`rounded-3xl transition-all duration-300 ${activeIntegration === 'inqom' ? 'border-blue-200 bg-blue-50/30 dark:bg-blue-900/10 dark:border-blue-900' : 'opacity-75 grayscale hover:grayscale-0 border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] dark:bg-slate-900'}`}>
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
@@ -260,11 +262,11 @@ export default function Settings() {
                       <div>
                         <CardTitle className="text-lg dark:text-white">Inqom</CardTitle>
                         <CardDescription className="dark:text-slate-400">
-                           {integrations.inqom ? "Synchronisation active" : t("settings.connectors.available")}
+                           {activeIntegration === 'inqom' ? "Synchronisation active" : t("settings.connectors.available")}
                         </CardDescription>
                       </div>
                     </div>
-                    {integrations.inqom ? (
+                    {activeIntegration === 'inqom' ? (
                       <div className="flex items-center gap-2 text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-4 py-1.5 rounded-full text-sm font-bold">
                         <CheckCircle2 className="h-4 w-4" />
                         {t("settings.connectors.connected")}
@@ -276,7 +278,7 @@ export default function Settings() {
                     )}
                   </div>
                 </CardHeader>
-                {integrations.inqom && (
+                {activeIntegration === 'inqom' && (
                   <CardContent>
                     <div className="flex items-center justify-between border-t border-blue-100 dark:border-blue-900/30 pt-4 mt-2">
                        <div className="text-sm text-slate-600 dark:text-slate-400 font-medium">
@@ -292,7 +294,7 @@ export default function Settings() {
               </Card>
 
               {/* ACD */}
-              <Card className={`rounded-3xl transition-all duration-300 ${integrations.acd ? 'border-blue-200 bg-blue-50/30 dark:bg-blue-900/10 dark:border-blue-900' : 'opacity-75 grayscale hover:grayscale-0 border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] dark:bg-slate-900'}`}>
+              <Card className={`rounded-3xl transition-all duration-300 ${activeIntegration === 'acd' ? 'border-blue-200 bg-blue-50/30 dark:bg-blue-900/10 dark:border-blue-900' : 'opacity-75 grayscale hover:grayscale-0 border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] dark:bg-slate-900'}`}>
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
@@ -302,11 +304,11 @@ export default function Settings() {
                       <div>
                         <CardTitle className="text-lg dark:text-white">ACD</CardTitle>
                         <CardDescription className="dark:text-slate-400">
-                           {integrations.acd ? "Synchronisation active" : t("settings.connectors.available")}
+                           {activeIntegration === 'acd' ? "Synchronisation active" : t("settings.connectors.available")}
                         </CardDescription>
                       </div>
                     </div>
-                    {integrations.acd ? (
+                    {activeIntegration === 'acd' ? (
                       <div className="flex items-center gap-2 text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-4 py-1.5 rounded-full text-sm font-bold">
                         <CheckCircle2 className="h-4 w-4" />
                         {t("settings.connectors.connected")}
@@ -318,7 +320,7 @@ export default function Settings() {
                     )}
                   </div>
                 </CardHeader>
-                {integrations.acd && (
+                {activeIntegration === 'acd' && (
                   <CardContent>
                     <div className="flex items-center justify-between border-t border-blue-100 dark:border-blue-900/30 pt-4 mt-2">
                        <div className="text-sm text-slate-600 dark:text-slate-400 font-medium">

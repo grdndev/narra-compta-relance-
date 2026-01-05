@@ -48,17 +48,29 @@ const COLORS = ['hsl(225 73% 57%)', 'hsl(48 96% 53%)', 'hsl(150 60% 45%)', 'hsl(
 export default function Dashboard() {
   const { t, dateLocale } = useLanguage();
   const [sectorFilter, setSectorFilter] = useState("All");
-  const [activeConnectors, setActiveConnectors] = useState({
-    sage: true,
-    inqom: false,
-    acd: false
-  });
+  const [activeIntegration, setActiveIntegration] = useState<string | null>('sage');
 
   useEffect(() => {
-    const saved = localStorage.getItem('activeIntegrations');
+    // Check for saved integration
+    const saved = localStorage.getItem('activeIntegration');
     if (saved) {
-      setActiveConnectors(JSON.parse(saved));
+      setActiveIntegration(saved === 'null' ? null : saved);
     }
+
+    // Listen for changes from other components (Settings)
+    const handleStorageChange = () => {
+      const updated = localStorage.getItem('activeIntegration');
+      setActiveIntegration(updated === 'null' ? null : updated);
+    };
+
+    window.addEventListener('integrationChanged', handleStorageChange);
+    // Also listen to storage events for cross-tab or direct storage updates
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('integrationChanged', handleStorageChange);
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   const [date, setDate] = useState<DateRange | undefined>({
@@ -347,24 +359,24 @@ Votre Expert-Comptable`
             <div className="flex items-center gap-3 mt-1">
               <p className="text-slate-500 dark:text-slate-400 font-medium">{t("dashboard.subtitle")}</p>
               
-              {/* Active Connectors Badges */}
-              <div className="flex items-center gap-2 ml-2">
-                {activeConnectors.sage && (
-                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800 gap-1 rounded-md px-2 py-0.5 h-6">
-                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-                    Sage
+              {/* Active Connector Badge with Text */}
+              <div className="flex items-center ml-2">
+                {activeIntegration === 'sage' && (
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800 gap-1.5 rounded-md px-3 py-1 h-7 text-sm font-medium">
+                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                    Synchronisé avec Sage Coala
                   </Badge>
                 )}
-                {activeConnectors.inqom && (
-                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800 gap-1 rounded-md px-2 py-0.5 h-6">
-                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-                    Inqom
+                {activeIntegration === 'inqom' && (
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800 gap-1.5 rounded-md px-3 py-1 h-7 text-sm font-medium">
+                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                    Synchronisé avec Inqom
                   </Badge>
                 )}
-                {activeConnectors.acd && (
-                  <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-400 dark:border-indigo-800 gap-1 rounded-md px-2 py-0.5 h-6">
-                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-                    ACD
+                {activeIntegration === 'acd' && (
+                  <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-400 dark:border-indigo-800 gap-1.5 rounded-md px-3 py-1 h-7 text-sm font-medium">
+                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                    Synchronisé avec ACD
                   </Badge>
                 )}
               </div>
