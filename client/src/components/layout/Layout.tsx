@@ -70,9 +70,8 @@ export default function Layout({ children }: LayoutProps) {
                 strokeLinejoin="round" 
                 className="h-6 w-6"
               >
-                <path d="M22 2L11 13" />
-                <path d="M22 2l-7 20-4-9-9-4 20-7z" />
-                <circle cx="11" cy="13" r="2" fill="currentColor" stroke="none" />
+                <path d="M22 4L18 2L15 6L2 8L12 12L6 22L16 16L18 8L22 4Z" />
+                <path d="M15 6L12 12" />
               </svg>
             </div>
             <h1 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight">{t("app.title")}</h1>
