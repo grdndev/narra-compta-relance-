@@ -35,15 +35,17 @@ import {
   getMonth,
   isWeekend
 } from "date-fns";
-import { fr } from "date-fns/locale";
+import { fr, enUS } from "date-fns/locale";
 import { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useLanguage } from "@/lib/i18n";
 
 const COLORS = ['hsl(225 73% 57%)', 'hsl(48 96% 53%)', 'hsl(150 60% 45%)', 'hsl(340 80% 65%)', 'hsl(260 60% 65%)'];
 
 export default function Dashboard() {
+  const { t, dateLocale } = useLanguage();
   const [sectorFilter, setSectorFilter] = useState("All");
   const [date, setDate] = useState<DateRange | undefined>({
     from: subDays(new Date(), 3),
@@ -164,14 +166,14 @@ Votre Expert-Comptable`
             const opened = realReminders.length > 0 ? realReminders.filter(r => r.status === 'opened').length : baseOpened;
 
             return {
-                name: format(d, 'EEE d', { locale: fr }), // Lun 12
+                name: format(d, 'EEE d', { locale: dateLocale }), // Lun 12
                 sent,
                 opened
             };
         });
     } else if (daysDiff <= 90) {
         // Weekly granularity
-        const weeks = eachWeekOfInterval({ start, end }, { locale: fr });
+        const weeks = eachWeekOfInterval({ start, end }, { locale: dateLocale });
         data = weeks.map(w => {
             const seed = w.getTime();
             // Assuming weekly data aggregates weekdays, so no need to zero out unless the whole week is holiday, 
@@ -180,7 +182,7 @@ Votre Expert-Comptable`
             const baseOpened = Math.floor(baseSent * (0.4 + pseudoRandom(seed + 1) * 0.4));
 
             return {
-                name: `Sem ${getWeek(w, { locale: fr })}`, // Sem 42
+                name: `Sem ${getWeek(w, { locale: dateLocale })}`, // Sem 42
                 sent: baseSent,
                 opened: baseOpened
             };
@@ -194,7 +196,7 @@ Votre Expert-Comptable`
             const baseOpened = Math.floor(baseSent * (0.4 + pseudoRandom(seed + 1) * 0.4));
 
             return {
-                name: format(m, 'MMM yyyy', { locale: fr }), // Janv 2024
+                name: format(m, 'MMM yyyy', { locale: dateLocale }), // Janv 2024
                 sent: baseSent,
                 opened: baseOpened
             };
@@ -287,12 +289,12 @@ Votre Expert-Comptable`
         pdf.setTextColor(100, 116, 139); // Slate 500
         
         const periodText = date?.from 
-            ? `${format(date.from, "d MMMM yyyy", { locale: fr })} au ${date.to ? format(date.to, "d MMMM yyyy", { locale: fr }) : "..."}`
+            ? `${format(date.from, "d MMMM yyyy", { locale: dateLocale })} au ${date.to ? format(date.to, "d MMMM yyyy", { locale: dateLocale }) : "..."}`
             : "Période complète";
             
         pdf.text(`Période : ${periodText}`, 14, 28);
-        pdf.text(`Généré le : ${format(new Date(), "d MMMM yyyy à HH:mm", { locale: fr })}`, 14, 33);
-        pdf.text(`Secteur : ${sectorFilter === "All" ? "Tous secteurs" : sectorFilter}`, 14, 38);
+        pdf.text(`Généré le : ${format(new Date(), "d MMMM yyyy à HH:mm", { locale: dateLocale })}`, 14, 33);
+        pdf.text(`Secteur : ${sectorFilter === "All" ? t("dashboard.all_sectors") : sectorFilter}`, 14, 38);
 
         // Add the dashboard image below the header
         // Start image at y=45
@@ -327,8 +329,8 @@ Votre Expert-Comptable`
       <div id="dashboard-content" className="space-y-8 p-1">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-slate-800 dark:text-white tracking-tight">Bonjour, Cabinet ! 👋</h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-1 font-medium">Vue d'ensemble de l'activité.</p>
+            <h1 className="text-3xl font-bold text-slate-800 dark:text-white tracking-tight">{t("dashboard.welcome")}</h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-1 font-medium">{t("dashboard.subtitle")}</p>
           </div>
           <div className="flex flex-col sm:flex-row items-start gap-3">
              {/* Date Picker */}
@@ -347,14 +349,14 @@ Votre Expert-Comptable`
                     {date?.from ? (
                       date.to ? (
                         <>
-                          {format(date.from, "d LLL", { locale: fr })} -{" "}
-                          {format(date.to, "d LLL", { locale: fr })}
+                          {format(date.from, "d LLL", { locale: dateLocale })} -{" "}
+                          {format(date.to, "d LLL", { locale: dateLocale })}
                         </>
                       ) : (
-                        format(date.from, "d LLL, y", { locale: fr })
+                        format(date.from, "d LLL, y", { locale: dateLocale })
                       )
                     ) : (
-                      <span>Choisir une période</span>
+                      <span>{t("dashboard.date_placeholder")}</span>
                     )}
                   </Button>
                 </PopoverTrigger>
@@ -366,7 +368,7 @@ Votre Expert-Comptable`
                     selected={date}
                     onSelect={setDate}
                     numberOfMonths={2}
-                    locale={fr}
+                    locale={dateLocale}
                     className="p-3"
                   />
                 </PopoverContent>
@@ -378,10 +380,10 @@ Votre Expert-Comptable`
                  <Filter className="h-4 w-4 text-slate-500 dark:text-slate-400" />
                  <Select value={sectorFilter} onValueChange={setSectorFilter}>
                    <SelectTrigger className="border-none h-auto p-0 focus:ring-0 w-[150px] font-medium text-slate-700 dark:text-slate-300 bg-transparent">
-                     <SelectValue placeholder="Tous secteurs" />
+                     <SelectValue placeholder={t("dashboard.all_sectors")} />
                    </SelectTrigger>
                    <SelectContent className="rounded-xl border-slate-100 dark:border-slate-800 dark:bg-slate-900 shadow-lg">
-                     <SelectItem value="All" className="rounded-lg cursor-pointer dark:text-slate-300 dark:focus:bg-slate-800">Tous secteurs</SelectItem>
+                     <SelectItem value="All" className="rounded-lg cursor-pointer dark:text-slate-300 dark:focus:bg-slate-800">{t("dashboard.all_sectors")}</SelectItem>
                      {uniqueSectors.map(s => (
                        <SelectItem key={s} value={s} className="rounded-lg cursor-pointer dark:text-slate-300 dark:focus:bg-slate-800">{s}</SelectItem>
                      ))}
@@ -393,7 +395,7 @@ Votre Expert-Comptable`
                   className="text-xs text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:underline cursor-pointer flex items-center gap-1 no-export transition-colors pr-2"
                >
                   <Download className="h-3 w-3" />
-                  Exporter le rapport
+                  {t("dashboard.export")}
                </button>
              </div>
           </div>
@@ -406,7 +408,7 @@ Votre Expert-Comptable`
             onClick={() => setActiveClientsOpen(true)}
           >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Clients Actifs</CardTitle>
+              <CardTitle className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("dashboard.active_clients")}</CardTitle>
               <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
                  <Activity className="h-5 w-5 text-blue-500 dark:text-blue-400" />
               </div>
@@ -414,7 +416,7 @@ Votre Expert-Comptable`
             <CardContent>
               <div className="text-3xl font-extrabold text-slate-800 dark:text-white">{totalClients}</div>
               <p className="text-xs font-medium text-slate-400 mt-2 flex items-center gap-1">
-                <span className="text-green-500 bg-green-50 dark:bg-green-900/20 px-1.5 py-0.5 rounded-md">↑ 2%</span> ce mois
+                <span className="text-green-500 bg-green-50 dark:bg-green-900/20 px-1.5 py-0.5 rounded-md">↑ 2%</span> {t("dashboard.this_month")}
               </p>
             </CardContent>
           </Card>
@@ -424,7 +426,7 @@ Votre Expert-Comptable`
             onClick={() => setMissingDocsOpen(true)}
           >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-bold text-red-500 dark:text-red-400 uppercase tracking-wider">Docs Manquants</CardTitle>
+              <CardTitle className="text-sm font-bold text-red-500 dark:text-red-400 uppercase tracking-wider">{t("dashboard.missing_docs")}</CardTitle>
               <div className="p-2 bg-white dark:bg-slate-800 rounded-xl shadow-sm">
                  <AlertCircle className="h-5 w-5 text-red-500 dark:text-red-400" />
               </div>
@@ -432,7 +434,7 @@ Votre Expert-Comptable`
             <CardContent>
               <div className="text-3xl font-extrabold text-red-600 dark:text-red-400">{pendingDocs}</div>
               <p className="text-xs font-medium text-red-400 mt-2">
-                Nécessitent une relance
+                {t("dashboard.need_reminder")}
               </p>
             </CardContent>
           </Card>
@@ -442,7 +444,7 @@ Votre Expert-Comptable`
             onClick={() => setRemindersOpen(true)}
           >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Relances</CardTitle>
+              <CardTitle className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("dashboard.reminders")}</CardTitle>
               <div className="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-xl">
                  <Clock className="h-5 w-5 text-purple-500 dark:text-purple-400" />
               </div>
@@ -450,7 +452,7 @@ Votre Expert-Comptable`
             <CardContent>
               <div className="text-3xl font-extrabold text-slate-800 dark:text-white">{remindersSent}</div>
               <p className="text-xs font-medium text-slate-400 mt-2">
-                Envoyées sur la période
+                {t("dashboard.sent_period")}
               </p>
             </CardContent>
           </Card>
@@ -460,7 +462,7 @@ Votre Expert-Comptable`
             onClick={() => setOpenRateOpen(true)}
           >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Taux d'Ouverture</CardTitle>
+              <CardTitle className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("dashboard.open_rate")}</CardTitle>
               <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-xl">
                  <ArrowUpRight className="h-5 w-5 text-green-500 dark:text-green-400" />
               </div>
@@ -468,7 +470,7 @@ Votre Expert-Comptable`
             <CardContent>
               <div className="text-3xl font-extrabold text-slate-800 dark:text-white">{avgOpenRate}%</div>
               <p className="text-xs font-medium text-slate-400 mt-2 flex items-center gap-1">
-                 <span className="text-green-500 bg-green-50 dark:bg-green-900/20 px-1.5 py-0.5 rounded-md">↑ 4%</span> vs période préc.
+                 <span className="text-green-500 bg-green-50 dark:bg-green-900/20 px-1.5 py-0.5 rounded-md">↑ 4%</span> {t("dashboard.vs_prev")}
               </p>
             </CardContent>
           </Card>
@@ -478,7 +480,7 @@ Votre Expert-Comptable`
           {/* Main Chart */}
           <Card className="col-span-4 rounded-3xl border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] dark:bg-slate-900">
             <CardHeader>
-              <CardTitle className="text-lg font-bold text-slate-800 dark:text-white">Activité des Relances</CardTitle>
+              <CardTitle className="text-lg font-bold text-slate-800 dark:text-white">{t("dashboard.chart_title")}</CardTitle>
             </CardHeader>
             <CardContent className="pl-2">
               <div className="h-[300px] w-full">
@@ -506,12 +508,12 @@ Votre Expert-Comptable`
                         cursor={{fill: 'transparent', radius: 8}}
                         contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}}
                       />
-                      <Bar dataKey="sent" name="Envoyés" fill="hsl(225 73% 57%)" radius={[6, 6, 6, 6]} barSize={20} />
-                      <Bar dataKey="opened" name="Ouverts" fill="hsl(48 96% 53%)" radius={[6, 6, 6, 6]} barSize={20} />
+                      <Bar dataKey="sent" name={t("chart.sent")} fill="hsl(225 73% 57%)" radius={[6, 6, 6, 6]} barSize={20} />
+                      <Bar dataKey="opened" name={t("chart.opened")} fill="hsl(48 96% 53%)" radius={[6, 6, 6, 6]} barSize={20} />
                     </BarChart>
                   ) : (
                     <div className="flex items-center justify-center h-full text-slate-400">
-                      Aucune donnée sur cette période
+                      {t("chart.no_data")}
                     </div>
                   )}
                 </ResponsiveContainer>
