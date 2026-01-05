@@ -85,11 +85,6 @@ export default function Layout({ children }: LayoutProps) {
           </h2>
 
           <div className="flex items-center gap-4">
-            <div className="hidden md:flex items-center gap-2 px-4 py-1.5 bg-white dark:bg-slate-900 text-green-600 dark:text-green-400 text-sm font-semibold rounded-full border border-green-100 dark:border-green-900/30 shadow-sm">
-              <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
-              {t("header.synced")}
-            </div>
-
             <Button variant="ghost" size="icon" className="text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all">
               <Bell className="h-5 w-5" />
             </Button>
