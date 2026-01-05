@@ -65,14 +65,14 @@ export default function Layout({ children }: LayoutProps) {
                 viewBox="0 0 24 24" 
                 fill="none" 
                 stroke="currentColor" 
-                strokeWidth="2" 
+                strokeWidth="1.5" 
                 strokeLinecap="round" 
                 strokeLinejoin="round" 
                 className="h-6 w-6"
-                style={{ transform: 'rotate(-45deg) translate(2px, 2px)' }}
               >
-                <path d="M22 2L2 8.5l9 3.5 3.5 9L22 2z" />
-                <path d="M11 12l11-10" />
+                <path d="M22 2L11 13" />
+                <path d="M22 2l-7 20-4-9-9-4 20-7z" />
+                <circle cx="11" cy="13" r="2" fill="currentColor" stroke="none" />
               </svg>
             </div>
             <h1 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight">{t("app.title")}</h1>
