@@ -111,14 +111,14 @@ const translations: Record<Language, Record<string, string>> = {
   en: {
     // Navigation
     "nav.dashboard": "Dashboard",
-    "nav.clients": "Client Reminders",
+    "nav.clients": "Client Follow-ups",
     "nav.campaigns": "Campaigns",
     "nav.settings": "Settings",
     "app.title": "Naraa",
     "user.admin": "Firm Admin",
     "user.role.admin": "Administrator",
-    "user.role.collaborator": "Collaborator",
-    "user.role.accountant": "Accountant",
+    "user.role.collaborator": "Associate",
+    "user.role.accountant": "Chartered Accountant",
     
     // Header
     "header.synced": "Synced with Sage Coala",
@@ -129,20 +129,20 @@ const translations: Record<Language, Record<string, string>> = {
     "header.details": "Details",
 
     // Dashboard
-    "dashboard.welcome": "Hello, Team! 👋",
+    "dashboard.welcome": "Welcome, Team! 👋",
     "dashboard.subtitle": "Activity overview.",
     "dashboard.date_placeholder": "Select a period",
     "dashboard.all_sectors": "All sectors",
     "dashboard.export": "Export report",
     "dashboard.active_clients": "Active Clients",
-    "dashboard.missing_docs": "Missing Docs",
-    "dashboard.reminders": "Reminders",
+    "dashboard.missing_docs": "Missing Documents",
+    "dashboard.reminders": "Follow-ups Sent",
     "dashboard.open_rate": "Open Rate",
     "dashboard.this_month": "this month",
-    "dashboard.need_reminder": "Need follow-up",
-    "dashboard.sent_period": "Sent this period",
+    "dashboard.need_reminder": "Require follow-up",
+    "dashboard.sent_period": "Sent during period",
     "dashboard.vs_prev": "vs prev. period",
-    "dashboard.chart_title": "Reminder Activity",
+    "dashboard.chart_title": "Follow-up Activity",
     "chart.sent": "Sent",
     "chart.opened": "Opened",
     "chart.no_data": "No data for this period",
@@ -151,7 +151,7 @@ const translations: Record<Language, Record<string, string>> = {
     "settings.title": "Settings",
     "settings.subtitle": "Manage your firm, connections, and templates.",
     "settings.tab.cabinet": "My Firm",
-    "settings.tab.connectors": "Connectors",
+    "settings.tab.connectors": "Integrations",
     "settings.tab.templates": "Templates",
     "settings.tab.appearance": "Appearance",
     "settings.save": "Save Changes",
@@ -159,13 +159,13 @@ const translations: Record<Language, Record<string, string>> = {
     "settings.saved_desc": "Your changes have been successfully saved.",
     
     // Settings - Cabinet
-    "settings.cabinet.id": "Firm Identification",
-    "settings.cabinet.company_name": "Company Name",
-    "settings.cabinet.legal_form": "Legal Form",
+    "settings.cabinet.id": "Firm Identity",
+    "settings.cabinet.company_name": "Business Name",
+    "settings.cabinet.legal_form": "Legal Structure",
     "settings.cabinet.address": "Address",
-    "settings.collaborators": "Collaborators",
-    "settings.collaborators.add": "Add",
-    "settings.collaborators.desc": "Manage collaborator access to the file.",
+    "settings.collaborators": "Team Members",
+    "settings.collaborators.add": "Add Member",
+    "settings.collaborators.desc": "Manage team access to the platform.",
     
     // Settings - Connectors
     "settings.connectors.active": "Active connection",
@@ -173,7 +173,7 @@ const translations: Record<Language, Record<string, string>> = {
     "settings.connectors.connected": "Connected",
     "settings.connectors.synced_today": "entries synced today.",
     "settings.connectors.force_sync": "Force synchronization",
-    "settings.connectors.available": "Connector available",
+    "settings.connectors.available": "Available Integration",
     "settings.connectors.connect": "Connect",
     
     // Settings - Templates
@@ -194,8 +194,8 @@ const translations: Record<Language, Record<string, string>> = {
     "settings.appearance.lang_changed_desc": "The interface is now in English.",
 
     // Clients Page (General)
-    "clients.title": "Client Reminders",
-    "clients.subtitle": "Track document requests.",
+    "clients.title": "Client Follow-ups",
+    "clients.subtitle": "Track document requests and client responses.",
     
     // Common
     "common.cancel": "Cancel",
