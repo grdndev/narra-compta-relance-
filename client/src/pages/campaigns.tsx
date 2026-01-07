@@ -36,12 +36,18 @@ import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function Campaigns() {
   const { toast } = useToast();
   const [campaigns, setCampaigns] = useState<Campaign[]>(mockCampaigns);
   const [newCampaignOpen, setNewCampaignOpen] = useState(false);
+  
+  // Target States
+  const [targetType, setTargetType] = useState<'all' | 'sector' | 'client'>('all');
   const [selectedSector, setSelectedSector] = useState("All");
+  const [selectedClientIds, setSelectedClientIds] = useState<string[]>([]);
+
   const [newCampaignName, setNewCampaignName] = useState("");
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -51,14 +57,29 @@ export default function Campaigns() {
   const [customDays, setCustomDays] = useState<string>("14");
 
   const handleCreateCampaign = () => {
+    // Calculate recipient count based on target type
+    let count = 0;
+    let sector = "Tous les clients";
+
+    if (targetType === 'all') {
+      count = mockClients.filter(c => c.status === 'active').length;
+      sector = "All";
+    } else if (targetType === 'sector') {
+      count = selectedSector === 'All' 
+        ? mockClients.filter(c => c.status === 'active').length
+        : mockClients.filter(c => c.sector === selectedSector && c.status === 'active').length;
+      sector = selectedSector;
+    } else if (targetType === 'client') {
+      count = selectedClientIds.length;
+      sector = "Sélection personnalisée";
+    }
+
     const newCampaign: Campaign = {
       id: `c${campaigns.length + 1}`,
       name: newCampaignName || "Nouvelle Campagne",
       status: 'scheduled',
-      recipientCount: selectedSector === 'All' 
-        ? mockClients.filter(c => c.status === 'active').length 
-        : mockClients.filter(c => c.sector === selectedSector && c.status === 'active').length,
-      targetSector: selectedSector,
+      recipientCount: count,
+      targetSector: sector,
       sentDate: new Date().toISOString().split('T')[0],
       openRate: 0,
       followUpDelay: null
@@ -67,10 +88,31 @@ export default function Campaigns() {
     setCampaigns([newCampaign, ...campaigns]);
     setNewCampaignOpen(false);
     setNewCampaignName("");
+    // Reset states
+    setTargetType('all');
+    setSelectedSector("All");
+    setSelectedClientIds([]);
+    
     toast({
       title: "Campagne créée",
       description: "Votre campagne a été programmée avec succès.",
     });
+  };
+
+  const toggleClientSelection = (clientId: string) => {
+    setSelectedClientIds(prev => 
+      prev.includes(clientId) 
+        ? prev.filter(id => id !== clientId)
+        : [...prev, clientId]
+    );
+  };
+
+  const handleSelectAllClients = () => {
+    if (selectedClientIds.length === mockClients.length) {
+      setSelectedClientIds([]);
+    } else {
+      setSelectedClientIds(mockClients.map(c => c.id));
+    }
   };
 
   const handleSaveFollowUp = () => {
@@ -175,21 +217,74 @@ export default function Campaigns() {
                     onChange={(e) => setNewCampaignName(e.target.value)}
                   />
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="sector" className="text-right">
+                <div className="grid grid-cols-4 items-start gap-4">
+                  <Label className="text-right mt-2">
                     Cible
                   </Label>
-                  <Select value={selectedSector} onValueChange={setSelectedSector}>
-                    <SelectTrigger className="col-span-3">
-                      <SelectValue placeholder="Sélectionner un secteur" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="All">Tous les clients</SelectItem>
-                      {sectors.map(s => (
-                        <SelectItem key={s} value={s}>{s}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="col-span-3 space-y-4">
+                    <RadioGroup value={targetType} onValueChange={(v: any) => setTargetType(v)} className="flex flex-col gap-2">
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="all" id="t-all" />
+                        <Label htmlFor="t-all" className="font-normal cursor-pointer">Tous les clients</Label>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="sector" id="t-sector" />
+                        <Label htmlFor="t-sector" className="font-normal cursor-pointer">Par secteur d'activité</Label>
+                      </div>
+                      
+                      {targetType === 'sector' && (
+                        <div className="pl-6 animate-in slide-in-from-top-2 duration-200">
+                          <Select value={selectedSector} onValueChange={setSelectedSector}>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Sélectionner un secteur" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="All">Tous les secteurs</SelectItem>
+                              {sectors.map(s => (
+                                <SelectItem key={s} value={s}>{s}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="client" id="t-client" />
+                        <Label htmlFor="t-client" className="font-normal cursor-pointer">Par client (Sélection manuelle)</Label>
+                      </div>
+
+                      {targetType === 'client' && (
+                        <div className="pl-6 pt-2 animate-in slide-in-from-top-2 duration-200">
+                           <div className="border rounded-md p-3 max-h-[200px] overflow-y-auto space-y-2 bg-slate-50/50">
+                              <div className="flex items-center space-x-2 pb-2 border-b border-slate-200 mb-2 sticky top-0 bg-slate-50 z-10">
+                                <Checkbox 
+                                  id="select-all" 
+                                  checked={selectedClientIds.length === mockClients.length && mockClients.length > 0}
+                                  onCheckedChange={handleSelectAllClients}
+                                />
+                                <Label htmlFor="select-all" className="font-semibold text-xs uppercase text-slate-500 cursor-pointer">Tout sélectionner</Label>
+                              </div>
+                              {mockClients.filter(c => c.status === 'active').map(client => (
+                                <div key={client.id} className="flex items-center space-x-2">
+                                  <Checkbox 
+                                    id={`c-${client.id}`} 
+                                    checked={selectedClientIds.includes(client.id)}
+                                    onCheckedChange={() => toggleClientSelection(client.id)}
+                                  />
+                                  <Label htmlFor={`c-${client.id}`} className="font-normal text-sm cursor-pointer w-full truncate">
+                                    {client.company} <span className="text-slate-400 text-xs">({client.name})</span>
+                                  </Label>
+                                </div>
+                              ))}
+                           </div>
+                           <p className="text-xs text-slate-500 mt-1 text-right">
+                             {selectedClientIds.length} client{selectedClientIds.length > 1 ? 's' : ''} sélectionné{selectedClientIds.length > 1 ? 's' : ''}
+                           </p>
+                        </div>
+                      )}
+                    </RadioGroup>
+                  </div>
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="subject" className="text-right">
