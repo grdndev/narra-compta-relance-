@@ -1,7 +1,8 @@
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { mockClients, mockDocuments, mockReminders, mockAccountingEntries, mockCampaigns } from "@/lib/mockData";
-import { ArrowUpRight, AlertCircle, Filter, Activity, Clock, ChevronRight, Calendar as CalendarIcon, Mail, Send, XCircle, AlertTriangle, ArrowUpDown, Download } from "lucide-react";
+import { ArrowUpRight, AlertCircle, Filter, Activity, Clock, ChevronRight, Calendar as CalendarIcon, Mail, Send, XCircle, AlertTriangle, ArrowUpDown, Download, MessageSquare, Phone } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { useState } from "react";
 import html2canvas from 'html2canvas';
@@ -87,15 +88,49 @@ export default function Dashboard() {
   const [openRateOpen, setOpenRateOpen] = useState(false);
   const [attentionClientsOpen, setAttentionClientsOpen] = useState(false); // New dialog for Attention Clients
 
-  // Email Modal State (inside Missing Docs)
-  const [emailModalOpen, setEmailModalOpen] = useState(false);
+  // Channel Selection Modal State
+  const [channelModalOpen, setChannelModalOpen] = useState(false);
+  const [selectedChannel, setSelectedChannel] = useState<'email' | 'sms' | 'whatsapp'>('email');
   const [selectedMissingDocs, setSelectedMissingDocs] = useState<string[]>([]);
-  const [emailContent, setEmailContent] = useState("Bonjour,\n\nSauf erreur de notre part, nous n'avons pas reçu les documents suivants...\n\nCordialement,");
+  const [messageContent, setMessageContent] = useState("Bonjour,\n\nSauf erreur de notre part, nous n'avons pas reçu les documents suivants...\n\nCordialement,");
+
+  // Relance from Open Rate Modal
+  const [relanceModalOpen, setRelanceModalOpen] = useState(false);
+  const [relanceChannel, setRelanceChannel] = useState<'email' | 'sms' | 'whatsapp'>('email');
+  const [relanceClient, setRelanceClient] = useState<any>(null);
+  const [relanceContent, setRelanceContent] = useState("");
 
   // Diplomatic Email State
   const [diplomaticEmailModalOpen, setDiplomaticEmailModalOpen] = useState(false);
   const [selectedDiplomaticClient, setSelectedDiplomaticClient] = useState<any>(null);
   const [diplomaticEmailContent, setDiplomaticEmailContent] = useState("");
+
+  const getDefaultMessage = (channel: 'email' | 'sms' | 'whatsapp') => {
+    if (channel === 'sms') {
+      return "Bonjour, nous vous rappelons que des documents sont attendus pour votre dossier. Merci de nous les transmettre rapidement.";
+    } else if (channel === 'whatsapp') {
+      return "Bonjour,\n\nNous vous rappelons que des documents sont en attente pour votre dossier comptable.\n\nMerci de nous les faire parvenir.\n\nCordialement";
+    }
+    return "Bonjour,\n\nSauf erreur de notre part, nous n'avons pas reçu les documents suivants...\n\nCordialement,";
+  };
+
+  const handleOpenRelance = (client: any) => {
+    setRelanceClient(client);
+    setRelanceChannel('email');
+    setRelanceContent(getDefaultMessage('email'));
+    setRelanceModalOpen(true);
+  };
+
+  const handleSendRelance = () => {
+    const channelLabels = { email: 'Email', sms: 'SMS', whatsapp: 'WhatsApp' };
+    toast({
+      title: `${channelLabels[relanceChannel]} envoyé`,
+      description: `La relance a été envoyée à ${relanceClient?.company} via ${channelLabels[relanceChannel]}.`,
+      className: "bg-green-600 text-white border-none"
+    });
+    setRelanceModalOpen(false);
+    setRelanceClient(null);
+  };
 
   const handleOpenDiplomaticEmail = (client: any) => {
     setSelectedDiplomaticClient(client);
@@ -265,13 +300,14 @@ Votre Expert-Comptable`
 
   const uniqueSectors = Array.from(new Set(mockClients.map(c => c.sector)));
 
-  const handleSendMissingDocsEmail = () => {
+  const handleSendMissingDocsMessage = () => {
+    const channelLabels = { email: 'Email', sms: 'SMS', whatsapp: 'WhatsApp' };
     toast({
-      title: "Email envoyé",
-      description: `La relance pour ${selectedMissingDocs.length} documents a été envoyée.`,
+      title: `${channelLabels[selectedChannel]} envoyé`,
+      description: `La relance pour ${selectedMissingDocs.length} document(s) a été envoyée via ${channelLabels[selectedChannel]}.`,
       className: "bg-green-600 text-white border-none"
     });
-    setEmailModalOpen(false);
+    setChannelModalOpen(false);
     setSelectedMissingDocs([]);
     setMissingDocsOpen(false);
   };
@@ -749,11 +785,15 @@ Votre Expert-Comptable`
           </div>
           <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
              <Button 
-                onClick={() => setEmailModalOpen(true)} 
+                onClick={() => {
+                  setSelectedChannel('email');
+                  setMessageContent(getDefaultMessage('email'));
+                  setChannelModalOpen(true);
+                }} 
                 disabled={selectedMissingDocs.length === 0}
                 className="rounded-xl bg-slate-900 text-white hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700"
              >
-               <Mail className="mr-2 h-4 w-4" /> Envoyer Relance ({selectedMissingDocs.length})
+               <Send className="mr-2 h-4 w-4" /> Envoyer Relance ({selectedMissingDocs.length})
              </Button>
           </div>
         </DialogContent>
@@ -835,7 +875,15 @@ Votre Expert-Comptable`
                         {mockClients.slice(0, 3).map(c => (
                           <div key={c.id} className="flex items-center justify-between bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-100 dark:border-slate-800">
                              <span className="text-sm dark:text-slate-300">{c.company}</span>
-                             <Button size="sm" variant="ghost" className="h-7 text-xs text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20">
+                             <Button 
+                               size="sm" 
+                               variant="ghost" 
+                               className="h-7 text-xs text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 handleOpenRelance(c);
+                               }}
+                             >
                                Relancer
                              </Button>
                           </div>
@@ -951,24 +999,147 @@ Votre Expert-Comptable`
         </DialogContent>
       </Dialog>
 
-      {/* Nested Dialog: Edit Email */}
-      <Dialog open={emailModalOpen} onOpenChange={setEmailModalOpen}>
+      {/* Channel Selection Modal for Missing Docs */}
+      <Dialog open={channelModalOpen} onOpenChange={setChannelModalOpen}>
         <DialogContent className="max-w-xl rounded-3xl dark:bg-slate-900 dark:border-slate-800">
           <DialogHeader>
-            <DialogTitle className="dark:text-white">Modifier l'email de relance</DialogTitle>
-            <DialogDescription className="dark:text-slate-400">Personnalisez le message avant l'envoi.</DialogDescription>
+            <DialogTitle className="dark:text-white">Envoyer une relance</DialogTitle>
+            <DialogDescription className="dark:text-slate-400">Choisissez le canal et personnalisez le message.</DialogDescription>
           </DialogHeader>
-          <div className="py-4">
-             <Label className="mb-2 block dark:text-slate-300">Message</Label>
-             <Textarea 
-               value={emailContent}
-               onChange={(e) => setEmailContent(e.target.value)}
-               className="min-h-[200px] dark:bg-slate-950 dark:border-slate-800 dark:text-slate-300"
-             />
+          <div className="py-4 space-y-6">
+             <div>
+               <Label className="mb-3 block dark:text-slate-300 font-medium">Canal d'envoi</Label>
+               <RadioGroup 
+                 value={selectedChannel} 
+                 onValueChange={(v: any) => {
+                   setSelectedChannel(v);
+                   setMessageContent(getDefaultMessage(v));
+                 }} 
+                 className="flex gap-4"
+               >
+                 <div className="flex-1">
+                   <RadioGroupItem value="email" id="ch-email" className="peer sr-only" />
+                   <Label
+                     htmlFor="ch-email"
+                     className="flex flex-col items-center justify-center rounded-xl border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-blue-500 peer-data-[state=checked]:bg-blue-50 dark:peer-data-[state=checked]:bg-blue-900/20 cursor-pointer transition-all"
+                   >
+                     <Mail className="mb-2 h-6 w-6 text-blue-500" />
+                     <span className="text-sm font-medium">Email</span>
+                   </Label>
+                 </div>
+                 <div className="flex-1">
+                   <RadioGroupItem value="sms" id="ch-sms" className="peer sr-only" />
+                   <Label
+                     htmlFor="ch-sms"
+                     className="flex flex-col items-center justify-center rounded-xl border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-purple-500 peer-data-[state=checked]:bg-purple-50 dark:peer-data-[state=checked]:bg-purple-900/20 cursor-pointer transition-all"
+                   >
+                     <Phone className="mb-2 h-6 w-6 text-purple-500" />
+                     <span className="text-sm font-medium">SMS</span>
+                   </Label>
+                 </div>
+                 <div className="flex-1">
+                   <RadioGroupItem value="whatsapp" id="ch-whatsapp" className="peer sr-only" />
+                   <Label
+                     htmlFor="ch-whatsapp"
+                     className="flex flex-col items-center justify-center rounded-xl border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-green-500 peer-data-[state=checked]:bg-green-50 dark:peer-data-[state=checked]:bg-green-900/20 cursor-pointer transition-all"
+                   >
+                     <MessageSquare className="mb-2 h-6 w-6 text-green-500" />
+                     <span className="text-sm font-medium">WhatsApp</span>
+                   </Label>
+                 </div>
+               </RadioGroup>
+             </div>
+             
+             <div>
+               <Label className="mb-2 block dark:text-slate-300">Message</Label>
+               <Textarea 
+                 value={messageContent}
+                 onChange={(e) => setMessageContent(e.target.value)}
+                 className={`dark:bg-slate-950 dark:border-slate-800 dark:text-slate-300 ${selectedChannel === 'sms' ? 'min-h-[100px]' : 'min-h-[200px]'}`}
+               />
+               {selectedChannel === 'sms' && (
+                 <p className="text-xs text-slate-400 mt-1">{messageContent.length}/160 caractères</p>
+               )}
+             </div>
           </div>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setEmailModalOpen(false)} className="dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">Annuler</Button>
-            <Button onClick={handleSendMissingDocsEmail} className="bg-slate-900 text-white hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700">
+            <Button variant="outline" onClick={() => setChannelModalOpen(false)} className="dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">Annuler</Button>
+            <Button onClick={handleSendMissingDocsMessage} className="bg-slate-900 text-white hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700">
+              <Send className="mr-2 h-4 w-4" /> Envoyer
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Channel Selection Modal for Relance (Open Rate) */}
+      <Dialog open={relanceModalOpen} onOpenChange={setRelanceModalOpen}>
+        <DialogContent className="max-w-xl rounded-3xl dark:bg-slate-900 dark:border-slate-800">
+          <DialogHeader>
+            <DialogTitle className="dark:text-white flex items-center gap-2">
+              <Send className="h-5 w-5 text-blue-500" />
+              Relancer {relanceClient?.company}
+            </DialogTitle>
+            <DialogDescription className="dark:text-slate-400">Choisissez le canal et personnalisez le message.</DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-6">
+             <div>
+               <Label className="mb-3 block dark:text-slate-300 font-medium">Canal d'envoi</Label>
+               <RadioGroup 
+                 value={relanceChannel} 
+                 onValueChange={(v: any) => {
+                   setRelanceChannel(v);
+                   setRelanceContent(getDefaultMessage(v));
+                 }} 
+                 className="flex gap-4"
+               >
+                 <div className="flex-1">
+                   <RadioGroupItem value="email" id="rel-email" className="peer sr-only" />
+                   <Label
+                     htmlFor="rel-email"
+                     className="flex flex-col items-center justify-center rounded-xl border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-blue-500 peer-data-[state=checked]:bg-blue-50 dark:peer-data-[state=checked]:bg-blue-900/20 cursor-pointer transition-all"
+                   >
+                     <Mail className="mb-2 h-6 w-6 text-blue-500" />
+                     <span className="text-sm font-medium">Email</span>
+                   </Label>
+                 </div>
+                 <div className="flex-1">
+                   <RadioGroupItem value="sms" id="rel-sms" className="peer sr-only" />
+                   <Label
+                     htmlFor="rel-sms"
+                     className="flex flex-col items-center justify-center rounded-xl border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-purple-500 peer-data-[state=checked]:bg-purple-50 dark:peer-data-[state=checked]:bg-purple-900/20 cursor-pointer transition-all"
+                   >
+                     <Phone className="mb-2 h-6 w-6 text-purple-500" />
+                     <span className="text-sm font-medium">SMS</span>
+                   </Label>
+                 </div>
+                 <div className="flex-1">
+                   <RadioGroupItem value="whatsapp" id="rel-whatsapp" className="peer sr-only" />
+                   <Label
+                     htmlFor="rel-whatsapp"
+                     className="flex flex-col items-center justify-center rounded-xl border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-green-500 peer-data-[state=checked]:bg-green-50 dark:peer-data-[state=checked]:bg-green-900/20 cursor-pointer transition-all"
+                   >
+                     <MessageSquare className="mb-2 h-6 w-6 text-green-500" />
+                     <span className="text-sm font-medium">WhatsApp</span>
+                   </Label>
+                 </div>
+               </RadioGroup>
+             </div>
+             
+             <div>
+               <Label className="mb-2 block dark:text-slate-300">Message</Label>
+               <Textarea 
+                 value={relanceContent}
+                 onChange={(e) => setRelanceContent(e.target.value)}
+                 className={`dark:bg-slate-950 dark:border-slate-800 dark:text-slate-300 ${relanceChannel === 'sms' ? 'min-h-[100px]' : 'min-h-[200px]'}`}
+               />
+               {relanceChannel === 'sms' && (
+                 <p className="text-xs text-slate-400 mt-1">{relanceContent.length}/160 caractères</p>
+               )}
+             </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setRelanceModalOpen(false)} className="dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">Annuler</Button>
+            <Button onClick={handleSendRelance} className="bg-slate-900 text-white hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700">
               <Send className="mr-2 h-4 w-4" /> Envoyer
             </Button>
           </div>
