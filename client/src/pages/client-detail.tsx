@@ -470,7 +470,7 @@ export default function ClientDetail() {
         </div>
 
         {/* Notes Section */}
-        <Card className="border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] rounded-3xl dark:bg-slate-900 dark:border dark:border-slate-800">
+        <Card className="border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] rounded-3xl dark:bg-slate-900 dark:border dark:border-slate-800 max-w-2xl">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
