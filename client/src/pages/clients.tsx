@@ -10,8 +10,8 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { mockClients } from "@/lib/mockData";
-import { Search, Filter, MoreVertical, Mail, Send, Plus, Building2, User, Phone, Info } from "lucide-react";
+import { mockClients, mockTeamMembers } from "@/lib/mockData";
+import { Search, Filter, MoreVertical, Mail, Send, Plus, Building2, User, Phone, Info, Users } from "lucide-react";
 import { useState } from "react";
 import { Link } from "wouter";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -49,6 +49,26 @@ export default function Clients() {
   const [isNewClientDialogOpen, setIsNewClientDialogOpen] = useState(false);
   const [reminderDialogOpen, setReminderDialogOpen] = useState(false);
   const [selectedClientForReminder, setSelectedClientForReminder] = useState<any>(null);
+  const [teamFilter, setTeamFilter] = useState("all");
+
+  // Team filtering helpers
+  const associates = mockTeamMembers.filter(m => m.role === 'associate');
+  const collaborators = mockTeamMembers.filter(m => m.role === 'collaborator');
+
+  const getFilteredClientsByTeam = () => {
+    if (teamFilter === 'all') return mockClients;
+    if (teamFilter === 'associates') {
+      const associateIds = associates.map(a => a.id);
+      return mockClients.filter(c => associateIds.includes(c.managerId));
+    }
+    if (teamFilter === 'collaborators') {
+      const collaboratorIds = collaborators.map(c => c.id);
+      return mockClients.filter(c => collaboratorIds.includes(c.managerId));
+    }
+    return mockClients.filter(c => c.managerId === teamFilter);
+  };
+
+  const teamFilteredClients = getFilteredClientsByTeam();
   
   const [reminderChannels, setReminderChannels] = useState<{email: boolean, sms: boolean, whatsapp: boolean}>({
     email: true,
@@ -97,8 +117,8 @@ export default function Clients() {
   };
 
 
-  // Client List Logic
-  const filteredClients = mockClients.filter(client => 
+  // Client List Logic (filtered by team first, then by search)
+  const filteredClients = teamFilteredClients.filter(client => 
     client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     client.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
     client.sector.toLowerCase().includes(searchTerm.toLowerCase())
@@ -147,6 +167,42 @@ export default function Clients() {
             <p className="text-slate-500 dark:text-slate-400 mt-1 font-medium">Gérez vos dossiers et les pièces manquantes.</p>
           </div>
           
+          <div className="flex items-center gap-3">
+            {/* Team Filter */}
+            <div className="flex items-center gap-2 bg-white dark:bg-slate-900 px-4 py-2 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
+              <Users className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+              <Select value={teamFilter} onValueChange={setTeamFilter}>
+                <SelectTrigger className="border-none h-auto p-0 focus:ring-0 w-[180px] font-medium text-slate-700 dark:text-slate-300 bg-transparent">
+                  <SelectValue placeholder="Tout le cabinet" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl border-slate-100 dark:border-slate-800 dark:bg-slate-900 shadow-lg max-h-[400px]">
+                  <SelectItem value="all" className="rounded-lg cursor-pointer dark:text-slate-300 dark:focus:bg-slate-800 font-semibold">
+                    🏢 Tout le cabinet
+                  </SelectItem>
+                  <SelectItem value="associates" className="rounded-lg cursor-pointer dark:text-slate-300 dark:focus:bg-slate-800 font-semibold text-purple-600 dark:text-purple-400">
+                    👔 Tous les Associés ({associates.length})
+                  </SelectItem>
+                  <SelectItem value="collaborators" className="rounded-lg cursor-pointer dark:text-slate-300 dark:focus:bg-slate-800 font-semibold text-teal-600 dark:text-teal-400">
+                    👥 Tous les Collaborateurs ({collaborators.length})
+                  </SelectItem>
+                  <div className="my-1 border-t border-slate-100 dark:border-slate-800" />
+                  <div className="px-2 py-1 text-xs font-semibold text-slate-400 uppercase">Associés</div>
+                  {associates.map(member => (
+                    <SelectItem key={member.id} value={member.id} className="rounded-lg cursor-pointer dark:text-slate-300 dark:focus:bg-slate-800 pl-4">
+                      {member.name}
+                    </SelectItem>
+                  ))}
+                  <div className="my-1 border-t border-slate-100 dark:border-slate-800" />
+                  <div className="px-2 py-1 text-xs font-semibold text-slate-400 uppercase">Collaborateurs</div>
+                  {collaborators.map(member => (
+                    <SelectItem key={member.id} value={member.id} className="rounded-lg cursor-pointer dark:text-slate-300 dark:focus:bg-slate-800 pl-4">
+                      {member.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
           <Dialog open={isNewClientDialogOpen} onOpenChange={setIsNewClientDialogOpen}>
             <DialogTrigger asChild>
               <Button className="rounded-xl bg-slate-900 text-white hover:bg-slate-800 shadow-lg shadow-slate-900/20 dark:bg-blue-600 dark:hover:bg-blue-700">
@@ -231,6 +287,7 @@ export default function Clients() {
               </DialogFooter>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
 
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
