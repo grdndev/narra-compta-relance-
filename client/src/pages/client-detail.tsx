@@ -28,6 +28,7 @@ export default function ClientDetail() {
   const [selectedJournalEntries, setSelectedJournalEntries] = useState<string[]>([]);
   const [journalChannelModalOpen, setJournalChannelModalOpen] = useState(false);
   const [journalSelectedChannel, setJournalSelectedChannel] = useState<'email' | 'sms' | 'whatsapp'>('email');
+  const [journalMessageContent, setJournalMessageContent] = useState('');
   const [ignoredEntries, setIgnoredEntries] = useState<string[]>([]);
   const [showIgnored, setShowIgnored] = useState(false);
   const [minAmount, setMinAmount] = useState<number>(0);
@@ -1047,7 +1048,13 @@ export default function ClientDetail() {
                     </div>
                     <Button 
                       className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-6"
-                      onClick={() => setJournalChannelModalOpen(true)}
+                      onClick={() => {
+                        const selectedItems = filteredJournalEntries.filter(e => selectedJournalEntries.includes(e.id));
+                        const itemsList = selectedItems.map(e => `• ${e.label} (${e.amount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })})`).join('\n');
+                        const defaultMessage = `Bonjour,\n\nNous vous contactons concernant les écritures comptables suivantes pour lesquelles nous avons besoin de justificatifs :\n\n${itemsList}\n\nMerci de nous transmettre les documents correspondants dans les meilleurs délais.\n\nCordialement,\nVotre cabinet comptable`;
+                        setJournalMessageContent(defaultMessage);
+                        setJournalChannelModalOpen(true);
+                      }}
                     >
                       <Send className="h-4 w-4 mr-2" />
                       Demander au client
@@ -1258,47 +1265,53 @@ export default function ClientDetail() {
 
         {/* Journal Channel Selection Modal */}
         <Dialog open={journalChannelModalOpen} onOpenChange={setJournalChannelModalOpen}>
-          <DialogContent className="sm:max-w-[400px] rounded-3xl dark:bg-slate-900 dark:border-slate-800">
+          <DialogContent className="sm:max-w-[600px] rounded-3xl dark:bg-slate-900 dark:border-slate-800 max-h-[85vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="dark:text-white">Choisir le canal d'envoi</DialogTitle>
+              <DialogTitle className="dark:text-white">Demander les justificatifs</DialogTitle>
               <DialogDescription className="dark:text-slate-400">
-                Sélectionnez le canal pour envoyer la demande de justificatifs pour {selectedJournalEntries.length} écriture{selectedJournalEntries.length > 1 ? 's' : ''}.
+                Personnalisez le message et choisissez le canal d'envoi pour {selectedJournalEntries.length} écriture{selectedJournalEntries.length > 1 ? 's' : ''}.
               </DialogDescription>
             </DialogHeader>
-            <div className="grid gap-3 py-4">
-              <Button 
-                variant={journalSelectedChannel === 'email' ? 'default' : 'outline'}
-                className={`justify-start h-14 rounded-xl ${journalSelectedChannel === 'email' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'hover:bg-blue-50 hover:border-blue-200'}`}
-                onClick={() => setJournalSelectedChannel('email')}
-              >
-                <Mail className="h-5 w-5 mr-3" />
-                <div className="text-left">
-                  <div className="font-medium">Email</div>
-                  <div className="text-xs opacity-70">Message détaillé avec liste des pièces</div>
+            <div className="grid gap-4 py-4">
+              <div>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">Message</Label>
+                <Textarea 
+                  value={journalMessageContent}
+                  onChange={(e) => setJournalMessageContent(e.target.value)}
+                  className="min-h-[200px] bg-white dark:bg-slate-950 dark:border-slate-800 text-sm"
+                  placeholder="Écrivez votre message..."
+                />
+              </div>
+              
+              <div>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">Canal d'envoi</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  <Button 
+                    variant={journalSelectedChannel === 'email' ? 'default' : 'outline'}
+                    className={`flex-col h-16 rounded-xl ${journalSelectedChannel === 'email' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'hover:bg-blue-50 hover:border-blue-200'}`}
+                    onClick={() => setJournalSelectedChannel('email')}
+                  >
+                    <Mail className="h-5 w-5 mb-1" />
+                    <span className="text-xs">Email</span>
+                  </Button>
+                  <Button 
+                    variant={journalSelectedChannel === 'sms' ? 'default' : 'outline'}
+                    className={`flex-col h-16 rounded-xl ${journalSelectedChannel === 'sms' ? 'bg-purple-600 text-white hover:bg-purple-700' : 'hover:bg-purple-50 hover:border-purple-200'}`}
+                    onClick={() => setJournalSelectedChannel('sms')}
+                  >
+                    <MessageSquare className="h-5 w-5 mb-1" />
+                    <span className="text-xs">SMS</span>
+                  </Button>
+                  <Button 
+                    variant={journalSelectedChannel === 'whatsapp' ? 'default' : 'outline'}
+                    className={`flex-col h-16 rounded-xl ${journalSelectedChannel === 'whatsapp' ? 'bg-green-600 text-white hover:bg-green-700' : 'hover:bg-green-50 hover:border-green-200'}`}
+                    onClick={() => setJournalSelectedChannel('whatsapp')}
+                  >
+                    <Phone className="h-5 w-5 mb-1" />
+                    <span className="text-xs">WhatsApp</span>
+                  </Button>
                 </div>
-              </Button>
-              <Button 
-                variant={journalSelectedChannel === 'sms' ? 'default' : 'outline'}
-                className={`justify-start h-14 rounded-xl ${journalSelectedChannel === 'sms' ? 'bg-purple-600 text-white hover:bg-purple-700' : 'hover:bg-purple-50 hover:border-purple-200'}`}
-                onClick={() => setJournalSelectedChannel('sms')}
-              >
-                <MessageSquare className="h-5 w-5 mr-3" />
-                <div className="text-left">
-                  <div className="font-medium">SMS</div>
-                  <div className="text-xs opacity-70">Message court (160 caractères)</div>
-                </div>
-              </Button>
-              <Button 
-                variant={journalSelectedChannel === 'whatsapp' ? 'default' : 'outline'}
-                className={`justify-start h-14 rounded-xl ${journalSelectedChannel === 'whatsapp' ? 'bg-green-600 text-white hover:bg-green-700' : 'hover:bg-green-50 hover:border-green-200'}`}
-                onClick={() => setJournalSelectedChannel('whatsapp')}
-              >
-                <Phone className="h-5 w-5 mr-3" />
-                <div className="text-left">
-                  <div className="font-medium">WhatsApp</div>
-                  <div className="text-xs opacity-70">Message interactif</div>
-                </div>
-              </Button>
+              </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setJournalChannelModalOpen(false)} className="rounded-xl">Annuler</Button>
