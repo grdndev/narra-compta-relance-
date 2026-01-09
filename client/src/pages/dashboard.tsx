@@ -702,7 +702,7 @@ Votre Expert-Comptable`
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {urgentClients.map(client => {
+                {urgentClients.slice(0, 5).map(client => {
                    const clientEntries = mockAccountingEntries.filter(e => e.clientId === client.id && e.status === 'missing_doc');
                    const totalAmount = clientEntries.reduce((sum, e) => sum + e.amount, 0);
                    
@@ -745,6 +745,14 @@ Votre Expert-Comptable`
                     </div>
                    );
                 })}
+                {urgentClients.length > 5 && (
+                  <button 
+                    onClick={() => setAttentionClientsOpen(true)}
+                    className="w-full text-center py-3 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-colors"
+                  >
+                    Voir les {urgentClients.length - 5} autres clients →
+                  </button>
+                )}
               </div>
             </CardContent>
           </Card>
