@@ -1,6 +1,7 @@
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { mockClients, mockDocuments, mockReminders, mockAccountingEntries, mockCampaigns } from "@/lib/mockData";
+import { mockClients, mockDocuments, mockReminders, mockAccountingEntries, mockCampaigns, mockTeamMembers } from "@/lib/mockData";
+import { Users } from "lucide-react";
 import { ArrowUpRight, AlertCircle, Filter, Activity, Clock, ChevronRight, Calendar as CalendarIcon, Mail, Send, XCircle, AlertTriangle, ArrowUpDown, Download, MessageSquare, Phone } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
@@ -49,7 +50,28 @@ const COLORS = ['hsl(225 73% 57%)', 'hsl(48 96% 53%)', 'hsl(150 60% 45%)', 'hsl(
 export default function Dashboard() {
   const { t, dateLocale } = useLanguage();
   const [sectorFilter, setSectorFilter] = useState("All");
+  const [teamFilter, setTeamFilter] = useState("all"); // 'all', 'associates', 'collaborators', or specific member ID
   const [activeIntegration, setActiveIntegration] = useState<string | null>('sage');
+
+  // Team filtering helpers
+  const associates = mockTeamMembers.filter(m => m.role === 'associate');
+  const collaborators = mockTeamMembers.filter(m => m.role === 'collaborator');
+
+  const getFilteredClientsByTeam = () => {
+    if (teamFilter === 'all') return mockClients;
+    if (teamFilter === 'associates') {
+      const associateIds = associates.map(a => a.id);
+      return mockClients.filter(c => associateIds.includes(c.managerId));
+    }
+    if (teamFilter === 'collaborators') {
+      const collaboratorIds = collaborators.map(c => c.id);
+      return mockClients.filter(c => collaboratorIds.includes(c.managerId));
+    }
+    // Specific team member
+    return mockClients.filter(c => c.managerId === teamFilter);
+  };
+
+  const teamFilteredClients = getFilteredClientsByTeam();
 
   useEffect(() => {
     // Check for saved integration
@@ -169,15 +191,18 @@ Votre Expert-Comptable`
     return isWithinInterval(d, { start: date.from, end: end });
   };
 
-  const filteredClients = mockClients.filter(c => {
+  const filteredClients = teamFilteredClients.filter(c => {
     const sectorMatch = sectorFilter === "All" || c.sector === sectorFilter;
     return sectorMatch && c.status === 'active';
   });
 
   const totalClients = filteredClients.length;
   
+  const teamFilteredClientIds = teamFilteredClients.map(c => c.id);
+
   const filteredDocs = mockDocuments.filter(d => 
-    d.status === 'missing' && 
+    d.status === 'missing' &&
+    teamFilteredClientIds.includes(d.clientId) && 
     filteredClients.map(c => c.id).includes(d.clientId) &&
     // Show missing documents that were due in the period or are overdue
     (isInDateRange(d.dueDate) || new Date(d.dueDate) < new Date()) 
@@ -440,19 +465,57 @@ Votre Expert-Comptable`
             </div>
 
              <div className="flex flex-col items-end gap-1">
-               <div className="flex items-center gap-2 bg-white dark:bg-slate-900 px-4 py-2 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
-                 <Filter className="h-4 w-4 text-slate-500 dark:text-slate-400" />
-                 <Select value={sectorFilter} onValueChange={setSectorFilter}>
-                   <SelectTrigger className="border-none h-auto p-0 focus:ring-0 w-[150px] font-medium text-slate-700 dark:text-slate-300 bg-transparent">
-                     <SelectValue placeholder={t("dashboard.all_sectors")} />
-                   </SelectTrigger>
-                   <SelectContent className="rounded-xl border-slate-100 dark:border-slate-800 dark:bg-slate-900 shadow-lg">
-                     <SelectItem value="All" className="rounded-lg cursor-pointer dark:text-slate-300 dark:focus:bg-slate-800">{t("dashboard.all_sectors")}</SelectItem>
-                     {uniqueSectors.map(s => (
-                       <SelectItem key={s} value={s} className="rounded-lg cursor-pointer dark:text-slate-300 dark:focus:bg-slate-800">{s}</SelectItem>
-                     ))}
-                   </SelectContent>
-                 </Select>
+               <div className="flex items-center gap-2">
+                 {/* Team Filter */}
+                 <div className="flex items-center gap-2 bg-white dark:bg-slate-900 px-4 py-2 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
+                   <Users className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+                   <Select value={teamFilter} onValueChange={setTeamFilter}>
+                     <SelectTrigger className="border-none h-auto p-0 focus:ring-0 w-[180px] font-medium text-slate-700 dark:text-slate-300 bg-transparent">
+                       <SelectValue placeholder="Tout le cabinet" />
+                     </SelectTrigger>
+                     <SelectContent className="rounded-xl border-slate-100 dark:border-slate-800 dark:bg-slate-900 shadow-lg max-h-[400px]">
+                       <SelectItem value="all" className="rounded-lg cursor-pointer dark:text-slate-300 dark:focus:bg-slate-800 font-semibold">
+                         🏢 Tout le cabinet
+                       </SelectItem>
+                       <SelectItem value="associates" className="rounded-lg cursor-pointer dark:text-slate-300 dark:focus:bg-slate-800 font-semibold text-purple-600 dark:text-purple-400">
+                         👔 Tous les Associés ({associates.length})
+                       </SelectItem>
+                       <SelectItem value="collaborators" className="rounded-lg cursor-pointer dark:text-slate-300 dark:focus:bg-slate-800 font-semibold text-teal-600 dark:text-teal-400">
+                         👥 Tous les Collaborateurs ({collaborators.length})
+                       </SelectItem>
+                       <div className="my-1 border-t border-slate-100 dark:border-slate-800" />
+                       <div className="px-2 py-1 text-xs font-semibold text-slate-400 uppercase">Associés</div>
+                       {associates.map(member => (
+                         <SelectItem key={member.id} value={member.id} className="rounded-lg cursor-pointer dark:text-slate-300 dark:focus:bg-slate-800 pl-4">
+                           {member.name}
+                         </SelectItem>
+                       ))}
+                       <div className="my-1 border-t border-slate-100 dark:border-slate-800" />
+                       <div className="px-2 py-1 text-xs font-semibold text-slate-400 uppercase">Collaborateurs</div>
+                       {collaborators.map(member => (
+                         <SelectItem key={member.id} value={member.id} className="rounded-lg cursor-pointer dark:text-slate-300 dark:focus:bg-slate-800 pl-4">
+                           {member.name}
+                         </SelectItem>
+                       ))}
+                     </SelectContent>
+                   </Select>
+                 </div>
+
+                 {/* Sector Filter */}
+                 <div className="flex items-center gap-2 bg-white dark:bg-slate-900 px-4 py-2 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
+                   <Filter className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+                   <Select value={sectorFilter} onValueChange={setSectorFilter}>
+                     <SelectTrigger className="border-none h-auto p-0 focus:ring-0 w-[150px] font-medium text-slate-700 dark:text-slate-300 bg-transparent">
+                       <SelectValue placeholder={t("dashboard.all_sectors")} />
+                     </SelectTrigger>
+                     <SelectContent className="rounded-xl border-slate-100 dark:border-slate-800 dark:bg-slate-900 shadow-lg">
+                       <SelectItem value="All" className="rounded-lg cursor-pointer dark:text-slate-300 dark:focus:bg-slate-800">{t("dashboard.all_sectors")}</SelectItem>
+                       {uniqueSectors.map(s => (
+                         <SelectItem key={s} value={s} className="rounded-lg cursor-pointer dark:text-slate-300 dark:focus:bg-slate-800">{s}</SelectItem>
+                       ))}
+                     </SelectContent>
+                   </Select>
+                 </div>
                </div>
                <button 
                   onClick={handleExportDashboard}
