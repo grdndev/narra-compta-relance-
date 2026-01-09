@@ -241,6 +241,16 @@ export default function ClientDetail() {
     }
   };
 
+  const handleSendEntryMessage = (entry: typeof entries[0], channel: 'email' | 'sms' | 'whatsapp') => {
+    const channelLabels = { email: 'Email', sms: 'SMS', whatsapp: 'WhatsApp' };
+    const amount = entry.amount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+    toast({
+      title: `${channelLabels[channel]} envoyé`,
+      description: `Relance envoyée pour l'écriture "${entry.label}" (${amount}).`,
+      className: "bg-green-600 text-white border-none"
+    });
+  };
+
   const handleBulkIgnore = () => {
     setIgnoredEntries([...ignoredEntries, ...selectedEntries]);
     setSelectedEntries([]);
@@ -925,7 +935,8 @@ export default function ClientDetail() {
                       <TableHead className="font-bold text-slate-600">Libellé</TableHead>
                       <TableHead className="font-bold text-slate-600">Libellé Écriture</TableHead>
                       <TableHead className="text-right font-bold text-slate-600">Débit</TableHead>
-                      <TableHead className="text-right font-bold text-slate-600 pr-8">Crédit</TableHead>
+                      <TableHead className="text-right font-bold text-slate-600">Crédit</TableHead>
+                      <TableHead className="text-center font-bold text-slate-600 w-[120px]">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -959,14 +970,45 @@ export default function ClientDetail() {
                         <TableCell className="text-right font-mono text-slate-600">
                           {entry.type === 'Debit' ? entry.amount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' }) : '-'}
                         </TableCell>
-                        <TableCell className="text-right font-mono text-slate-600 pr-8">
+                        <TableCell className="text-right font-mono text-slate-600">
                           {entry.type === 'Credit' ? entry.amount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' }) : '-'}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center justify-center gap-1">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 w-7 p-0 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
+                              onClick={() => handleSendEntryMessage(entry, 'email')}
+                              title="Envoyer par Email"
+                            >
+                              <Mail className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 w-7 p-0 text-green-600 hover:bg-green-50 hover:text-green-700"
+                              onClick={() => handleSendEntryMessage(entry, 'sms')}
+                              title="Envoyer par SMS"
+                            >
+                              <MessageSquare className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 w-7 p-0 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
+                              onClick={() => handleSendEntryMessage(entry, 'whatsapp')}
+                              title="Envoyer par WhatsApp"
+                            >
+                              <Phone className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
                     {filteredEntries.filter(e => journalFilter === 'ALL' || e.journal === journalFilter).length === 0 && (
                       <TableRow>
-                        <TableCell colSpan={7} className="text-center py-12 text-slate-400">
+                        <TableCell colSpan={8} className="text-center py-12 text-slate-400">
                           Aucune écriture trouvée pour ce journal.
                         </TableCell>
                       </TableRow>
