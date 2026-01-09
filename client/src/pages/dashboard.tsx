@@ -305,13 +305,12 @@ Votre Expert-Comptable`
     ? Math.round(campaignsInRange.reduce((acc, c) => acc + (c.openRate || 0), 0) / campaignsInRange.length) 
     : 0; 
 
-  // Identify clients needing attention (Top 10)
+  // Identify clients needing attention (all clients with pending docs or urgent entries)
   const urgentClients = filteredClients.filter(client => {
     const clientEntries = mockAccountingEntries.filter(e => e.clientId === client.id && e.isUrgent);
     return client.pendingDocs > 0 || clientEntries.length > 0;
   })
-  .sort((a, b) => b.pendingDocs - a.pendingDocs) // Default sort by urgency
-  .slice(0, 5);
+  .sort((a, b) => b.pendingDocs - a.pendingDocs); // Sort by urgency (most pending docs first)
 
   // Sorted list for Dialog (by Open Rate)
   const clientsSortedByOpenRate = [...urgentClients].sort((a, b) => (a.openRate || 0) - (b.openRate || 0));
@@ -696,9 +695,8 @@ Votre Expert-Comptable`
                    <AlertCircle className="h-5 w-5 text-red-500" />
                    Clients nécessitant une attention
                  </CardTitle>
-                 <Badge variant="destructive" className="px-3 py-1 flex items-center gap-1.5 bg-red-100 text-red-700 hover:bg-red-200 border-none dark:bg-red-900/30 dark:text-red-400">
-                    <AlertTriangle className="h-3.5 w-3.5" />
-                    Top 5
+                 <Badge variant="outline" className="px-3 py-1 flex items-center gap-1.5 bg-slate-100 text-slate-600 hover:bg-slate-200 border-none dark:bg-slate-800 dark:text-slate-400">
+                    {urgentClients.length} client{urgentClients.length > 1 ? 's' : ''}
                  </Badge>
                </div>
             </CardHeader>
