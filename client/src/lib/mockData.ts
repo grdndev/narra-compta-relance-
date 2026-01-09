@@ -66,6 +66,9 @@ export interface Client {
   address?: string;
   contacts?: Contact[];
   notes?: string;
+  cooperates?: boolean;
+  underSurveillance?: boolean;
+  customFields?: {id: string, label: string, value: string}[];
 }
 
 export interface Document {
@@ -173,7 +176,8 @@ export const mockClients: Client[] = [
     pendingDocs: 5,
     totalDocs: 120,
     openRate: 20,
-    notes: "Dossier complexe avec plusieurs chantiers en cours.\nRelances fréquentes nécessaires pour les pièces justificatives."
+    notes: "Dossier complexe avec plusieurs chantiers en cours.\nRelances fréquentes nécessaires pour les pièces justificatives.",
+    underSurveillance: true
   },
   {
     id: '4',

@@ -109,6 +109,7 @@ export default function Dashboard() {
   const [remindersOpen, setRemindersOpen] = useState(false);
   const [openRateOpen, setOpenRateOpen] = useState(false);
   const [attentionClientsOpen, setAttentionClientsOpen] = useState(false); // New dialog for Attention Clients
+  const [surveillanceClientsOpen, setSurveillanceClientsOpen] = useState(false); // Dialog for Surveillance Clients
 
   // Channel Selection Modal State
   const [channelModalOpen, setChannelModalOpen] = useState(false);
@@ -305,8 +306,12 @@ Votre Expert-Comptable`
     ? Math.round(campaignsInRange.reduce((acc, c) => acc + (c.openRate || 0), 0) / campaignsInRange.length) 
     : 0; 
 
-  // Identify clients needing attention (all clients with pending docs or urgent entries)
+  // Clients under surveillance (separate from attention list)
+  const surveillanceClients = filteredClients.filter(client => client.underSurveillance === true);
+
+  // Identify clients needing attention (all clients with pending docs or urgent entries, EXCLUDING surveillance clients)
   const urgentClients = filteredClients.filter(client => {
+    if (client.underSurveillance === true) return false; // Exclude surveillance clients
     const clientEntries = mockAccountingEntries.filter(e => e.clientId === client.id && e.isUrgent);
     return client.pendingDocs > 0 || clientEntries.length > 0;
   })
@@ -702,6 +707,25 @@ Votre Expert-Comptable`
             </CardHeader>
           </Card>
         )}
+
+        {/* Clients Under Surveillance */}
+        {surveillanceClients.length > 0 && (
+          <Card 
+            className="rounded-3xl border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] animate-in fade-in slide-in-from-bottom-4 duration-500 dark:bg-slate-900"
+          >
+            <CardHeader className="cursor-pointer hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors rounded-t-3xl" onClick={() => setSurveillanceClientsOpen(true)}>
+               <div className="flex items-center justify-between">
+                 <CardTitle className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                   <AlertTriangle className="h-5 w-5 text-amber-500" />
+                   Clients en surveillance
+                 </CardTitle>
+                 <Badge variant="outline" className="px-3 py-1 flex items-center gap-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 border-none dark:bg-amber-900/30 dark:text-amber-400">
+                    {surveillanceClients.length} client{surveillanceClients.length > 1 ? 's' : ''}
+                 </Badge>
+               </div>
+            </CardHeader>
+          </Card>
+        )}
       </div>
 
       {/* Dialog: Clients Actifs */}
@@ -974,6 +998,72 @@ Votre Expert-Comptable`
                      </TableCell>
                    </TableRow>
                  ))}
+               </TableBody>
+             </Table>
+           </div>
+         </DialogContent>
+      </Dialog>
+
+      {/* Dialog: Surveillance Clients */}
+      <Dialog open={surveillanceClientsOpen} onOpenChange={setSurveillanceClientsOpen}>
+         <DialogContent className="max-w-4xl rounded-3xl dark:bg-slate-900 dark:border-slate-800">
+           <DialogHeader>
+             <DialogTitle className="text-2xl font-bold dark:text-white flex items-center gap-2">
+               <AlertTriangle className="h-6 w-6 text-amber-500" />
+               Clients en surveillance
+             </DialogTitle>
+             <DialogDescription className="dark:text-slate-400">Clients nécessitant une vigilance particulière.</DialogDescription>
+           </DialogHeader>
+           <div className="max-h-[600px] overflow-auto">
+             <Table>
+               <TableHeader>
+                 <TableRow className="dark:border-slate-800 hover:bg-transparent">
+                   <TableHead className="dark:text-slate-400">Client</TableHead>
+                   <TableHead className="dark:text-slate-400">Secteur</TableHead>
+                   <TableHead className="dark:text-slate-400 text-center">Taux d'ouverture</TableHead>
+                   <TableHead className="dark:text-slate-400 text-center">Docs manquants</TableHead>
+                   <TableHead className="dark:text-slate-400 text-right">Actions</TableHead>
+                 </TableRow>
+               </TableHeader>
+               <TableBody>
+                 {surveillanceClients.map((client) => (
+                   <TableRow key={client.id} className="dark:border-slate-800 bg-amber-50/30 dark:bg-amber-900/10">
+                     <TableCell className="font-medium dark:text-white">
+                        <div className="flex items-center gap-2">
+                          <AlertTriangle className="h-4 w-4 text-amber-500" />
+                          <div>
+                            <div>{client.company}</div>
+                            <div className="text-xs text-slate-400">{client.name}</div>
+                          </div>
+                        </div>
+                     </TableCell>
+                     <TableCell>
+                        <Badge variant="outline" className="dark:border-slate-700 dark:text-slate-300">{client.sector}</Badge>
+                     </TableCell>
+                     <TableCell className="text-center">
+                        <Badge variant="outline" className={`
+                          ${(client.openRate || 0) < 50 ? 'bg-red-50 text-red-600 border-red-100 dark:bg-red-900/20 dark:text-red-400 dark:border-red-900/50' : 'bg-green-50 text-green-600 border-green-100 dark:bg-green-900/20 dark:text-green-400 dark:border-green-900/50'}
+                        `}>
+                          {client.openRate || 0}%
+                        </Badge>
+                     </TableCell>
+                     <TableCell className="text-center font-bold dark:text-slate-300">{client.pendingDocs}</TableCell>
+                     <TableCell className="text-right">
+                        <Link href={`/clients/${client.id}`}>
+                           <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                             <ChevronRight className="h-4 w-4" />
+                           </Button>
+                        </Link>
+                     </TableCell>
+                   </TableRow>
+                 ))}
+                 {surveillanceClients.length === 0 && (
+                   <TableRow>
+                     <TableCell colSpan={5} className="text-center py-8 text-slate-500 dark:text-slate-400">
+                       Aucun client en surveillance.
+                     </TableCell>
+                   </TableRow>
+                 )}
                </TableBody>
              </Table>
            </div>
