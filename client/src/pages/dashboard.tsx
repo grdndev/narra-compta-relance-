@@ -700,61 +700,6 @@ Votre Expert-Comptable`
                  </Badge>
                </div>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {urgentClients.slice(0, 5).map(client => {
-                   const clientEntries = mockAccountingEntries.filter(e => e.clientId === client.id && e.status === 'missing_doc');
-                   const totalAmount = clientEntries.reduce((sum, e) => sum + e.amount, 0);
-                   
-                   return (
-                    <div key={client.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group">
-                      <div className="flex items-center gap-4">
-                         <div className="h-10 w-10 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center shadow-sm text-lg font-bold text-slate-700 dark:text-slate-200">
-                            {client.company.charAt(0)}
-                         </div>
-                         <div>
-                           <h4 className="font-bold text-slate-900 dark:text-white">{client.company}</h4>
-                           <p className="text-sm text-slate-500 dark:text-slate-400">{client.name}</p>
-                         </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-8">
-                         <div className="text-right">
-                           <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Taux d'ouv.</p>
-                           <p className={`text-lg font-bold ${client.openRate && client.openRate > 50 ? 'text-green-600 dark:text-green-400' : 'text-orange-500 dark:text-orange-400'}`}>
-                             {client.openRate || 0}%
-                           </p>
-                         </div>
-
-                        <div className="text-right">
-                          <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Pièces manq.</p>
-                          <p className="text-lg font-bold text-red-600 dark:text-red-400">{client.pendingDocs}</p>
-                        </div>
-                        <div className="text-right w-32">
-                          <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Montant</p>
-                          <p className="text-lg font-bold text-slate-900 dark:text-white">
-                            {totalAmount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
-                          </p>
-                        </div>
-                        <Link href={`/clients/${client.id}`}>
-                          <Button variant="ghost" size="icon" className="text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400">
-                            <ChevronRight className="h-5 w-5" />
-                          </Button>
-                        </Link>
-                      </div>
-                    </div>
-                   );
-                })}
-                {urgentClients.length > 5 && (
-                  <button 
-                    onClick={() => setAttentionClientsOpen(true)}
-                    className="w-full text-center py-3 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-colors"
-                  >
-                    Voir les {urgentClients.length - 5} autres clients →
-                  </button>
-                )}
-              </div>
-            </CardContent>
           </Card>
         )}
       </div>
