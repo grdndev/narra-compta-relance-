@@ -2,8 +2,8 @@ import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { mockCampaigns, mockClients, Campaign } from "@/lib/mockData";
-import { Plus, Megaphone, Calendar, Users, Send, BarChart2, Eye, XCircle, CheckCircle2, Clock } from "lucide-react";
+import { mockCampaigns, mockClients, mockTeamMembers, Campaign } from "@/lib/mockData";
+import { Plus, Megaphone, Calendar, Users, Send, BarChart2, Eye, XCircle, CheckCircle2, Clock, Filter } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -42,6 +42,26 @@ export default function Campaigns() {
   const { toast } = useToast();
   const [campaigns, setCampaigns] = useState<Campaign[]>(mockCampaigns);
   const [newCampaignOpen, setNewCampaignOpen] = useState(false);
+  const [teamFilter, setTeamFilter] = useState("all");
+  
+  // Team filtering helpers
+  const associates = mockTeamMembers.filter(m => m.role === 'associate');
+  const collaborators = mockTeamMembers.filter(m => m.role === 'collaborator');
+
+  const getFilteredClientsByTeam = () => {
+    if (teamFilter === 'all') return mockClients;
+    if (teamFilter === 'associates') {
+      const associateIds = associates.map(a => a.id);
+      return mockClients.filter(c => associateIds.includes(c.managerId));
+    }
+    if (teamFilter === 'collaborators') {
+      const collaboratorIds = collaborators.map(c => c.id);
+      return mockClients.filter(c => collaboratorIds.includes(c.managerId));
+    }
+    return mockClients.filter(c => c.managerId === teamFilter);
+  };
+
+  const teamFilteredClients = getFilteredClientsByTeam();
   
   // Target States
   const [targetType, setTargetType] = useState<'all' | 'sector' | 'client'>('all');
@@ -158,7 +178,7 @@ export default function Campaigns() {
   };
 
   const getRecipientsForCampaign = (campaign: Campaign) => {
-    const targets = mockClients.filter(c => {
+    const targets = teamFilteredClients.filter(c => {
       if (c.status !== 'active') return false;
       return campaign.targetSector === 'All' || c.sector === campaign.targetSector;
     });
@@ -180,6 +200,15 @@ export default function Campaigns() {
     });
   };
 
+  // Stats based on team filter
+  const totalCampaigns = campaigns.length;
+  const sentCampaigns = campaigns.filter(c => c.status === 'sent').length;
+  const scheduledCampaigns = campaigns.filter(c => c.status === 'scheduled').length;
+  const avgOpenRate = campaigns.filter(c => c.status === 'sent' && c.openRate).length > 0
+    ? Math.round(campaigns.filter(c => c.status === 'sent').reduce((acc, c) => acc + (c.openRate || 0), 0) / campaigns.filter(c => c.status === 'sent').length)
+    : 0;
+  const totalRecipients = teamFilteredClients.filter(c => c.status === 'active').length;
+
   const sectors = Array.from(new Set(mockClients.map(c => c.sector)));
 
   return (
@@ -187,9 +216,45 @@ export default function Campaigns() {
       <div className="space-y-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-serif font-bold text-slate-900">Campagnes</h1>
-            <p className="text-slate-500 mt-2">Envoyez des messages groupés (CFE, TVA, Informations).</p>
+            <h1 className="text-3xl font-serif font-bold text-slate-900 dark:text-white">Campagnes</h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-2">Envoyez des messages groupés (CFE, TVA, Informations).</p>
           </div>
+          <div className="flex items-center gap-3">
+            {/* Team Filter */}
+            <div className="flex items-center gap-2 bg-white dark:bg-slate-900 px-4 py-2 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
+              <Users className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+              <Select value={teamFilter} onValueChange={setTeamFilter}>
+                <SelectTrigger className="border-none h-auto p-0 focus:ring-0 w-[180px] font-medium text-slate-700 dark:text-slate-300 bg-transparent">
+                  <SelectValue placeholder="Tout le cabinet" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl border-slate-100 dark:border-slate-800 dark:bg-slate-900 shadow-lg max-h-[400px]">
+                  <SelectItem value="all" className="rounded-lg cursor-pointer dark:text-slate-300 dark:focus:bg-slate-800 font-semibold">
+                    🏢 Tout le cabinet
+                  </SelectItem>
+                  <SelectItem value="associates" className="rounded-lg cursor-pointer dark:text-slate-300 dark:focus:bg-slate-800 font-semibold text-purple-600 dark:text-purple-400">
+                    👔 Tous les Associés ({associates.length})
+                  </SelectItem>
+                  <SelectItem value="collaborators" className="rounded-lg cursor-pointer dark:text-slate-300 dark:focus:bg-slate-800 font-semibold text-teal-600 dark:text-teal-400">
+                    👥 Tous les Collaborateurs ({collaborators.length})
+                  </SelectItem>
+                  <div className="my-1 border-t border-slate-100 dark:border-slate-800" />
+                  <div className="px-2 py-1 text-xs font-semibold text-slate-400 uppercase">Associés</div>
+                  {associates.map(member => (
+                    <SelectItem key={member.id} value={member.id} className="rounded-lg cursor-pointer dark:text-slate-300 dark:focus:bg-slate-800 pl-4">
+                      {member.name}
+                    </SelectItem>
+                  ))}
+                  <div className="my-1 border-t border-slate-100 dark:border-slate-800" />
+                  <div className="px-2 py-1 text-xs font-semibold text-slate-400 uppercase">Collaborateurs</div>
+                  {collaborators.map(member => (
+                    <SelectItem key={member.id} value={member.id} className="rounded-lg cursor-pointer dark:text-slate-300 dark:focus:bg-slate-800 pl-4">
+                      {member.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
           <Dialog open={newCampaignOpen} onOpenChange={setNewCampaignOpen}>
             <DialogTrigger asChild>
               <Button className="bg-slate-900 text-white hover:bg-slate-800">
@@ -305,6 +370,7 @@ export default function Campaigns() {
               </DialogFooter>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
 
         {/* Details Dialog */}
