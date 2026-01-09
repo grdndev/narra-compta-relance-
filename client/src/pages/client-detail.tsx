@@ -25,6 +25,9 @@ export default function ClientDetail() {
   const { toast } = useToast();
   const [selectedDocs, setSelectedDocs] = useState<string[]>([]);
   const [selectedEntries, setSelectedEntries] = useState<string[]>([]);
+  const [selectedJournalEntries, setSelectedJournalEntries] = useState<string[]>([]);
+  const [journalChannelModalOpen, setJournalChannelModalOpen] = useState(false);
+  const [journalSelectedChannel, setJournalSelectedChannel] = useState<'email' | 'sms' | 'whatsapp'>('email');
   const [ignoredEntries, setIgnoredEntries] = useState<string[]>([]);
   const [showIgnored, setShowIgnored] = useState(false);
   const [minAmount, setMinAmount] = useState<number>(0);
@@ -249,6 +252,33 @@ export default function ClientDetail() {
       description: `Relance envoyée pour l'écriture "${entry.label}" (${amount}).`,
       className: "bg-green-600 text-white border-none"
     });
+  };
+
+  const toggleJournalEntrySelection = (id: string) => {
+    setSelectedJournalEntries(prev => 
+      prev.includes(id) ? prev.filter(e => e !== id) : [...prev, id]
+    );
+  };
+
+  const filteredJournalEntries = filteredEntries.filter(e => journalFilter === 'ALL' || e.journal === journalFilter);
+  
+  const toggleSelectAllJournalEntries = () => {
+    if (selectedJournalEntries.length === filteredJournalEntries.length) {
+      setSelectedJournalEntries([]);
+    } else {
+      setSelectedJournalEntries(filteredJournalEntries.map(e => e.id));
+    }
+  };
+
+  const handleSendJournalEntriesMessage = () => {
+    const channelLabels = { email: 'Email', sms: 'SMS', whatsapp: 'WhatsApp' };
+    toast({
+      title: `${channelLabels[journalSelectedChannel]} envoyé`,
+      description: `Relance envoyée pour ${selectedJournalEntries.length} écriture(s).`,
+      className: "bg-green-600 text-white border-none"
+    });
+    setJournalChannelModalOpen(false);
+    setSelectedJournalEntries([]);
   };
 
   const handleBulkIgnore = () => {
@@ -929,6 +959,12 @@ export default function ClientDetail() {
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
+                      <TableHead className="w-[50px]">
+                        <Checkbox 
+                          checked={filteredJournalEntries.length > 0 && selectedJournalEntries.length === filteredJournalEntries.length}
+                          onCheckedChange={toggleSelectAllJournalEntries}
+                        />
+                      </TableHead>
                       <TableHead className="w-[100px] font-bold text-slate-600">Date</TableHead>
                       <TableHead className="w-[80px] font-bold text-slate-600">Jnl</TableHead>
                       <TableHead className="w-[100px] font-bold text-slate-600">Compte</TableHead>
@@ -936,15 +972,23 @@ export default function ClientDetail() {
                       <TableHead className="font-bold text-slate-600">Libellé Écriture</TableHead>
                       <TableHead className="text-right font-bold text-slate-600">Débit</TableHead>
                       <TableHead className="text-right font-bold text-slate-600">Crédit</TableHead>
-                      <TableHead className="text-center font-bold text-slate-600 w-[120px]">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredEntries
-                      .filter(e => journalFilter === 'ALL' || e.journal === journalFilter)
+                    {filteredJournalEntries
                       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                       .map((entry) => (
-                      <TableRow key={entry.id} className="hover:bg-blue-50/30 transition-colors">
+                      <TableRow 
+                        key={entry.id} 
+                        className={`hover:bg-blue-50/30 transition-colors cursor-pointer ${selectedJournalEntries.includes(entry.id) ? 'bg-blue-50/50' : ''}`}
+                        onClick={() => toggleJournalEntrySelection(entry.id)}
+                      >
+                        <TableCell onClick={(e) => e.stopPropagation()}>
+                          <Checkbox 
+                            checked={selectedJournalEntries.includes(entry.id)}
+                            onCheckedChange={() => toggleJournalEntrySelection(entry.id)}
+                          />
+                        </TableCell>
                         <TableCell className="font-medium text-slate-700">
                           {new Date(entry.date).toLocaleDateString('fr-FR')}
                         </TableCell>
@@ -973,40 +1017,9 @@ export default function ClientDetail() {
                         <TableCell className="text-right font-mono text-slate-600">
                           {entry.type === 'Credit' ? entry.amount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' }) : '-'}
                         </TableCell>
-                        <TableCell>
-                          <div className="flex items-center justify-center gap-1">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-7 w-7 p-0 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
-                              onClick={() => handleSendEntryMessage(entry, 'email')}
-                              title="Envoyer par Email"
-                            >
-                              <Mail className="h-3.5 w-3.5" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-7 w-7 p-0 text-green-600 hover:bg-green-50 hover:text-green-700"
-                              onClick={() => handleSendEntryMessage(entry, 'sms')}
-                              title="Envoyer par SMS"
-                            >
-                              <MessageSquare className="h-3.5 w-3.5" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-7 w-7 p-0 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
-                              onClick={() => handleSendEntryMessage(entry, 'whatsapp')}
-                              title="Envoyer par WhatsApp"
-                            >
-                              <Phone className="h-3.5 w-3.5" />
-                            </Button>
-                          </div>
-                        </TableCell>
                       </TableRow>
                     ))}
-                    {filteredEntries.filter(e => journalFilter === 'ALL' || e.journal === journalFilter).length === 0 && (
+                    {filteredJournalEntries.length === 0 && (
                       <TableRow>
                         <TableCell colSpan={8} className="text-center py-12 text-slate-400">
                           Aucune écriture trouvée pour ce journal.
@@ -1015,6 +1028,32 @@ export default function ClientDetail() {
                     )}
                   </TableBody>
                 </Table>
+
+                {/* Floating Action Bar for selected entries */}
+                {selectedJournalEntries.length > 0 && (
+                  <div className="sticky bottom-0 bg-white border-t border-slate-100 p-4 flex items-center justify-between shadow-lg">
+                    <div className="flex items-center gap-3">
+                      <Badge variant="secondary" className="bg-blue-100 text-blue-700 px-3 py-1">
+                        {selectedJournalEntries.length} écriture{selectedJournalEntries.length > 1 ? 's' : ''} sélectionnée{selectedJournalEntries.length > 1 ? 's' : ''}
+                      </Badge>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => setSelectedJournalEntries([])}
+                        className="text-slate-500 hover:text-slate-700"
+                      >
+                        Désélectionner tout
+                      </Button>
+                    </div>
+                    <Button 
+                      className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-6"
+                      onClick={() => setJournalChannelModalOpen(true)}
+                    >
+                      <Send className="h-4 w-4 mr-2" />
+                      Demander au client
+                    </Button>
+                  </div>
+                )}
              </div>
           </TabsContent>
 
@@ -1216,6 +1255,60 @@ export default function ClientDetail() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Journal Channel Selection Modal */}
+        <Dialog open={journalChannelModalOpen} onOpenChange={setJournalChannelModalOpen}>
+          <DialogContent className="sm:max-w-[400px] rounded-3xl dark:bg-slate-900 dark:border-slate-800">
+            <DialogHeader>
+              <DialogTitle className="dark:text-white">Choisir le canal d'envoi</DialogTitle>
+              <DialogDescription className="dark:text-slate-400">
+                Sélectionnez le canal pour envoyer la demande de justificatifs pour {selectedJournalEntries.length} écriture{selectedJournalEntries.length > 1 ? 's' : ''}.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-3 py-4">
+              <Button 
+                variant={journalSelectedChannel === 'email' ? 'default' : 'outline'}
+                className={`justify-start h-14 rounded-xl ${journalSelectedChannel === 'email' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'hover:bg-blue-50 hover:border-blue-200'}`}
+                onClick={() => setJournalSelectedChannel('email')}
+              >
+                <Mail className="h-5 w-5 mr-3" />
+                <div className="text-left">
+                  <div className="font-medium">Email</div>
+                  <div className="text-xs opacity-70">Message détaillé avec liste des pièces</div>
+                </div>
+              </Button>
+              <Button 
+                variant={journalSelectedChannel === 'sms' ? 'default' : 'outline'}
+                className={`justify-start h-14 rounded-xl ${journalSelectedChannel === 'sms' ? 'bg-purple-600 text-white hover:bg-purple-700' : 'hover:bg-purple-50 hover:border-purple-200'}`}
+                onClick={() => setJournalSelectedChannel('sms')}
+              >
+                <MessageSquare className="h-5 w-5 mr-3" />
+                <div className="text-left">
+                  <div className="font-medium">SMS</div>
+                  <div className="text-xs opacity-70">Message court (160 caractères)</div>
+                </div>
+              </Button>
+              <Button 
+                variant={journalSelectedChannel === 'whatsapp' ? 'default' : 'outline'}
+                className={`justify-start h-14 rounded-xl ${journalSelectedChannel === 'whatsapp' ? 'bg-green-600 text-white hover:bg-green-700' : 'hover:bg-green-50 hover:border-green-200'}`}
+                onClick={() => setJournalSelectedChannel('whatsapp')}
+              >
+                <Phone className="h-5 w-5 mr-3" />
+                <div className="text-left">
+                  <div className="font-medium">WhatsApp</div>
+                  <div className="text-xs opacity-70">Message interactif</div>
+                </div>
+              </Button>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setJournalChannelModalOpen(false)} className="rounded-xl">Annuler</Button>
+              <Button onClick={handleSendJournalEntriesMessage} className="rounded-xl bg-slate-900 text-white hover:bg-slate-800">
+                <Send className="mr-2 h-4 w-4" /> Envoyer
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
         {/* Comment Modal */}
         <Dialog open={!!editingCommentId} onOpenChange={(open) => !open && setEditingCommentId(null)}>
           <DialogContent className="sm:max-w-[425px] rounded-3xl p-6">
