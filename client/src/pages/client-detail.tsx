@@ -38,6 +38,11 @@ export default function ClientDetail() {
   const client = mockClients.find(c => c.id === params?.id);
   const [clientContacts, setClientContacts] = useState(client?.contacts || []);
   
+  // Client notes state
+  const [clientNotes, setClientNotes] = useState(client?.notes || "");
+  const [isEditingNotes, setIsEditingNotes] = useState(false);
+  const [tempNotes, setTempNotes] = useState("");
+  
   // Reminder Dialog State
   const [reminderDialogOpen, setReminderDialogOpen] = useState(false);
   const [reminderChannels, setReminderChannels] = useState<{email: boolean, sms: boolean, whatsapp: boolean}>({
@@ -463,6 +468,80 @@ export default function ClientDetail() {
             </Button>
           </div>
         </div>
+
+        {/* Notes Section */}
+        <Card className="border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] rounded-3xl dark:bg-slate-900 dark:border dark:border-slate-800">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                <FileText className="h-5 w-5 text-amber-500" />
+                Notes internes
+              </CardTitle>
+              {!isEditingNotes ? (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="rounded-xl border-slate-200 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                  onClick={() => {
+                    setTempNotes(clientNotes);
+                    setIsEditingNotes(true);
+                  }}
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  Modifier
+                </Button>
+              ) : (
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="rounded-xl border-slate-200 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                    onClick={() => {
+                      setIsEditingNotes(false);
+                      setTempNotes("");
+                    }}
+                  >
+                    Annuler
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    className="rounded-xl bg-slate-900 text-white hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700"
+                    onClick={() => {
+                      setClientNotes(tempNotes);
+                      setIsEditingNotes(false);
+                      toast({
+                        title: "Notes enregistrées",
+                        description: "Les notes ont été mises à jour avec succès.",
+                        className: "bg-green-600 text-white border-none"
+                      });
+                    }}
+                  >
+                    <Save className="h-4 w-4 mr-2" />
+                    Enregistrer
+                  </Button>
+                </div>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent>
+            {isEditingNotes ? (
+              <Textarea 
+                value={tempNotes}
+                onChange={(e) => setTempNotes(e.target.value)}
+                placeholder="Ajoutez des notes internes sur ce client (informations importantes, rappels, historique des échanges...)"
+                className="min-h-[120px] rounded-xl border-slate-200 dark:bg-slate-950 dark:border-slate-800 dark:text-white resize-none"
+              />
+            ) : (
+              <div className="min-h-[60px]">
+                {clientNotes ? (
+                  <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{clientNotes}</p>
+                ) : (
+                  <p className="text-slate-400 dark:text-slate-500 italic">Aucune note pour ce client. Cliquez sur "Modifier" pour en ajouter.</p>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Global Filters */}
         <div className="flex flex-col items-end gap-2 ml-auto mb-4 w-fit">

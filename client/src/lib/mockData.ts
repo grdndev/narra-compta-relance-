@@ -65,6 +65,7 @@ export interface Client {
   creationDate?: string;
   address?: string;
   contacts?: Contact[];
+  notes?: string;
 }
 
 export interface Document {
@@ -138,7 +139,8 @@ export const mockClients: Client[] = [
     contacts: [
       { id: 'c1', name: 'Jean Dupont', role: 'Président', email: 'jean.dupont@techsol.fr', phone: '06 12 34 56 78', isPrimary: true, preferredChannels: ['email'], active: true },
       { id: 'c2', name: 'Sophie Martin', role: 'Office Manager', email: 'sophie.m@techsol.fr', phone: '06 99 88 77 66', isPrimary: false, preferredChannels: ['whatsapp', 'email'], active: true }
-    ]
+    ],
+    notes: "Client fidèle depuis 2018. Préfère être contacté le matin avant 10h.\n\nRDV annuel de bilan prévu en mars.\nAttention : Changement d'expert-comptable prévu pour 2026, à surveiller."
   },
   {
     id: '2',
@@ -171,6 +173,7 @@ export const mockClients: Client[] = [
     pendingDocs: 5,
     totalDocs: 120,
     openRate: 20,
+    notes: "Dossier complexe avec plusieurs chantiers en cours.\nRelances fréquentes nécessaires pour les pièces justificatives."
   },
   {
     id: '4',
