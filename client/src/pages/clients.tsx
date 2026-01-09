@@ -41,6 +41,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { AlertTriangle } from "lucide-react";
 
 export default function Clients() {
   const { toast } = useToast();
@@ -75,6 +77,8 @@ export default function Clients() {
     sms: false,
     whatsapp: false
   });
+
+  const [newClientSurveillance, setNewClientSurveillance] = useState(false);
 
   const [reminderContent, setReminderContent] = useState<{email: string, sms: string, whatsapp: string}>({
     email: "Bonjour,\n\nSauf erreur de notre part, nous n'avons pas reçu les documents suivants pour la clôture comptable.\n\nMerci de nous les transmettre au plus vite.\n\nCordialement,\nVotre Expert-Comptable",
@@ -251,6 +255,18 @@ export default function Clients() {
                       <Label className="dark:text-slate-300">Forme Juridique</Label>
                       <Input placeholder="Ex: SAS, SARL..." className="rounded-xl dark:bg-slate-950 dark:border-slate-800 dark:text-white" />
                     </div>
+                  </div>
+                  
+                  {/* Surveillance Toggle */}
+                  <div className="flex items-center justify-between pt-2">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className={`h-4 w-4 ${newClientSurveillance ? 'text-amber-500' : 'text-slate-300'}`} />
+                      <Label className="dark:text-slate-300">En surveillance</Label>
+                    </div>
+                    <Switch 
+                      checked={newClientSurveillance}
+                      onCheckedChange={setNewClientSurveillance}
+                    />
                   </div>
                 </div>
 

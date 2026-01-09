@@ -43,6 +43,21 @@ export default function ClientDetail() {
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [tempNotes, setTempNotes] = useState("");
   
+  // Client status toggles
+  const [cooperates, setCooperates] = useState(client?.cooperates !== false);
+  const [underSurveillance, setUnderSurveillance] = useState(client?.underSurveillance || false);
+  
+  // Custom fields state
+  const [customFields, setCustomFields] = useState<{id: string, label: string, value: string}[]>(
+    client?.customFields || [
+      { id: '1', label: 'Champ libre 1', value: '' },
+      { id: '2', label: 'Champ libre 2', value: '' },
+      { id: '3', label: 'Champ libre 3', value: '' },
+      { id: '4', label: 'Champ libre 4', value: '' },
+      { id: '5', label: 'Champ libre 5', value: '' },
+    ]
+  );
+  
   // Reminder Dialog State
   const [reminderDialogOpen, setReminderDialogOpen] = useState(false);
   const [reminderChannels, setReminderChannels] = useState<{email: boolean, sms: boolean, whatsapp: boolean}>({
@@ -291,6 +306,72 @@ export default function ClientDetail() {
                      <Label className="dark:text-slate-300">Adresse Siège</Label>
                      <Textarea defaultValue={client.address || ''} className="rounded-xl border-slate-200 min-h-[80px] dark:bg-slate-950 dark:border-slate-800" />
                    </div>
+                   
+                   {/* Status Toggles */}
+                   <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
+                     <div className="flex items-center justify-between">
+                       <div className="flex items-center gap-2">
+                         <div className={`w-3 h-3 rounded-full ${cooperates ? 'bg-green-500' : 'bg-red-500'}`} />
+                         <Label className="dark:text-slate-300">Client coopératif</Label>
+                       </div>
+                       <Switch 
+                         checked={cooperates}
+                         onCheckedChange={(checked) => {
+                           setCooperates(checked);
+                           toast({
+                             title: checked ? "Client coopératif" : "Client non coopératif",
+                             description: `Le statut de coopération a été mis à jour.`,
+                           });
+                         }}
+                       />
+                     </div>
+                     <div className="flex items-center justify-between">
+                       <div className="flex items-center gap-2">
+                         <AlertTriangle className={`h-4 w-4 ${underSurveillance ? 'text-amber-500' : 'text-slate-300'}`} />
+                         <Label className="dark:text-slate-300">En surveillance</Label>
+                       </div>
+                       <Switch 
+                         checked={underSurveillance}
+                         onCheckedChange={(checked) => {
+                           setUnderSurveillance(checked);
+                           toast({
+                             title: checked ? "Client en surveillance" : "Surveillance désactivée",
+                             description: `Le statut de surveillance a été mis à jour.`,
+                           });
+                         }}
+                       />
+                     </div>
+                   </div>
+
+                   {/* Custom Fields */}
+                   <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
+                     <Label className="dark:text-slate-300 font-semibold">Champs personnalisés</Label>
+                     {customFields.map((field, index) => (
+                       <div key={field.id} className="grid grid-cols-5 gap-2">
+                         <Input 
+                           value={field.label}
+                           onChange={(e) => setCustomFields(customFields.map(f => f.id === field.id ? {...f, label: e.target.value} : f))}
+                           placeholder="Libellé"
+                           className="col-span-2 rounded-xl border-slate-200 dark:bg-slate-950 dark:border-slate-800 text-xs"
+                         />
+                         <Input 
+                           value={field.value}
+                           onChange={(e) => setCustomFields(customFields.map(f => f.id === field.id ? {...f, value: e.target.value} : f))}
+                           placeholder="Valeur"
+                           className="col-span-3 rounded-xl border-slate-200 dark:bg-slate-950 dark:border-slate-800 text-xs"
+                         />
+                       </div>
+                     ))}
+                     <Button 
+                       variant="outline" 
+                       size="sm"
+                       className="w-full rounded-xl border-dashed border-slate-300 dark:border-slate-700 text-slate-500 hover:text-slate-700 dark:text-slate-400"
+                       onClick={() => setCustomFields([...customFields, { id: Date.now().toString(), label: '', value: '' }])}
+                     >
+                       <Plus className="h-4 w-4 mr-2" /> Ajouter un champ
+                     </Button>
+                   </div>
+
                    <Button className="w-full rounded-xl bg-slate-900 text-white hover:bg-slate-800 mt-2 dark:bg-blue-600 dark:hover:bg-blue-700">
                       <Save className="h-4 w-4 mr-2" /> Enregistrer
                    </Button>
