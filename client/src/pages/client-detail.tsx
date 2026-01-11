@@ -718,11 +718,15 @@ export default function ClientDetail() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 rounded-2xl p-1 bg-white border border-slate-200 shadow-sm mb-6 dark:bg-slate-900 dark:border-slate-800">
+          <TabsList className="grid w-full grid-cols-5 rounded-2xl p-1 bg-white border border-slate-200 shadow-sm mb-6 dark:bg-slate-900 dark:border-slate-800">
             <TabsTrigger value="synthesis" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900/20 dark:data-[state=active]:text-blue-400 dark:text-slate-400">Synthèse</TabsTrigger>
             <TabsTrigger value="achats-ventes" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900/20 dark:data-[state=active]:text-blue-400 dark:text-slate-400">Achats / Ventes</TabsTrigger>
             <TabsTrigger value="journaux" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900/20 dark:data-[state=active]:text-blue-400 dark:text-slate-400">Journaux</TabsTrigger>
-            <TabsTrigger value="encaissements" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900/20 dark:data-[state=active]:text-blue-400 dark:text-slate-400">Encaissements / Décaissements</TabsTrigger>
+            <TabsTrigger value="encaissements" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900/20 dark:data-[state=active]:text-blue-400 dark:text-slate-400">Enc. / Déc.</TabsTrigger>
+            <TabsTrigger value="emails" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900/20 dark:data-[state=active]:text-blue-400 dark:text-slate-400 flex items-center gap-1.5">
+              <Mail className="h-4 w-4" />
+              E-mails
+            </TabsTrigger>
           </TabsList>
 
 
@@ -1146,6 +1150,130 @@ export default function ClientDetail() {
                     </TableBody>
                   </Table>
                 </div>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="emails" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_2px_20px_rgba(0,0,0,0.02)] overflow-hidden dark:bg-slate-900 dark:border-slate-800">
+              <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                    <Mail className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-800 dark:text-white">Boîte e-mail</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Échanges avec {client.company}</p>
+                  </div>
+                </div>
+                <Button className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nouveau message
+                </Button>
+              </div>
+
+              <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                {[
+                  {
+                    id: '1',
+                    from: 'cabinet',
+                    subject: 'Relance - Documents comptables manquants',
+                    preview: 'Bonjour, nous vous contactons concernant les pièces justificatives manquantes pour le mois de décembre...',
+                    date: '2026-01-10T14:30:00',
+                    read: true
+                  },
+                  {
+                    id: '2',
+                    from: 'client',
+                    subject: 'RE: Relance - Documents comptables manquants',
+                    preview: 'Bonjour, je vous transmets en pièce jointe les factures demandées. Concernant la facture EDF, je suis...',
+                    date: '2026-01-10T16:45:00',
+                    read: true,
+                    hasAttachment: true
+                  },
+                  {
+                    id: '3',
+                    from: 'cabinet',
+                    subject: 'Confirmation de réception',
+                    preview: 'Nous accusons bonne réception de vos documents. Il nous manque encore la facture EDF mentionnée...',
+                    date: '2026-01-11T09:15:00',
+                    read: true
+                  },
+                  {
+                    id: '4',
+                    from: 'cabinet',
+                    subject: 'Déclaration TVA - Action requise',
+                    preview: 'Dans le cadre de la préparation de votre déclaration de TVA du 4ème trimestre 2025, nous avons besoin...',
+                    date: '2026-01-08T11:00:00',
+                    read: true
+                  },
+                  {
+                    id: '5',
+                    from: 'client',
+                    subject: 'RE: Déclaration TVA - Action requise',
+                    preview: 'Merci pour ce rappel. Voici les informations demandées concernant les opérations intracommunautaires...',
+                    date: '2026-01-09T08:30:00',
+                    read: true,
+                    hasAttachment: true
+                  },
+                  {
+                    id: '6',
+                    from: 'cabinet',
+                    subject: 'Bilan annuel 2025 - Rendez-vous de présentation',
+                    preview: 'Suite à la clôture de votre exercice comptable, nous souhaiterions organiser un rendez-vous pour...',
+                    date: '2026-01-05T10:00:00',
+                    read: true
+                  }
+                ].map((email) => (
+                  <div 
+                    key={email.id}
+                    className={`p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors ${!email.read ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className={`h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                        email.from === 'cabinet' 
+                          ? 'bg-blue-100 dark:bg-blue-900/30' 
+                          : 'bg-slate-100 dark:bg-slate-800'
+                      }`}>
+                        {email.from === 'cabinet' ? (
+                          <Building2 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        ) : (
+                          <User className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="flex items-center gap-2">
+                            <span className={`text-sm font-medium ${email.from === 'cabinet' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-700 dark:text-slate-300'}`}>
+                              {email.from === 'cabinet' ? 'Cabinet Comptable' : client.company}
+                            </span>
+                            {email.hasAttachment && (
+                              <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 border-slate-200 dark:border-slate-700">
+                                <FileText className="h-3 w-3 mr-1" />
+                                PJ
+                              </Badge>
+                            )}
+                          </div>
+                          <span className="text-xs text-slate-400">
+                            {new Date(email.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                        <h4 className={`text-sm mb-1 truncate ${!email.read ? 'font-bold text-slate-900 dark:text-white' : 'font-medium text-slate-700 dark:text-slate-300'}`}>
+                          {email.subject}
+                        </h4>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
+                          {email.preview}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
+                <p className="text-center text-sm text-slate-500 dark:text-slate-400">
+                  6 messages • Dernière synchronisation il y a 5 minutes
+                </p>
               </div>
             </div>
           </TabsContent>
