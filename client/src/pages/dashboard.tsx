@@ -6,8 +6,6 @@ import { ArrowUpRight, AlertCircle, Filter, Activity, Clock, ChevronRight, Calen
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { useState } from "react";
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Link, useLocation } from "wouter";
 import { Badge } from "@/components/ui/badge";
@@ -351,6 +349,9 @@ Votre Expert-Comptable`
     });
 
     try {
+        const html2canvas = (await import('html2canvas')).default;
+        const { jsPDF } = await import('jspdf');
+
         const canvas = await html2canvas(element, {
             scale: 2,
             useCORS: true,
