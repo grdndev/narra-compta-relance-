@@ -29,8 +29,19 @@ export default function ClientDetail() {
   const [journalChannelModalOpen, setJournalChannelModalOpen] = useState(false);
   const [journalSelectedChannel, setJournalSelectedChannel] = useState<'email' | 'sms' | 'whatsapp'>('email');
   const [journalMessageContent, setJournalMessageContent] = useState('');
+  const [newEmailOpen, setNewEmailOpen] = useState(false);
+  const [newEmailContent, setNewEmailContent] = useState({ subject: '', message: '' });
+
+  const handleSendEmail = () => {
+    toast({
+      title: "Email envoyé",
+      description: `Votre email a bien été envoyé à ${client?.email}.`,
+      className: "bg-green-600 text-white border-none"
+    });
+    setNewEmailOpen(false);
+    setNewEmailContent({ subject: '', message: '' });
+  };
   const [ignoredEntries, setIgnoredEntries] = useState<string[]>([]);
-  const [showIgnored, setShowIgnored] = useState(false);
   const [minAmount, setMinAmount] = useState<number>(0);
   const [journalFilter, setJournalFilter] = useState<string>("ALL");
   const [activeTab, setActiveTab] = useState("synthesis");
@@ -1251,7 +1262,10 @@ export default function ClientDetail() {
                     <p className="text-xs text-slate-500 dark:text-slate-400">Échanges avec {client.company}</p>
                   </div>
                 </div>
-                <Button className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white">
+                <Button 
+                  className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white"
+                  onClick={() => setNewEmailOpen(true)}
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Nouveau message
                 </Button>
@@ -1382,6 +1396,44 @@ export default function ClientDetail() {
             </div>
           </div>
         )}
+
+                {/* New Email Dialog */}
+        <Dialog open={newEmailOpen} onOpenChange={setNewEmailOpen}>
+          <DialogContent className="sm:max-w-[600px] rounded-3xl dark:bg-slate-900 dark:border-slate-800">
+            <DialogHeader>
+              <DialogTitle className="dark:text-white">Nouveau message</DialogTitle>
+              <DialogDescription className="dark:text-slate-400">
+                Envoyer un e-mail à {client.email}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">Objet</Label>
+                <Input 
+                  value={newEmailContent.subject}
+                  onChange={(e) => setNewEmailContent({...newEmailContent, subject: e.target.value})}
+                  className="rounded-xl border-slate-200 dark:bg-slate-950 dark:border-slate-800"
+                  placeholder="Objet du message"
+                />
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">Message</Label>
+                <Textarea 
+                  value={newEmailContent.message}
+                  onChange={(e) => setNewEmailContent({...newEmailContent, message: e.target.value})}
+                  className="min-h-[200px] bg-white dark:bg-slate-950 dark:border-slate-800 text-sm rounded-xl border-slate-200"
+                  placeholder="Rédigez votre message..."
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setNewEmailOpen(false)} className="rounded-xl">Annuler</Button>
+              <Button onClick={handleSendEmail} className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white">
+                <Send className="mr-2 h-4 w-4" /> Envoyer
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Reminder Dialog */}
         <Dialog open={reminderDialogOpen} onOpenChange={setReminderDialogOpen}>
