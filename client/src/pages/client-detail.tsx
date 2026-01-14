@@ -179,6 +179,31 @@ export default function ClientDetail() {
     setSelectedEntries([]);
   };
 
+  const toggleSelectAllDocs = () => {
+    if (selectedDocs.length === pendingDocs.length) {
+      setSelectedDocs([]);
+    } else {
+      setSelectedDocs(pendingDocs.map(d => d.id));
+    }
+  };
+
+  const toggleSelectAllEntriesInList = (entriesList: typeof entries) => {
+    const ids = entriesList.map(e => e.id);
+    const allSelected = ids.every(id => selectedEntries.includes(id));
+    
+    if (allSelected) {
+      setSelectedEntries(selectedEntries.filter(id => !ids.includes(id)));
+    } else {
+      const newSelected = [...selectedEntries];
+      ids.forEach(id => {
+        if (!newSelected.includes(id)) {
+          newSelected.push(id);
+        }
+      });
+      setSelectedEntries(newSelected);
+    }
+  };
+
   const toggleDocSelection = (docId: string) => {
     if (selectedDocs.includes(docId)) {
       setSelectedDocs(selectedDocs.filter(id => id !== docId));
@@ -749,7 +774,18 @@ export default function ClientDetail() {
                       </TabsList>
                       
                       <TabsContent value="missing" className="space-y-4">
-                        {pendingDocs.length === 0 ? (
+                      <div className="flex justify-end mb-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={toggleSelectAllDocs}
+                          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                        >
+                          <CheckSquare className="h-4 w-4 mr-2" />
+                          {selectedDocs.length === pendingDocs.length && pendingDocs.length > 0 ? "Tout désélectionner" : "Tout sélectionner"}
+                        </Button>
+                      </div>
+                      {pendingDocs.length === 0 ? (
                           <div className="text-center py-8 text-slate-500">
                             <CheckCircle2 className="h-12 w-12 mx-auto text-green-500 mb-2" />
                             <p>Tout est à jour ! Aucun document manquant.</p>
@@ -835,10 +871,21 @@ export default function ClientDetail() {
             <div className="space-y-8">
               {/* ACHATS */}
               <div className="space-y-4">
-                <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                  <span className="w-2 h-8 bg-blue-500 rounded-full"></span>
-                  Achats
-                </h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <span className="w-2 h-8 bg-blue-500 rounded-full"></span>
+                    Achats
+                  </h3>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => toggleSelectAllEntriesInList(purchases)}
+                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                  >
+                    <CheckSquare className="h-4 w-4 mr-2" />
+                    Tout sélectionner
+                  </Button>
+                </div>
                 <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_2px_20px_rgba(0,0,0,0.02)] overflow-hidden">
                   <Table>
                     <TableHeader>
@@ -862,6 +909,7 @@ export default function ClientDetail() {
                             group={group} 
                             selectedEntries={selectedEntries}
                             onToggleSelect={toggleEntrySelection}
+                            onToggleSelectGroup={() => toggleSelectAllEntriesInList(group.entries)}
                             onIgnore={handleIgnoreEntry}
                             onToggleUrgent={handleToggleUrgent}
                             onEditComment={handleOpenComment}
@@ -876,10 +924,21 @@ export default function ClientDetail() {
 
               {/* VENTES */}
               <div className="space-y-4">
-                <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                  <span className="w-2 h-8 bg-green-500 rounded-full"></span>
-                  Ventes
-                </h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <span className="w-2 h-8 bg-green-500 rounded-full"></span>
+                    Ventes
+                  </h3>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => toggleSelectAllEntriesInList(sales)}
+                    className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                  >
+                    <CheckSquare className="h-4 w-4 mr-2" />
+                    Tout sélectionner
+                  </Button>
+                </div>
                 <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_2px_20px_rgba(0,0,0,0.02)] overflow-hidden">
                   <Table>
                     <TableHeader>
@@ -903,6 +962,7 @@ export default function ClientDetail() {
                             group={group} 
                             selectedEntries={selectedEntries}
                             onToggleSelect={toggleEntrySelection}
+                            onToggleSelectGroup={() => toggleSelectAllEntriesInList(group.entries)}
                             onIgnore={handleIgnoreEntry}
                             onToggleUrgent={handleToggleUrgent}
                             onEditComment={handleOpenComment}
@@ -1073,10 +1133,21 @@ export default function ClientDetail() {
             <div className="space-y-8">
               {/* ENCAISSEMENTS */}
               <div className="space-y-4">
-                <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                  <span className="w-2 h-8 bg-green-500 rounded-full"></span>
-                  Encaissements
-                </h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <span className="w-2 h-8 bg-green-500 rounded-full"></span>
+                    Encaissements
+                  </h3>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => toggleSelectAllEntriesInList(bankReceipts)}
+                    className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                  >
+                    <CheckSquare className="h-4 w-4 mr-2" />
+                    Tout sélectionner
+                  </Button>
+                </div>
                 <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_2px_20px_rgba(0,0,0,0.02)] overflow-hidden">
                   <Table>
                     <TableHeader>
@@ -1100,6 +1171,7 @@ export default function ClientDetail() {
                             group={group} 
                             selectedEntries={selectedEntries}
                             onToggleSelect={toggleEntrySelection}
+                            onToggleSelectGroup={() => toggleSelectAllEntriesInList(group.entries)}
                             onIgnore={handleIgnoreEntry}
                             onToggleUrgent={handleToggleUrgent}
                             onEditComment={handleOpenComment}
@@ -1114,10 +1186,21 @@ export default function ClientDetail() {
 
               {/* DECAISSEMENTS */}
               <div className="space-y-4">
-                <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                  <span className="w-2 h-8 bg-orange-500 rounded-full"></span>
-                  Décaissements
-                </h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <span className="w-2 h-8 bg-orange-500 rounded-full"></span>
+                    Décaissements
+                  </h3>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => toggleSelectAllEntriesInList(bankDisbursements)}
+                    className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                  >
+                    <CheckSquare className="h-4 w-4 mr-2" />
+                    Tout sélectionner
+                  </Button>
+                </div>
                 <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_2px_20px_rgba(0,0,0,0.02)] overflow-hidden">
                   <Table>
                     <TableHeader>
@@ -1141,6 +1224,7 @@ export default function ClientDetail() {
                             group={group} 
                             selectedEntries={selectedEntries}
                             onToggleSelect={toggleEntrySelection}
+                            onToggleSelectGroup={() => toggleSelectAllEntriesInList(group.entries)}
                             onIgnore={handleIgnoreEntry}
                             onToggleUrgent={handleToggleUrgent}
                             onEditComment={handleOpenComment}
@@ -1502,7 +1586,7 @@ function UsersIcon(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-function AccountGroupRow({ group, selectedEntries, onToggleSelect, onIgnore, onToggleUrgent, onEditComment, showIgnored }: any) {
+function AccountGroupRow({ group, selectedEntries, onToggleSelect, onToggleSelectGroup, onIgnore, onToggleUrgent, onEditComment, showIgnored }: any) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -1537,7 +1621,13 @@ function AccountGroupRow({ group, selectedEntries, onToggleSelect, onIgnore, onT
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-slate-100/50 hover:bg-slate-100/50">
-                        <TableHead className="w-[50px] pl-4"><Checkbox disabled /></TableHead>
+                        <TableHead className="w-[50px] pl-4">
+                          <Checkbox 
+                            checked={group.entries.length > 0 && group.entries.every((e: any) => selectedEntries.includes(e.id))}
+                            onCheckedChange={onToggleSelectGroup}
+                            className="rounded-md border-slate-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                          />
+                        </TableHead>
                         <TableHead className="font-bold text-slate-600">Journal</TableHead>
                         <TableHead className="font-bold text-slate-600">Libellé de l'opération</TableHead>
                         <TableHead className="font-bold text-slate-600">Date de facturation</TableHead>
