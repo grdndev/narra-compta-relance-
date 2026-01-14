@@ -11,7 +11,7 @@ import {
   User, Link2, FileText, Trash2, Plus, Save, RotateCcw, Info
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -78,20 +78,21 @@ export default function ClientDetail() {
   const documents = mockDocuments.filter(d => d.clientId === params?.id);
   const reminders = mockReminders.filter(r => r.clientId === params?.id);
   
-  const activeEntries = entries.filter(e => {
+  const activeEntries = useMemo(() => entries.filter(e => {
     const isClient = e.clientId === params?.id;
     const isIgnored = ignoredEntries.includes(e.id);
     return isClient && (showIgnored ? isIgnored : !isIgnored);
-  });
-  const filteredEntries = activeEntries.filter(e => e.amount >= minAmount);
+  }), [entries, params?.id, ignoredEntries, showIgnored]);
+
+  const filteredEntries = useMemo(() => activeEntries.filter(e => e.amount >= minAmount), [activeEntries, minAmount]);
   
-  const purchases = filteredEntries.filter(e => e.journal === 'ACH');
-  const sales = filteredEntries.filter(e => e.journal === 'VTE');
-  const bankEntries = filteredEntries.filter(e => e.journal === 'BQ');
+  const purchases = useMemo(() => filteredEntries.filter(e => e.journal === 'ACH'), [filteredEntries]);
+  const sales = useMemo(() => filteredEntries.filter(e => e.journal === 'VTE'), [filteredEntries]);
+  const bankEntries = useMemo(() => filteredEntries.filter(e => e.journal === 'BQ'), [filteredEntries]);
   
   // Split bank entries for display
-  const bankReceipts = bankEntries.filter(e => e.type === 'Debit'); // Encaissements (Debit au journal de banque = Entrée d'argent)
-  const bankDisbursements = bankEntries.filter(e => e.type === 'Credit'); // Décaissements (Crédit au journal de banque = Sortie d'argent)
+  const bankReceipts = useMemo(() => bankEntries.filter(e => e.type === 'Debit'), [bankEntries]); // Encaissements (Debit au journal de banque = Entrée d'argent)
+  const bankDisbursements = useMemo(() => bankEntries.filter(e => e.type === 'Credit'), [bankEntries]); // Décaissements (Crédit au journal de banque = Sortie d'argent)
 
   // Helper to group entries
   const groupEntries = (entriesList: typeof mockAccountingEntries) => {
@@ -112,10 +113,10 @@ export default function ClientDetail() {
     }, {} as Record<string, { account: string, label: string, entries: typeof mockAccountingEntries, totalAmount: number, count: number }>));
   };
 
-  const purchasesGrouped = groupEntries(purchases);
-  const salesGrouped = groupEntries(sales);
-  const bankReceiptsGrouped = groupEntries(bankReceipts);
-  const bankDisbursementsGrouped = groupEntries(bankDisbursements);
+  const purchasesGrouped = useMemo(() => groupEntries(purchases), [purchases]);
+  const salesGrouped = useMemo(() => groupEntries(sales), [sales]);
+  const bankReceiptsGrouped = useMemo(() => groupEntries(bankReceipts), [bankReceipts]);
+  const bankDisbursementsGrouped = useMemo(() => groupEntries(bankDisbursements), [bankDisbursements]);
 
   if (!client) {
     return (
