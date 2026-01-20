@@ -134,10 +134,10 @@ export default function LandingPage() {
           {/* Hero Image Mockup - Professional B2B Style */}
           <div className="relative mx-auto max-w-5xl animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-500">
             {/* Main Container */}
-            <div className="relative rounded-xl border border-slate-200 bg-white shadow-2xl shadow-slate-200/50 overflow-hidden">
+            <div className="relative rounded-xl border border-slate-200 bg-white shadow-2xl shadow-slate-200/50">
               
               {/* Header Bar */}
-              <div className="h-10 border-b border-slate-100 bg-slate-50 flex items-center px-4 gap-2">
+              <div className="h-10 border-b border-slate-100 bg-slate-50 flex items-center px-4 gap-2 rounded-t-xl">
                 <div className="flex gap-1.5">
                   <div className="w-3 h-3 rounded-full bg-slate-300"></div>
                   <div className="w-3 h-3 rounded-full bg-slate-200"></div>
@@ -145,8 +145,8 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* Floating UI Elements */}
-              <div className="absolute -right-12 top-20 hidden lg:block animate-[bounce_4s_infinite]">
+              {/* Floating UI Elements - Positioned relative to the main container but outside the overflow */}
+              <div className="absolute -right-12 top-20 hidden lg:block animate-[bounce_4s_infinite] z-20">
                 <div className="bg-white p-4 rounded-2xl shadow-xl border border-slate-100 max-w-xs transform hover:scale-105 transition-transform duration-300">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="h-10 w-10 bg-red-100 rounded-full flex items-center justify-center text-red-600">
@@ -163,7 +163,7 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              <div className="absolute -left-12 top-40 hidden lg:block animate-[bounce_5s_infinite] delay-700">
+              <div className="absolute -left-12 top-40 hidden lg:block animate-[bounce_5s_infinite] delay-700 z-20">
                 <div className="bg-white p-4 rounded-2xl shadow-xl border border-slate-100 max-w-xs transform hover:scale-105 transition-transform duration-300">
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-600">
@@ -177,7 +177,7 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              <div className="absolute right-0 bottom-8 hidden lg:block animate-[bounce_6s_infinite] delay-1000">
+              <div className="absolute right-0 bottom-8 hidden lg:block animate-[bounce_6s_infinite] delay-1000 z-20">
                 <div className="bg-white p-4 rounded-2xl shadow-xl border border-slate-100 max-w-xs transform hover:scale-105 transition-transform duration-300 mr-8">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
@@ -196,7 +196,7 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              <div className="p-8 md:p-12">
+              <div className="p-8 md:p-12 overflow-hidden rounded-b-xl">
                 <div className="grid md:grid-cols-8 gap-6 items-center">
                   
                   {/* Step 1: Detection */}
