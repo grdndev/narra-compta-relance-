@@ -131,54 +131,101 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Hero Image Mockup */}
-          <div className="relative mx-auto max-w-6xl animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-500">
-            <div className="relative rounded-2xl border border-slate-200 bg-white p-8 shadow-2xl backdrop-blur-sm lg:rounded-3xl lg:p-12">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
-                {/* Step 1 */}
-                <div className="flex flex-col items-center text-center max-w-xs relative group">
-                  <div className="h-20 w-20 rounded-2xl bg-red-50 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-sm border border-red-100">
-                    <FileText className="h-10 w-10 text-red-500" />
-                    <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full animate-bounce">
-                      Missing
+          {/* Hero Image Mockup - Professional B2B Style */}
+          <div className="relative mx-auto max-w-5xl animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-500">
+            {/* Main Container */}
+            <div className="relative rounded-xl border border-slate-200 bg-white shadow-2xl shadow-slate-200/50 overflow-hidden">
+              
+              {/* Header Bar */}
+              <div className="h-10 border-b border-slate-100 bg-slate-50 flex items-center px-4 gap-2">
+                <div className="flex gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-slate-300"></div>
+                  <div className="w-3 h-3 rounded-full bg-slate-200"></div>
+                  <div className="w-3 h-3 rounded-full bg-slate-200"></div>
+                </div>
+                <div className="mx-auto text-xs font-medium text-slate-400 bg-white px-3 py-1 rounded-md border border-slate-100 shadow-sm">
+                  app.naraa.ai/workflow
+                </div>
+              </div>
+
+              <div className="p-8 md:p-12">
+                <div className="grid md:grid-cols-7 gap-6 items-center">
+                  
+                  {/* Step 1: Detection */}
+                  <div className="md:col-span-2 relative group">
+                    <div className="bg-white rounded-lg border border-slate-200 p-6 hover:border-indigo-600/30 hover:shadow-lg transition-all duration-300">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="h-10 w-10 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
+                          <FileText className="h-5 w-5" />
+                        </div>
+                        <span className="text-xs font-semibold px-2 py-1 bg-slate-100 text-slate-600 rounded-full">
+                          01
+                        </span>
+                      </div>
+                      <h3 className="font-semibold text-slate-900 mb-1">Détection</h3>
+                      <p className="text-xs text-slate-500 leading-relaxed">
+                        Analyse automatique des écritures comptables non lettrées
+                      </p>
                     </div>
                   </div>
-                  <h3 className="font-bold text-slate-900 text-lg mb-2">1. Détection</h3>
-                  <p className="text-slate-500 text-sm">Le cabinet identifie les pièces manquantes dans la comptabilité.</p>
-                </div>
 
-                {/* Arrow 1 */}
-                <div className="hidden md:block text-slate-300">
-                  <ArrowRight className="h-8 w-8 animate-pulse" />
-                </div>
-
-                {/* Step 2 */}
-                <div className="flex flex-col items-center text-center max-w-xs relative group">
-                  <div className="h-20 w-20 rounded-2xl bg-blue-50 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-sm border border-blue-100">
-                    <Zap className="h-10 w-10 text-blue-600" />
+                  {/* Arrow 1 */}
+                  <div className="md:col-span-0.5 hidden md:flex justify-center">
+                    <div className="h-px w-full bg-slate-200 relative">
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 border-t border-r border-slate-300 rotate-45"></div>
+                    </div>
                   </div>
-                  <h3 className="font-bold text-slate-900 text-lg mb-2">2. Relance Auto</h3>
-                  <p className="text-slate-500 text-sm">Naraa envoie des rappels automatiques (Email, SMS, WhatsApp).</p>
-                </div>
 
-                {/* Arrow 2 */}
-                <div className="hidden md:block text-slate-300">
-                  <ArrowRight className="h-8 w-8 animate-pulse delay-75" />
-                </div>
-
-                {/* Step 3 */}
-                <div className="flex flex-col items-center text-center max-w-xs relative group">
-                  <div className="h-20 w-20 rounded-2xl bg-green-50 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-sm border border-green-100">
-                    <CheckCircle2 className="h-10 w-10 text-green-600" />
+                  {/* Step 2: Relance */}
+                  <div className="md:col-span-2 relative group">
+                    <div className="bg-white rounded-lg border border-slate-200 p-6 hover:border-indigo-600/30 hover:shadow-lg transition-all duration-300 relative overflow-hidden">
+                      <div className="absolute top-0 right-0 w-16 h-16 bg-indigo-600/5 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-150 duration-500"></div>
+                      
+                      <div className="flex items-start justify-between mb-4 relative">
+                        <div className="h-10 w-10 rounded-lg bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 flex items-center justify-center">
+                          <Zap className="h-5 w-5" />
+                        </div>
+                        <span className="text-xs font-semibold px-2 py-1 bg-indigo-50 text-indigo-600 rounded-full border border-indigo-100">
+                          02
+                        </span>
+                      </div>
+                      <h3 className="font-semibold text-slate-900 mb-1">Relance</h3>
+                      <p className="text-xs text-slate-500 leading-relaxed">
+                        Envoi ciblé par Email, SMS ou WhatsApp selon préférence
+                      </p>
+                    </div>
                   </div>
-                  <h3 className="font-bold text-slate-900 text-lg mb-2">3. Collecte</h3>
-                  <p className="text-slate-500 text-sm">Le client dépose ses documents en un clic. Tout est à jour !</p>
+
+                  {/* Arrow 2 */}
+                  <div className="md:col-span-0.5 hidden md:flex justify-center">
+                    <div className="h-px w-full bg-slate-200 relative">
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 border-t border-r border-slate-300 rotate-45"></div>
+                    </div>
+                  </div>
+
+                  {/* Step 3: Collecte */}
+                  <div className="md:col-span-2 relative group">
+                    <div className="bg-white rounded-lg border border-slate-200 p-6 hover:border-green-600/30 hover:shadow-lg transition-all duration-300">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="h-10 w-10 rounded-lg bg-green-50 border border-green-100 flex items-center justify-center text-green-600">
+                          <CheckCircle2 className="h-5 w-5" />
+                        </div>
+                        <span className="text-xs font-semibold px-2 py-1 bg-slate-100 text-slate-600 rounded-full">
+                          03
+                        </span>
+                      </div>
+                      <h3 className="font-semibold text-slate-900 mb-1">Collecte</h3>
+                      <p className="text-xs text-slate-500 leading-relaxed">
+                        Réception et classement automatique dans la GED
+                      </p>
+                    </div>
+                  </div>
+
                 </div>
               </div>
               
-              {/* Decorative Background for Scheme */}
-              <div className="absolute inset-0 bg-slate-50/50 rounded-3xl -z-10" />
-              <div className="absolute top-1/2 left-0 w-full h-1 bg-gradient-to-r from-red-100 via-blue-100 to-green-100 -translate-y-1/2 hidden md:block -z-10" />
+              {/* Subtle background grid */}
+              <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] pointer-events-none"></div>
             </div>
           </div>
         </div>
