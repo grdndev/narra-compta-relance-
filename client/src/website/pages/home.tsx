@@ -96,7 +96,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+      <section className="pt-32 pb-10 lg:pt-48 lg:pb-10 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           
           {/* Background decoration */}
@@ -286,7 +286,7 @@ export default function LandingPage() {
 
 
       {/* Features Grid */}
-      <section id="features" className="py-24 bg-white">
+      <section id="features" className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-20">
             <h2 className="text-3xl font-bold text-slate-900 sm:text-4xl mb-6">
