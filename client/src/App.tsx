@@ -12,11 +12,13 @@ import ClientDetail from "@/pages/client-detail";
 import Campaigns from "@/pages/campaigns";
 import Settings from "@/pages/settings";
 import LandingPage from "@/website/pages/home";
+import PreviewSwitcher from "@/components/dev/PreviewSwitcher";
 
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={LandingPage} />
+      <Route path="/site-vitrine" component={LandingPage} />
+      <Route path="/" component={Dashboard} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/clients" component={Clients} />
       <Route path="/clients/:id" component={ClientDetail} />
@@ -35,6 +37,7 @@ function App() {
           <TooltipProvider>
             <Toaster />
             <Router />
+            <PreviewSwitcher />
           </TooltipProvider>
         </LanguageProvider>
       </QueryClientProvider>

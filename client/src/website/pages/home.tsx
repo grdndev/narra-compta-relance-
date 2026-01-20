@@ -44,12 +44,12 @@ export default function LandingPage() {
 
             {/* CTA Buttons */}
             <div className="hidden md:flex items-center gap-4">
-              <Link href="/dashboard">
+              <Link href="/">
                 <Button variant="ghost" className="font-medium text-slate-600 hover:text-blue-600 hover:bg-blue-50">
                   Connexion
                 </Button>
               </Link>
-              <Link href="/dashboard">
+              <Link href="/">
                 <Button className="rounded-full px-6 bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20">
                   Demander une démo
                 </Button>
@@ -72,10 +72,10 @@ export default function LandingPage() {
             <a href="#benefits" className="text-base font-medium text-slate-600 py-2">Avantages</a>
             <a href="#pricing" className="text-base font-medium text-slate-600 py-2">Tarifs</a>
             <div className="border-t border-slate-100 pt-4 flex flex-col gap-3">
-              <Link href="/dashboard">
+              <Link href="/">
                 <Button variant="outline" className="w-full justify-center">Connexion</Button>
               </Link>
-              <Link href="/dashboard">
+              <Link href="/">
                 <Button className="w-full justify-center bg-blue-600">Demander une démo</Button>
               </Link>
             </div>
@@ -110,7 +110,7 @@ export default function LandingPage() {
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-300">
-              <Link href="/dashboard">
+              <Link href="/">
                 <Button size="lg" className="h-14 px-8 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-lg shadow-xl shadow-blue-600/25 transition-all hover:scale-105">
                   Commencer gratuitement
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -259,7 +259,7 @@ export default function LandingPage() {
             Rejoignez les experts-comptables qui ont choisi Naraa pour moderniser leur relation client.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/dashboard">
+            <Link href="/">
               <Button size="lg" className="h-16 px-10 rounded-full bg-white text-slate-900 hover:bg-slate-100 text-lg font-bold">
                 Demander une démo
               </Button>
