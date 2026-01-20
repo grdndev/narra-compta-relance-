@@ -284,22 +284,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Logos Section */}
-      <section className="py-10 border-y border-slate-100 bg-slate-50/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-sm font-semibold text-slate-500 uppercase tracking-wider mb-8">
-            Recommandé par plus de 500 cabinets d'expertise
-          </p>
-          <div className="flex flex-wrap justify-center items-center gap-12 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
-            {/* Mock Logos - simple text for now */}
-            <span className="text-xl font-bold text-slate-400">ACD Groupe</span>
-            <span className="text-xl font-bold text-slate-400">Sage</span>
-            <span className="text-xl font-bold text-slate-400">Cegid</span>
-            <span className="text-xl font-bold text-slate-400">MyUnisoft</span>
-            <span className="text-xl font-bold text-slate-400">QuickBooks</span>
-          </div>
-        </div>
-      </section>
 
       {/* Features Grid */}
       <section id="features" className="py-24 bg-white">
