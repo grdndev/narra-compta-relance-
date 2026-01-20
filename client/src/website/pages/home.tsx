@@ -143,8 +143,56 @@ export default function LandingPage() {
                   <div className="w-3 h-3 rounded-full bg-slate-200"></div>
                   <div className="w-3 h-3 rounded-full bg-slate-200"></div>
                 </div>
-                <div className="mx-auto text-xs font-medium text-slate-400 bg-white px-3 py-1 rounded-md border border-slate-100 shadow-sm">
-                  app.naraa.ai/workflow
+              </div>
+
+              {/* Floating UI Elements */}
+              <div className="absolute -right-12 top-20 hidden lg:block animate-[bounce_4s_infinite]">
+                <div className="bg-white p-4 rounded-2xl shadow-xl border border-slate-100 max-w-xs transform hover:scale-105 transition-transform duration-300">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="h-10 w-10 bg-red-100 rounded-full flex items-center justify-center text-red-600">
+                      <FileText className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-slate-800">Documents manquants</div>
+                      <div className="text-xs text-slate-500">Dossier SARL Dupond</div>
+                    </div>
+                  </div>
+                  <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-red-500 w-[75%]"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="absolute -left-12 top-40 hidden lg:block animate-[bounce_5s_infinite] delay-700">
+                <div className="bg-white p-4 rounded-2xl shadow-xl border border-slate-100 max-w-xs transform hover:scale-105 transition-transform duration-300">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-600">
+                      <Users className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-slate-800">Client non actif</div>
+                      <div className="text-xs text-slate-500">Relance automatique activée</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="absolute right-0 bottom-8 hidden lg:block animate-[bounce_6s_infinite] delay-1000">
+                <div className="bg-white p-4 rounded-2xl shadow-xl border border-slate-100 max-w-xs transform hover:scale-105 transition-transform duration-300 mr-8">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                      <Zap className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-slate-800">Taux d'ouverture</div>
+                      <div className="text-xs text-slate-500">Campagne de mars</div>
+                    </div>
+                  </div>
+                  <div className="text-2xl font-bold text-slate-900">84%</div>
+                  <div className="text-xs text-green-600 flex items-center gap-1">
+                    <span className="inline-block w-2 h-2 rounded-full bg-green-500"></span>
+                    +12% vs mois dernier
+                  </div>
                 </div>
               </div>
 
