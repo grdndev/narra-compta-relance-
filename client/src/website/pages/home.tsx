@@ -113,8 +113,8 @@ export default function LandingPage() {
             </div>
             
             <h1 className="text-5xl lg:text-7xl font-bold tracking-tight text-slate-900 mb-8 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
-              L'outil de relance des pièces manquantes <br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">pour les experts-comptables</span>
+              Collecte de pièces automatisée <br/>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">pour experts-comptables exigeants</span>
             </h1>
             
             <p className="text-xl text-slate-600 mb-10 leading-relaxed max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
