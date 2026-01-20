@@ -157,6 +157,12 @@ export default function Layout({ children }: LayoutProps) {
                 <DropdownMenuItem className="rounded-lg cursor-pointer dark:text-slate-300 dark:focus:bg-slate-800">{t("header.profile")}</DropdownMenuItem>
                 <DropdownMenuItem className="rounded-lg cursor-pointer dark:text-slate-300 dark:focus:bg-slate-800">{t("header.security")}</DropdownMenuItem>
                 <DropdownMenuSeparator className="dark:bg-slate-800" />
+                <Link href="/site-vitrine">
+                  <DropdownMenuItem className="rounded-lg cursor-pointer dark:text-slate-300 dark:focus:bg-slate-800">
+                    <Sparkles className="mr-2 h-4 w-4 text-blue-500" />
+                    Voir le site vitrine
+                  </DropdownMenuItem>
+                </Link>
                 <DropdownMenuItem className="text-red-600 dark:text-red-400 rounded-lg cursor-pointer focus:bg-red-50 dark:focus:bg-red-900/20 focus:text-red-700 dark:focus:text-red-300">
                   <LogOut className="mr-2 h-4 w-4" /> {t("header.logout")}
                 </DropdownMenuItem>
