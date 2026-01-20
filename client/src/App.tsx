@@ -11,7 +11,7 @@ import Clients from "@/pages/clients";
 import ClientDetail from "@/pages/client-detail";
 import Campaigns from "@/pages/campaigns";
 import Settings from "@/pages/settings";
-import LandingPage from "@/pages/landing-page";
+import LandingPage from "@/website/pages/home";
 
 function Router() {
   return (
