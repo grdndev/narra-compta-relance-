@@ -146,7 +146,8 @@ export default function LandingPage() {
               </div>
 
               {/* Floating UI Elements - Positioned relative to the main container but outside the overflow */}
-              <div className="absolute -right-32 top-0 hidden lg:block animate-[bounce_4s_infinite] z-20">
+              {/* Docs manquants - Left of Detection */}
+              <div className="absolute -left-32 top-8 hidden lg:block animate-[bounce_4s_infinite] z-20">
                 <div className="bg-white p-3 rounded-xl shadow-xl border border-slate-100 max-w-[200px] transform hover:scale-105 transition-transform duration-300">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center text-red-600">
@@ -154,7 +155,7 @@ export default function LandingPage() {
                     </div>
                     <div>
                       <div className="font-bold text-slate-800 text-sm">Docs manquants</div>
-                      <div className="text-[10px] text-slate-500">Dossier SARL Dupond</div>
+                      <div className="text-[10px] text-slate-500">SA LOMI - 17 factures</div>
                     </div>
                   </div>
                   <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
@@ -163,21 +164,23 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              <div className="absolute -left-24 top-24 hidden lg:block animate-[bounce_5s_infinite] delay-700 z-20">
+              {/* Clients inactifs - Right of Collection */}
+              <div className="absolute -right-32 top-24 hidden lg:block animate-[bounce_5s_infinite] delay-700 z-20">
                 <div className="bg-white p-3 rounded-xl shadow-xl border border-slate-100 max-w-[200px] transform hover:scale-105 transition-transform duration-300">
                   <div className="flex items-center gap-2">
                     <div className="h-8 w-8 bg-orange-100 rounded-full flex items-center justify-center text-orange-600">
                       <Users className="h-4 w-4" />
                     </div>
                     <div>
-                      <div className="font-bold text-slate-800 text-sm">Client inactif</div>
-                      <div className="text-[10px] text-slate-500">Relance activée</div>
+                      <div className="font-bold text-slate-800 text-sm">Clients inactifs</div>
+                      <div className="text-[10px] text-slate-500">Relance Email + SMS</div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="absolute -right-16 -bottom-6 hidden lg:block animate-[bounce_6s_infinite] delay-1000 z-20">
+              {/* Taux d'ouverture - Below Relance (Centered) */}
+              <div className="absolute left-1/2 -translate-x-1/2 -bottom-16 hidden lg:block animate-[bounce_6s_infinite] delay-1000 z-20">
                 <div className="bg-white p-3 rounded-xl shadow-xl border border-slate-100 max-w-[180px] transform hover:scale-105 transition-transform duration-300">
                   <div className="flex items-center gap-2 mb-1">
                     <div className="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
@@ -185,7 +188,7 @@ export default function LandingPage() {
                     </div>
                     <div>
                       <div className="font-bold text-slate-800 text-sm">Taux d'ouverture</div>
-                      <div className="text-[10px] text-slate-500">Campagne mars</div>
+                      <div className="text-[10px] text-slate-500">Campagne Rappel CFE</div>
                     </div>
                   </div>
                   <div className="flex items-end justify-between">
