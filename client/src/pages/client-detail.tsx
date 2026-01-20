@@ -42,6 +42,7 @@ export default function ClientDetail() {
     setNewEmailContent({ subject: '', message: '' });
   };
   const [ignoredEntries, setIgnoredEntries] = useState<string[]>([]);
+  const [showIgnored, setShowIgnored] = useState(false);
   const [minAmount, setMinAmount] = useState<number>(0);
   const [journalFilter, setJournalFilter] = useState<string>("ALL");
   const [activeTab, setActiveTab] = useState("synthesis");
