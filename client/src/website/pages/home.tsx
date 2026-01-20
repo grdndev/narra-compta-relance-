@@ -149,13 +149,16 @@ export default function LandingPage() {
               </div>
 
               <div className="p-8 md:p-12">
-                <div className="grid md:grid-cols-7 gap-6 items-center">
+                <div className="grid md:grid-cols-8 gap-6 items-center">
                   
                   {/* Step 1: Detection */}
-                  <div className="md:col-span-2 relative group">
-                    <div className="bg-white rounded-lg border border-slate-200 p-6 hover:border-indigo-600/30 hover:shadow-lg transition-all duration-300">
+                  <div className="md:col-span-2 relative group h-full">
+                    <div className="bg-white rounded-lg border border-slate-200 p-6 hover:border-indigo-600/30 hover:shadow-lg transition-all duration-300 h-full relative overflow-hidden">
+                      {/* Scanning Animation */}
+                      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 group-hover:opacity-100 group-hover:animate-[scan_2s_ease-in-out_infinite] -translate-y-full" />
+                      
                       <div className="flex items-start justify-between mb-4">
-                        <div className="h-10 w-10 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
+                        <div className="h-10 w-10 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform duration-300">
                           <FileText className="h-5 w-5" />
                         </div>
                         <span className="text-xs font-semibold px-2 py-1 bg-slate-100 text-slate-600 rounded-full">
@@ -170,20 +173,19 @@ export default function LandingPage() {
                   </div>
 
                   {/* Arrow 1 */}
-                  <div className="md:col-span-0.5 hidden md:flex justify-center">
-                    <div className="h-px w-full bg-slate-200 relative">
-                      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 border-t border-r border-slate-300 rotate-45"></div>
-                    </div>
+                  <div className="md:col-span-1 hidden md:flex justify-center text-slate-300">
+                    <ArrowRight className="h-6 w-6 animate-[pulse_2s_ease-in-out_infinite]" />
                   </div>
 
                   {/* Step 2: Relance */}
-                  <div className="md:col-span-2 relative group">
-                    <div className="bg-white rounded-lg border border-slate-200 p-6 hover:border-indigo-600/30 hover:shadow-lg transition-all duration-300 relative overflow-hidden">
+                  <div className="md:col-span-2 relative group h-full">
+                    <div className="bg-white rounded-lg border border-slate-200 p-6 hover:border-indigo-600/30 hover:shadow-lg transition-all duration-300 relative overflow-hidden h-full">
                       <div className="absolute top-0 right-0 w-16 h-16 bg-indigo-600/5 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-150 duration-500"></div>
                       
                       <div className="flex items-start justify-between mb-4 relative">
-                        <div className="h-10 w-10 rounded-lg bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 flex items-center justify-center">
-                          <Zap className="h-5 w-5" />
+                        <div className="h-10 w-10 rounded-lg bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 flex items-center justify-center relative">
+                          <Zap className="h-5 w-5 relative z-10" />
+                          <div className="absolute inset-0 bg-indigo-600 rounded-lg animate-ping opacity-20 group-hover:opacity-40"></div>
                         </div>
                         <span className="text-xs font-semibold px-2 py-1 bg-indigo-50 text-indigo-600 rounded-full border border-indigo-100">
                           02
@@ -197,18 +199,16 @@ export default function LandingPage() {
                   </div>
 
                   {/* Arrow 2 */}
-                  <div className="md:col-span-0.5 hidden md:flex justify-center">
-                    <div className="h-px w-full bg-slate-200 relative">
-                      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 border-t border-r border-slate-300 rotate-45"></div>
-                    </div>
+                  <div className="md:col-span-1 hidden md:flex justify-center text-slate-300">
+                    <ArrowRight className="h-6 w-6 animate-[pulse_2s_ease-in-out_infinite] delay-500" />
                   </div>
 
                   {/* Step 3: Collecte */}
-                  <div className="md:col-span-2 relative group">
-                    <div className="bg-white rounded-lg border border-slate-200 p-6 hover:border-green-600/30 hover:shadow-lg transition-all duration-300">
+                  <div className="md:col-span-2 relative group h-full">
+                    <div className="bg-white rounded-lg border border-slate-200 p-6 hover:border-green-600/30 hover:shadow-lg transition-all duration-300 h-full">
                       <div className="flex items-start justify-between mb-4">
-                        <div className="h-10 w-10 rounded-lg bg-green-50 border border-green-100 flex items-center justify-center text-green-600">
-                          <CheckCircle2 className="h-5 w-5" />
+                        <div className="h-10 w-10 rounded-lg bg-green-50 border border-green-100 flex items-center justify-center text-green-600 group-hover:bg-green-100 transition-colors duration-300">
+                          <CheckCircle2 className="h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
                         </div>
                         <span className="text-xs font-semibold px-2 py-1 bg-slate-100 text-slate-600 rounded-full">
                           03
