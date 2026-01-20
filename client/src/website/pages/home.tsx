@@ -290,10 +290,10 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-20">
             <h2 className="text-3xl font-bold text-slate-900 sm:text-4xl mb-6">
-              Tout ce dont vous avez besoin pour <br/>piloter votre cabinet
+              Gagnez jusqu’à 80% de temps sur les relances clients
             </h2>
             <p className="text-lg text-slate-600">
-              Naraa centralise vos outils et fluidifie vos processus pour vous permettre de vous concentrer sur le conseil.
+              Naraa.ai diminue votre temps administratif afin de vous concentrer sur des missions à forte valeur ajoutée.
             </p>
           </div>
 
