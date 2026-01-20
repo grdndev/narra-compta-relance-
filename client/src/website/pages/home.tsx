@@ -146,52 +146,54 @@ export default function LandingPage() {
               </div>
 
               {/* Floating UI Elements - Positioned relative to the main container but outside the overflow */}
-              <div className="absolute -right-12 top-20 hidden lg:block animate-[bounce_4s_infinite] z-20">
-                <div className="bg-white p-4 rounded-2xl shadow-xl border border-slate-100 max-w-xs transform hover:scale-105 transition-transform duration-300">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="h-10 w-10 bg-red-100 rounded-full flex items-center justify-center text-red-600">
-                      <FileText className="h-6 w-6" />
+              <div className="absolute -right-20 top-8 hidden lg:block animate-[bounce_4s_infinite] z-20">
+                <div className="bg-white p-3 rounded-xl shadow-xl border border-slate-100 max-w-[200px] transform hover:scale-105 transition-transform duration-300">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center text-red-600">
+                      <FileText className="h-4 w-4" />
                     </div>
                     <div>
-                      <div className="font-bold text-slate-800">Documents manquants</div>
-                      <div className="text-xs text-slate-500">Dossier SARL Dupond</div>
+                      <div className="font-bold text-slate-800 text-sm">Docs manquants</div>
+                      <div className="text-[10px] text-slate-500">Dossier SARL Dupond</div>
                     </div>
                   </div>
-                  <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
                     <div className="h-full bg-red-500 w-[75%]"></div>
                   </div>
                 </div>
               </div>
 
-              <div className="absolute -left-12 top-40 hidden lg:block animate-[bounce_5s_infinite] delay-700 z-20">
-                <div className="bg-white p-4 rounded-2xl shadow-xl border border-slate-100 max-w-xs transform hover:scale-105 transition-transform duration-300">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-600">
-                      <Users className="h-5 w-5" />
+              <div className="absolute -left-16 top-32 hidden lg:block animate-[bounce_5s_infinite] delay-700 z-20">
+                <div className="bg-white p-3 rounded-xl shadow-xl border border-slate-100 max-w-[200px] transform hover:scale-105 transition-transform duration-300">
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 bg-orange-100 rounded-full flex items-center justify-center text-orange-600">
+                      <Users className="h-4 w-4" />
                     </div>
                     <div>
-                      <div className="font-bold text-slate-800">Client non actif</div>
-                      <div className="text-xs text-slate-500">Relance automatique activée</div>
+                      <div className="font-bold text-slate-800 text-sm">Client inactif</div>
+                      <div className="text-[10px] text-slate-500">Relance activée</div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="absolute right-0 bottom-8 hidden lg:block animate-[bounce_6s_infinite] delay-1000 z-20">
-                <div className="bg-white p-4 rounded-2xl shadow-xl border border-slate-100 max-w-xs transform hover:scale-105 transition-transform duration-300 mr-8">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
-                      <Zap className="h-5 w-5" />
+              <div className="absolute -right-8 bottom-12 hidden lg:block animate-[bounce_6s_infinite] delay-1000 z-20">
+                <div className="bg-white p-3 rounded-xl shadow-xl border border-slate-100 max-w-[180px] transform hover:scale-105 transition-transform duration-300">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                      <Zap className="h-4 w-4" />
                     </div>
                     <div>
-                      <div className="font-bold text-slate-800">Taux d'ouverture</div>
-                      <div className="text-xs text-slate-500">Campagne de mars</div>
+                      <div className="font-bold text-slate-800 text-sm">Taux d'ouverture</div>
+                      <div className="text-[10px] text-slate-500">Campagne mars</div>
                     </div>
                   </div>
-                  <div className="text-2xl font-bold text-slate-900">84%</div>
-                  <div className="text-xs text-green-600 flex items-center gap-1">
-                    <span className="inline-block w-2 h-2 rounded-full bg-green-500"></span>
-                    +12% vs mois dernier
+                  <div className="flex items-end justify-between">
+                    <div className="text-xl font-bold text-slate-900">84%</div>
+                    <div className="text-[10px] text-green-600 flex items-center gap-0.5 bg-green-50 px-1.5 py-0.5 rounded-full">
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                      +12%
+                    </div>
                   </div>
                 </div>
               </div>
