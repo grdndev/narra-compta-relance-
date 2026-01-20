@@ -30,7 +30,7 @@ export default function LandingPage() {
                 <span className="text-white font-bold text-xl">N</span>
               </div>
               <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700">
-                Naraa
+                Naraa.ai
               </span>
             </div>
 
@@ -101,8 +101,8 @@ export default function LandingPage() {
             </div>
             
             <h1 className="text-5xl lg:text-7xl font-bold tracking-tight text-slate-900 mb-8 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
-              La gestion comptable <br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">réinventée pour demain</span>
+              L'outil de relance des pièces <br/>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">manquantes pour les experts-comptables</span>
             </h1>
             
             <p className="text-xl text-slate-600 mb-10 leading-relaxed max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
@@ -112,14 +112,10 @@ export default function LandingPage() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-300">
               <Link href="/">
                 <Button size="lg" className="h-14 px-8 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-lg shadow-xl shadow-blue-600/25 transition-all hover:scale-105">
-                  Commencer gratuitement
+                  Demander une démo
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Button size="lg" variant="outline" className="h-14 px-8 rounded-full border-slate-200 text-slate-700 hover:bg-slate-50 text-lg">
-                <Play className="mr-2 h-4 w-4 fill-slate-700" />
-                Voir la vidéo
-              </Button>
             </div>
           </div>
 
@@ -283,7 +279,7 @@ export default function LandingPage() {
                 <div className="h-8 w-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold text-sm">N</span>
                 </div>
-                <span className="text-xl font-bold text-slate-900">Naraa</span>
+                <span className="text-xl font-bold text-slate-900">Naraa.ai</span>
               </div>
               <p className="text-slate-500 max-w-xs leading-relaxed">
                 La plateforme tout-en-un pour les experts-comptables modernes. Automatisez, collaborez et développez votre cabinet.
