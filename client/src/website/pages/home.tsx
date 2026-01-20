@@ -112,8 +112,8 @@ export default function LandingPage() {
               Nouveau : Découvrez l'Assistant IA pour vos journaux
             </div>
             
-            <h1 className="text-5xl lg:text-7xl font-bold tracking-tight text-slate-900 mb-8 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
-              L'outil de relance des pièces manquantes <br/>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 mb-8 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100 max-w-5xl mx-auto">
+              L'outil de relance des pièces manquantes <br className="hidden md:block" />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">pour les experts-comptables</span>
             </h1>
             
