@@ -179,8 +179,8 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* Taux d'ouverture - Below Relance (Centered) */}
-              <div className="absolute left-1/2 -translate-x-1/2 -bottom-16 hidden lg:block animate-[bounce_6s_infinite] delay-1000 z-20">
+              {/* Taux d'ouverture - Top Right of Relance (Step 2) */}
+              <div className="absolute right-1/4 top-1/2 -translate-y-[140%] hidden lg:block animate-[bounce_6s_infinite] delay-1000 z-20">
                 <div className="bg-white p-3 rounded-xl shadow-xl border border-slate-100 max-w-[180px] transform hover:scale-105 transition-transform duration-300">
                   <div className="flex items-center gap-2 mb-1">
                     <div className="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
@@ -246,7 +246,7 @@ export default function LandingPage() {
                       </div>
                       <h3 className="font-semibold text-slate-900 mb-1">Relance</h3>
                       <p className="text-xs text-slate-500 leading-relaxed">
-                        Envoi ciblé par Email, SMS ou WhatsApp selon préférence
+                        Envoi ciblé par Email/SMS + Traçabilité des échanges
                       </p>
                     </div>
                   </div>
