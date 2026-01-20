@@ -16,8 +16,8 @@ import LandingPage from "@/website/pages/home";
 function Router() {
   return (
     <Switch>
-      <Route path="/site-vitrine" component={LandingPage} />
-      <Route path="/" component={Dashboard} />
+      <Route path="/" component={LandingPage} />
+      <Route path="/dashboard" component={Dashboard} />
       <Route path="/clients" component={Clients} />
       <Route path="/clients/:id" component={ClientDetail} />
       <Route path="/campaigns" component={Campaigns} />

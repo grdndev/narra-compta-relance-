@@ -47,7 +47,7 @@ export default function Layout({ children }: LayoutProps) {
   }, []);
 
   const navItems = [
-    { href: "/", label: t("nav.dashboard"), icon: LayoutDashboard },
+    { href: "/dashboard", label: t("nav.dashboard"), icon: LayoutDashboard },
     { href: "/clients", label: t("nav.clients"), icon: Users },
     { href: "/campaigns", label: t("nav.campaigns"), icon: Megaphone },
     { href: "/settings", label: t("nav.settings"), icon: Settings },
@@ -80,7 +80,7 @@ export default function Layout({ children }: LayoutProps) {
           <nav className="space-y-2">
             {navItems.map((item) => {
               const Icon = item.icon;
-              const isActive = location === item.href || (location !== "/" && location.startsWith(item.href) && item.href !== "/");
+              const isActive = location === item.href || (location !== "/dashboard" && location.startsWith(item.href) && item.href !== "/dashboard");
               
               return (
                 <Link 

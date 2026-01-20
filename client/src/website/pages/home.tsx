@@ -44,14 +44,16 @@ export default function LandingPage() {
 
             {/* CTA Buttons */}
             <div className="hidden md:flex items-center gap-4">
-              <Link href="/">
+              <Link href="/dashboard">
                 <Button variant="ghost" className="font-medium text-slate-600 hover:text-blue-600 hover:bg-blue-50">
                   Connexion
                 </Button>
               </Link>
-              <Button className="rounded-full px-6 bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20">
-                Demander une démo
-              </Button>
+              <Link href="/dashboard">
+                <Button className="rounded-full px-6 bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20">
+                  Demander une démo
+                </Button>
+              </Link>
             </div>
 
             {/* Mobile Menu Button */}
@@ -70,10 +72,12 @@ export default function LandingPage() {
             <a href="#benefits" className="text-base font-medium text-slate-600 py-2">Avantages</a>
             <a href="#pricing" className="text-base font-medium text-slate-600 py-2">Tarifs</a>
             <div className="border-t border-slate-100 pt-4 flex flex-col gap-3">
-              <Link href="/">
+              <Link href="/dashboard">
                 <Button variant="outline" className="w-full justify-center">Connexion</Button>
               </Link>
-              <Button className="w-full justify-center bg-blue-600">Demander une démo</Button>
+              <Link href="/dashboard">
+                <Button className="w-full justify-center bg-blue-600">Demander une démo</Button>
+              </Link>
             </div>
           </div>
         )}
@@ -106,10 +110,12 @@ export default function LandingPage() {
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-300">
-              <Button size="lg" className="h-14 px-8 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-lg shadow-xl shadow-blue-600/25 transition-all hover:scale-105">
-                Commencer gratuitement
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
+              <Link href="/dashboard">
+                <Button size="lg" className="h-14 px-8 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-lg shadow-xl shadow-blue-600/25 transition-all hover:scale-105">
+                  Commencer gratuitement
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
               <Button size="lg" variant="outline" className="h-14 px-8 rounded-full border-slate-200 text-slate-700 hover:bg-slate-50 text-lg">
                 <Play className="mr-2 h-4 w-4 fill-slate-700" />
                 Voir la vidéo
@@ -253,9 +259,11 @@ export default function LandingPage() {
             Rejoignez les experts-comptables qui ont choisi Naraa pour moderniser leur relation client.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="h-16 px-10 rounded-full bg-white text-slate-900 hover:bg-slate-100 text-lg font-bold">
-              Demander une démo
-            </Button>
+            <Link href="/dashboard">
+              <Button size="lg" className="h-16 px-10 rounded-full bg-white text-slate-900 hover:bg-slate-100 text-lg font-bold">
+                Demander une démo
+              </Button>
+            </Link>
             <Button size="lg" variant="outline" className="h-16 px-10 rounded-full border-slate-700 text-white hover:bg-slate-800 text-lg">
               Contacter l'équipe
             </Button>
