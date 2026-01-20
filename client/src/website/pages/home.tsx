@@ -133,45 +133,52 @@ export default function LandingPage() {
 
           {/* Hero Image Mockup */}
           <div className="relative mx-auto max-w-6xl animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-500">
-            <div className="relative rounded-2xl border border-slate-200 bg-slate-50/50 p-2 shadow-2xl backdrop-blur-sm lg:rounded-3xl lg:p-4">
-              <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/5 to-indigo-500/5 rounded-3xl" />
-              <img 
-                src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2426&q=80" 
-                alt="Naraa Dashboard Interface" 
-                className="block w-full rounded-xl border border-slate-200 shadow-sm lg:rounded-2xl"
-              />
-              
-              {/* Floating UI Elements */}
-              <div className="absolute -right-12 top-20 hidden lg:block animate-bounce duration-[3000ms]">
-                <div className="bg-white p-4 rounded-2xl shadow-xl border border-slate-100 max-w-xs">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center text-green-600">
-                      <CheckCircle2 className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <div className="font-bold text-slate-800">TVA Validée</div>
-                      <div className="text-xs text-slate-500">Il y a 2 minutes</div>
+            <div className="relative rounded-2xl border border-slate-200 bg-white p-8 shadow-2xl backdrop-blur-sm lg:rounded-3xl lg:p-12">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
+                {/* Step 1 */}
+                <div className="flex flex-col items-center text-center max-w-xs relative group">
+                  <div className="h-20 w-20 rounded-2xl bg-red-50 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-sm border border-red-100">
+                    <FileText className="h-10 w-10 text-red-500" />
+                    <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full animate-bounce">
+                      Missing
                     </div>
                   </div>
-                  <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-green-500 w-[100%]"></div>
-                  </div>
+                  <h3 className="font-bold text-slate-900 text-lg mb-2">1. Détection</h3>
+                  <p className="text-slate-500 text-sm">Le cabinet identifie les pièces manquantes dans la comptabilité.</p>
                 </div>
-              </div>
 
-              <div className="absolute -left-12 bottom-40 hidden lg:block animate-bounce duration-[4000ms]">
-                <div className="bg-white p-4 rounded-2xl shadow-xl border border-slate-100 max-w-xs">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
-                      <MessageSquare className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <div className="font-bold text-slate-800">Nouveau message</div>
-                      <div className="text-xs text-slate-500">Client SARL Martin</div>
-                    </div>
+                {/* Arrow 1 */}
+                <div className="hidden md:block text-slate-300">
+                  <ArrowRight className="h-8 w-8 animate-pulse" />
+                </div>
+
+                {/* Step 2 */}
+                <div className="flex flex-col items-center text-center max-w-xs relative group">
+                  <div className="h-20 w-20 rounded-2xl bg-blue-50 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-sm border border-blue-100">
+                    <Zap className="h-10 w-10 text-blue-600" />
                   </div>
+                  <h3 className="font-bold text-slate-900 text-lg mb-2">2. Relance Auto</h3>
+                  <p className="text-slate-500 text-sm">Naraa envoie des rappels automatiques (Email, SMS, WhatsApp).</p>
+                </div>
+
+                {/* Arrow 2 */}
+                <div className="hidden md:block text-slate-300">
+                  <ArrowRight className="h-8 w-8 animate-pulse delay-75" />
+                </div>
+
+                {/* Step 3 */}
+                <div className="flex flex-col items-center text-center max-w-xs relative group">
+                  <div className="h-20 w-20 rounded-2xl bg-green-50 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-sm border border-green-100">
+                    <CheckCircle2 className="h-10 w-10 text-green-600" />
+                  </div>
+                  <h3 className="font-bold text-slate-900 text-lg mb-2">3. Collecte</h3>
+                  <p className="text-slate-500 text-sm">Le client dépose ses documents en un clic. Tout est à jour !</p>
                 </div>
               </div>
+              
+              {/* Decorative Background for Scheme */}
+              <div className="absolute inset-0 bg-slate-50/50 rounded-3xl -z-10" />
+              <div className="absolute top-1/2 left-0 w-full h-1 bg-gradient-to-r from-red-100 via-blue-100 to-green-100 -translate-y-1/2 hidden md:block -z-10" />
             </div>
           </div>
         </div>
