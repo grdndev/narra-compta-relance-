@@ -11,10 +11,12 @@ import Clients from "@/pages/clients";
 import ClientDetail from "@/pages/client-detail";
 import Campaigns from "@/pages/campaigns";
 import Settings from "@/pages/settings";
+import LandingPage from "@/pages/landing-page";
 
 function Router() {
   return (
     <Switch>
+      <Route path="/site-vitrine" component={LandingPage} />
       <Route path="/" component={Dashboard} />
       <Route path="/clients" component={Clients} />
       <Route path="/clients/:id" component={ClientDetail} />
