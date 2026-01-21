@@ -35,11 +35,19 @@ export default function DemoPage() {
           </div>
 
           <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden min-h-[600px]">
-            <div className="bg-slate-900 p-8 text-white text-center">
-              <h1 className="text-2xl md:text-3xl font-bold mb-4">Réservez une démo</h1>
-              <p className="text-slate-300 max-w-lg mx-auto">
-                Découvrez comment Naraa.ai peut transformer votre cabinet. Choisissez un créneau ci-dessous.
-              </p>
+            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-10 text-white text-center relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-white rounded-full blur-[80px] opacity-10 -mr-20 -mt-20" />
+              <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-indigo-400 rounded-full blur-[60px] opacity-20 -ml-10 -mb-10" />
+              
+              <div className="relative z-10">
+                <div className="inline-flex h-12 w-12 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 items-center justify-center text-white mb-6 shadow-lg">
+                  <Calendar className="h-6 w-6" />
+                </div>
+                <h1 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">Réservez votre démo personnalisée</h1>
+                <p className="text-blue-50 max-w-lg mx-auto text-lg">
+                  Échangez avec nos experts et découvrez comment Naraa.ai va révolutionner la gestion de votre cabinet.
+                </p>
+              </div>
             </div>
 
             <div className="p-4 md:p-8 flex justify-center bg-white">
