@@ -61,6 +61,11 @@ export function Navbar() {
                 Tarifs
               </span>
             </Link>
+            <Link href="/site-vitrine/about">
+              <span className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors cursor-pointer">
+                À propos
+              </span>
+            </Link>
             <Link href="/login">
               <Button variant="ghost" className="font-medium text-slate-600 hover:text-blue-600 hover:bg-blue-50">
                 Connexion
@@ -88,6 +93,9 @@ export function Navbar() {
           <a href={isHome ? "#features" : "/site-vitrine#features"} className="text-base font-medium text-slate-600 py-2">Fonctionnalités</a>
           <Link href="/site-vitrine/pricing">
             <span className="text-base font-medium text-slate-600 py-2 cursor-pointer">Tarifs</span>
+          </Link>
+          <Link href="/site-vitrine/about">
+            <span className="text-base font-medium text-slate-600 py-2 cursor-pointer">À propos</span>
           </Link>
           <div className="border-t border-slate-100 pt-4 flex flex-col gap-3">
             <Link href="/login">
