@@ -7,6 +7,12 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [location] = useLocation();
 
+  useEffect(() => {
+    if (!window.location.hash) {
+      window.scrollTo(0, 0);
+    }
+  }, [location]);
+
   const isHome = location === "/site-vitrine";
 
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
