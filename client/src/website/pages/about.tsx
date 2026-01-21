@@ -31,15 +31,12 @@ export default function AboutPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div className="relative">
-              <div className="aspect-square rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 p-8 flex items-center justify-center relative overflow-hidden shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-500">
-                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10"></div>
-                <div className="text-center">
-                  <div className="inline-flex h-20 w-20 bg-white/10 rounded-2xl items-center justify-center backdrop-blur-sm border border-white/20 mb-6">
-                    <Lightbulb className="h-10 w-10 text-yellow-400" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-white mb-2">L'idée originale</h3>
-                  <p className="text-slate-300">Née sur le terrain, pour le terrain</p>
-                </div>
+              <div className="aspect-square rounded-2xl overflow-hidden shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-500 border-4 border-white">
+                <img 
+                  src="/team-photo.jpg" 
+                  alt="L'équipe Naraa.ai" 
+                  className="w-full h-full object-cover"
+                />
               </div>
               {/* Decorative elements */}
               <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-blue-100 rounded-full blur-2xl -z-10"></div>
