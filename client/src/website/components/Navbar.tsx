@@ -50,8 +50,8 @@ export function Navbar() {
           {/* Desktop Menu - moved to right side */}
           <div className="hidden md:flex items-center gap-8">
             <a 
-              href={isHome ? "#features" : "/site-vitrine#features"} 
-              onClick={(e) => isHome && scrollToSection(e, "features")}
+              href={isHome ? "#process" : "/site-vitrine#process"} 
+              onClick={(e) => isHome && scrollToSection(e, "process")}
               className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors cursor-pointer"
             >
               Fonctionnalités
@@ -90,7 +90,7 @@ export function Navbar() {
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden absolute top-20 left-0 right-0 bg-white border-b border-slate-100 p-4 flex flex-col gap-4 shadow-xl">
-          <a href={isHome ? "#features" : "/site-vitrine#features"} className="text-base font-medium text-slate-600 py-2">Fonctionnalités</a>
+          <a href={isHome ? "#process" : "/site-vitrine#process"} className="text-base font-medium text-slate-600 py-2">Fonctionnalités</a>
           <Link href="/site-vitrine/pricing">
             <span className="text-base font-medium text-slate-600 py-2 cursor-pointer">Tarifs</span>
           </Link>

@@ -55,7 +55,7 @@ export default function LandingPage() {
           </div>
 
           {/* Hero Image Mockup - Professional B2B Style */}
-          <div className="relative mx-auto max-w-5xl animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-500">
+          <div id="process" className="relative mx-auto max-w-5xl animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-500 scroll-mt-32">
             {/* Main Container */}
             <div className="relative rounded-xl border border-slate-200 bg-white shadow-2xl shadow-slate-200/50">
               

@@ -35,7 +35,7 @@ export function Footer() {
             <h4 className="font-bold text-slate-900 mb-4">Produit</h4>
             <ul className="space-y-3">
               <li>
-                <a href={location.pathname === "/site-vitrine" ? "#features" : "/site-vitrine#features"} className="text-slate-500 hover:text-blue-600 transition-colors">
+                <a href={location.pathname === "/site-vitrine" ? "#process" : "/site-vitrine#process"} className="text-slate-500 hover:text-blue-600 transition-colors">
                   Fonctionnalités
                 </a>
               </li>
