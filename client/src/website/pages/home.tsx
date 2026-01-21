@@ -320,14 +320,9 @@ export default function LandingPage() {
                 desc: "Données chiffrées de bout en bout, hébergement souverain et conformité RGPD garantie."
               },
               {
-                icon: <FileText className="h-6 w-6 text-red-500" />,
-                title: "GED Intégrée",
-                desc: "Classement automatique des documents, reconnaissance OCR et recherche plein texte performante."
-              },
-              {
                 icon: <MessageSquare className="h-6 w-6 text-indigo-500" />,
                 title: "Messagerie Unifiée",
-                desc: "Centralisez tous les échanges avec vos clients au même endroit, qu'ils viennent par mail ou chat."
+                desc: "Centralisez tous les échanges par email avec vos clients au même endroit."
               }
             ].map((feature, i) => (
               <div key={i} className="p-8 rounded-3xl border border-slate-100 bg-white shadow-lg shadow-slate-200/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
