@@ -46,13 +46,13 @@ export default function AboutPage() {
               <h2 className="text-3xl font-bold text-slate-900 mb-6">La Genèse de Naraa.ai</h2>
               <div className="space-y-6 text-lg text-slate-600">
                 <p>
-                  Tout a commencé par un constat partagé par de nombreux cabinets : jusqu'à <strong>30% du temps</strong> des collaborateurs est consacré à des tâches administratives à faible valeur ajoutée, notamment la relance des pièces comptables.
+                  Tout a commencé par mon expérience dans le monde de la comptabilité : 4 ans en cabinet puis 3 ans en start-up. J’ai vu de mes propres yeux combien de temps précieux était perdu sur des tâches administratives répétitives (jusqu’à 70 % de ma journée) , comme la relance des pièces comptables, au lieu de se concentrer sur le conseil et l’accompagnement des clients.
                 </p>
                 <p>
-                  Frustrés de voir des experts passer leurs journées à envoyer des emails de rappel plutôt qu'à accompagner leurs clients, nous avons décidé de créer une solution radicalement différente.
+                  C’est de cette frustration qu’est née l’idée de ma propre start-up. Je voulais créer une solution radicalement différente, qui permette aux experts-comptable de se libérer de ces tâches chronophages.
                 </p>
                 <p>
-                  Naraa.ai n'est pas juste un "autre logiciel de comptabilité". C'est un assistant intelligent qui automatise la relation client administrative pour libérer le potentiel humain des cabinets.
+                  Naraa.ai n’est pas juste “un autre logiciel de comptabilité”. C’est un assistant intelligent qui relance automatiquement les pièces manquantes, libérant le potentiel humain des cabinets et leur permettant de se concentrer sur ce qui compte vraiment : leurs clients.
                 </p>
               </div>
             </div>
