@@ -40,7 +40,7 @@ export function Footer() {
           <div>
             <h4 className="font-bold text-slate-900 mb-4">Entreprise</h4>
             <ul className="space-y-3">
-              <li><a href="#" className="text-slate-500 hover:text-blue-600 transition-colors">À propos</a></li>
+              <li><Link href="/site-vitrine/about"><span className="text-slate-500 hover:text-blue-600 transition-colors cursor-pointer">À propos</span></Link></li>
               <li><Link href="/site-vitrine/contact"><span className="text-slate-500 hover:text-blue-600 transition-colors cursor-pointer">Contact</span></Link></li>
             </ul>
           </div>
