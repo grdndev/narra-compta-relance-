@@ -16,6 +16,8 @@ import PricingPage from "@/website/pages/pricing";
 import QuotePage from "@/website/pages/quote";
 import ContactPage from "@/website/pages/contact";
 import AboutPage from "@/website/pages/about";
+import DemoPage from "@/website/pages/demo";
+import LoginPage from "@/pages/auth";
 import PreviewSwitcher from "@/components/dev/PreviewSwitcher";
 
 function Router() {
@@ -26,6 +28,8 @@ function Router() {
       <Route path="/site-vitrine/quote" component={QuotePage} />
       <Route path="/site-vitrine/contact" component={ContactPage} />
       <Route path="/site-vitrine/about" component={AboutPage} />
+      <Route path="/site-vitrine/demo" component={DemoPage} />
+      <Route path="/login" component={LoginPage} />
       <Route path="/" component={Dashboard} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/clients" component={Clients} />

@@ -45,9 +45,9 @@ export default function LandingPage() {
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-300">
-              <Link href="/">
+              <Link href="/site-vitrine/demo">
                 <Button size="lg" className="h-14 px-8 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-lg shadow-xl shadow-blue-600/25 transition-all hover:scale-105">
-                  Demander une démo
+                  Réservez une démo
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
@@ -399,9 +399,9 @@ export default function LandingPage() {
             Rejoignez les experts-comptables qui ont choisi Naraa pour moderniser leur relation client.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/site-vitrine/quote">
+            <Link href="/site-vitrine/demo">
               <Button size="lg" className="h-16 px-10 rounded-full bg-white text-slate-900 hover:bg-slate-100 text-lg font-bold">
-                Demander une démo
+                Réservez une démo
               </Button>
             </Link>
             <Link href="/site-vitrine/contact">

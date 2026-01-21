@@ -61,15 +61,14 @@ export function Navbar() {
                 Tarifs
               </span>
             </Link>
-            <div className="w-px h-6 bg-slate-200 mx-2"></div>
-            <Link href="/">
+            <Link href="/login">
               <Button variant="ghost" className="font-medium text-slate-600 hover:text-blue-600 hover:bg-blue-50">
                 Connexion
               </Button>
             </Link>
-            <Link href="/">
+            <Link href="/site-vitrine/demo">
               <Button className="rounded-full px-6 bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20">
-                Demander une démo
+                Réservez une démo
               </Button>
             </Link>
           </div>
@@ -91,11 +90,11 @@ export function Navbar() {
             <span className="text-base font-medium text-slate-600 py-2 cursor-pointer">Tarifs</span>
           </Link>
           <div className="border-t border-slate-100 pt-4 flex flex-col gap-3">
-            <Link href="/">
+            <Link href="/login">
               <Button variant="outline" className="w-full justify-center">Connexion</Button>
             </Link>
-            <Link href="/">
-              <Button className="w-full justify-center bg-blue-600">Demander une démo</Button>
+            <Link href="/site-vitrine/demo">
+              <Button className="w-full justify-center bg-blue-600">Réservez une démo</Button>
             </Link>
           </div>
         </div>

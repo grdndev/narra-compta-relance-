@@ -46,9 +46,9 @@ export default function PricingPage() {
             Rejoignez les experts-comptables qui ont choisi Naraa pour moderniser leur relation client.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/site-vitrine/quote">
+            <Link href="/site-vitrine/demo">
               <Button size="lg" className="h-16 px-10 rounded-full bg-white text-slate-900 hover:bg-slate-100 text-lg font-bold">
-                Demander une démo
+                Réservez une démo
               </Button>
             </Link>
             <Link href="/site-vitrine/contact">
