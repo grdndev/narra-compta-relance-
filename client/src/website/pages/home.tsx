@@ -286,7 +286,7 @@ export default function LandingPage() {
 
 
       {/* Features Grid - Centralized Layout */}
-      <section id="features" className="py-24 bg-white scroll-mt-24 relative overflow-hidden">
+      <section className="py-24 bg-white relative overflow-hidden">
         {/* Background Gradients */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-50/50 rounded-full blur-3xl -z-10" />
         
@@ -300,7 +300,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="relative min-h-[800px] lg:min-h-[600px] flex items-center justify-center">
+          <div id="features" className="relative min-h-[800px] lg:min-h-[600px] flex items-center justify-center scroll-mt-32">
             {/* Connecting Lines (Desktop only) */}
             <svg className="absolute inset-0 w-full h-full hidden lg:block pointer-events-none z-0" viewBox="0 0 1000 600">
               {/* Lines from center to items */}
@@ -382,7 +382,7 @@ export default function LandingPage() {
                   <BarChart3 className="h-6 w-6" />
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 mb-2">Tableau de Bord 360°</h3>
-                <p className="text-sm text-slate-600">Visualisez l'état d'avancement de tous vos dossiers en un coup d'œil.</p>
+                <p className="text-sm text-slate-600">Visualisez l'état d'avancement de toutes vos relances en un coup d'œil.</p>
               </div>
             </div>
 
