@@ -286,7 +286,7 @@ export default function LandingPage() {
 
 
       {/* Features Grid */}
-      <section id="features" className="py-12 bg-white">
+      <section id="features" className="py-12 bg-white scroll-mt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-20">
             <h2 className="text-3xl font-bold text-slate-900 sm:text-4xl mb-6">
@@ -297,12 +297,12 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-8 justify-center">
             {[
               {
                 icon: <Zap className="h-6 w-6 text-yellow-500" />,
                 title: "Relances Intelligentes",
-                desc: "Automatisez la collecte des pièces manquantes par Email, SMS ou WhatsApp. Fini la chasse aux factures."
+                desc: "Automatisez la collecte des pièces manquantes par Email/SMS. Fini la chasse aux factures."
               },
               {
                 icon: <BarChart3 className="h-6 w-6 text-blue-500" />,
@@ -317,7 +317,7 @@ export default function LandingPage() {
               {
                 icon: <Shield className="h-6 w-6 text-green-500" />,
                 title: "Sécurité Bancaire",
-                desc: "Données chiffrées de bout en bout, hébergement souverain et conformité RGPD garantie."
+                desc: "Données sécurisées, hébergement en Europe, respect du RGPD."
               },
               {
                 icon: <MessageSquare className="h-6 w-6 text-indigo-500" />,
@@ -325,7 +325,7 @@ export default function LandingPage() {
                 desc: "Centralisez tous les échanges par email avec vos clients au même endroit."
               }
             ].map((feature, i) => (
-              <div key={i} className="p-8 rounded-3xl border border-slate-100 bg-white shadow-lg shadow-slate-200/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+              <div key={i} className={`p-8 rounded-3xl border border-slate-100 bg-white shadow-lg shadow-slate-200/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${i === 3 || i === 4 ? 'md:col-span-1 md:last:col-start-auto' : ''}`}>
                 <div className="h-14 w-14 rounded-2xl bg-slate-50 flex items-center justify-center mb-6">
                   {feature.icon}
                 </div>
