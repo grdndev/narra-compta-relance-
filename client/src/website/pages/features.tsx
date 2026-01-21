@@ -18,20 +18,8 @@ export default function FeaturesPage() {
     <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-blue-100">
       <Navbar />
 
-      {/* Hero Section for Features */}
-      <section className="pt-32 pb-12 bg-slate-50 border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl font-bold text-slate-900 mb-6">
-            Fonctionnalités
-          </h1>
-          <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-            Découvrez comment Naraa.ai transforme votre processus de relance et optimise la gestion de votre cabinet.
-          </p>
-        </div>
-      </section>
-
       {/* Process Section */}
-      <section className="py-20 relative overflow-hidden">
+      <section className="pt-32 pb-20 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           
           <div className="relative mx-auto max-w-5xl">
