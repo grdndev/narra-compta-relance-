@@ -35,11 +35,9 @@ export function Footer() {
             <h4 className="font-bold text-slate-900 mb-4">Produit</h4>
             <ul className="space-y-3">
               <li>
-                <Link href="/site-vitrine/features">
-                  <span className="text-slate-500 hover:text-blue-600 transition-colors cursor-pointer">
-                    Fonctionnalités
-                  </span>
-                </Link>
+                <a href={location.pathname === "/site-vitrine" ? "#process" : "/site-vitrine#process"} className="text-slate-500 hover:text-blue-600 transition-colors">
+                  Fonctionnalités
+                </a>
               </li>
               <li><Link href="/site-vitrine/pricing"><span className="text-slate-500 hover:text-blue-600 transition-colors cursor-pointer">Tarifs</span></Link></li>
               <li><Link href="/site-vitrine/about"><span className="text-slate-500 hover:text-blue-600 transition-colors cursor-pointer">À propos</span></Link></li>

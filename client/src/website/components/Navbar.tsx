@@ -7,9 +7,17 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [location] = useLocation();
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [location]);
+  const isHome = location === "/site-vitrine";
+
+  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    if (!isHome) return; // If not on home, let the router handle it (or use Link)
+    e.preventDefault();
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+    setMobileMenuOpen(false);
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
@@ -41,11 +49,13 @@ export function Navbar() {
 
           {/* Desktop Menu - moved to right side */}
           <div className="hidden md:flex items-center gap-8">
-            <Link href="/site-vitrine/features">
-              <span className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors cursor-pointer">
-                Fonctionnalités
-              </span>
-            </Link>
+            <a 
+              href={isHome ? "#process" : "/site-vitrine#process"} 
+              onClick={(e) => isHome && scrollToSection(e, "process")}
+              className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors cursor-pointer"
+            >
+              Fonctionnalités
+            </a>
             <Link href="/site-vitrine/pricing">
               <span className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors cursor-pointer">
                 Tarifs
@@ -80,9 +90,7 @@ export function Navbar() {
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden absolute top-20 left-0 right-0 bg-white border-b border-slate-100 p-4 flex flex-col gap-4 shadow-xl">
-          <Link href="/site-vitrine/features">
-            <span className="text-base font-medium text-slate-600 py-2 cursor-pointer">Fonctionnalités</span>
-          </Link>
+          <a href={isHome ? "#process" : "/site-vitrine#process"} className="text-base font-medium text-slate-600 py-2">Fonctionnalités</a>
           <Link href="/site-vitrine/pricing">
             <span className="text-base font-medium text-slate-600 py-2 cursor-pointer">Tarifs</span>
           </Link>
