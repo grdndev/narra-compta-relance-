@@ -33,7 +33,7 @@ export function Footer() {
               <li><a href="#" className="text-slate-500 hover:text-blue-600 transition-colors">À propos</a></li>
               <li><a href="#" className="text-slate-500 hover:text-blue-600 transition-colors">Carrières</a></li>
               <li><a href="#" className="text-slate-500 hover:text-blue-600 transition-colors">Blog</a></li>
-              <li><a href="#" className="text-slate-500 hover:text-blue-600 transition-colors">Contact</a></li>
+              <li><Link href="/site-vitrine/contact"><span className="text-slate-500 hover:text-blue-600 transition-colors cursor-pointer">Contact</span></Link></li>
             </ul>
           </div>
         </div>

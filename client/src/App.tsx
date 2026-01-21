@@ -14,6 +14,7 @@ import Settings from "@/pages/settings";
 import LandingPage from "@/website/pages/home";
 import PricingPage from "@/website/pages/pricing";
 import QuotePage from "@/website/pages/quote";
+import ContactPage from "@/website/pages/contact";
 import PreviewSwitcher from "@/components/dev/PreviewSwitcher";
 
 function Router() {
@@ -22,6 +23,7 @@ function Router() {
       <Route path="/site-vitrine" component={LandingPage} />
       <Route path="/site-vitrine/pricing" component={PricingPage} />
       <Route path="/site-vitrine/quote" component={QuotePage} />
+      <Route path="/site-vitrine/contact" component={ContactPage} />
       <Route path="/" component={Dashboard} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/clients" component={Clients} />

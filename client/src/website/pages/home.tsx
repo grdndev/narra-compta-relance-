@@ -399,14 +399,16 @@ export default function LandingPage() {
             Rejoignez les experts-comptables qui ont choisi Naraa pour moderniser leur relation client.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/">
+            <Link href="/site-vitrine/quote">
               <Button size="lg" className="h-16 px-10 rounded-full bg-white text-slate-900 hover:bg-slate-100 text-lg font-bold">
                 Demander une démo
               </Button>
             </Link>
-            <Button size="lg" variant="outline" className="h-16 px-10 rounded-full border-slate-700 text-white hover:bg-slate-800 text-lg">
-              Contacter l'équipe
-            </Button>
+            <Link href="/site-vitrine/contact">
+              <Button size="lg" variant="outline" className="h-16 px-10 rounded-full border-slate-700 text-white hover:bg-slate-800 text-lg">
+                Contacter l'équipe
+              </Button>
+            </Link>
           </div>
           <p className="mt-6 text-sm text-slate-500">
             Aucune carte bancaire requise • Essai gratuit 14 jours
