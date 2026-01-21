@@ -44,9 +44,9 @@ export default function AboutPage() {
             
             <div>
               <h2 className="text-3xl font-bold text-slate-900 mb-6">La Genèse de Naraa.ai</h2>
-              <div className="space-y-6 text-lg text-slate-600">
+              <div className="space-y-6 text-lg text-slate-600 text-justify">
                 <p>
-                  Tout a commencé par mon expérience dans le monde de la comptabilité : 4 ans en cabinet puis 3 ans en start-up. J’ai vu de mes propres yeux combien de temps précieux était perdu sur des tâches administratives répétitives (jusqu’à 70 % de ma journée) , comme la relance des pièces comptables, au lieu de se concentrer sur le conseil et l’accompagnement des clients.
+                  Tout a commencé par mon expérience dans le monde de la comptabilité : 4 ans en cabinet puis 3 ans en start-up. J’ai vu de mes propres yeux combien de temps précieux était perdu sur des tâches administratives répétitives (jusqu’à 70 % de ma journée), comme la relance des pièces comptables, au lieu de se concentrer sur le conseil et l’accompagnement des clients.
                 </p>
                 <p>
                   C’est de cette frustration qu’est née l’idée de ma propre start-up. Je voulais créer une solution radicalement différente, qui permette aux experts-comptable de se libérer de ces tâches chronophages.
