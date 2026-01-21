@@ -1,7 +1,5 @@
-import { useState } from "react";
 import { Link } from "wouter";
 import { 
-  CheckCircle2, 
   ArrowRight, 
   BarChart3, 
   Shield, 
@@ -9,91 +7,16 @@ import {
   Users, 
   MessageSquare, 
   FileText,
-  Menu,
-  X,
-  Play
+  CheckCircle2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Navbar } from "../components/Navbar";
+import { Footer } from "../components/Footer";
 
 export default function LandingPage() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   return (
     <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-blue-100">
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            {/* Logo */}
-            <div className="flex items-center gap-2">
-              <div className="h-10 w-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20 text-white">
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="1.5" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  className="h-6 w-6"
-                >
-                  <path d="M22 4L18 2L15 6L2 8L12 12L6 22L16 16L18 8L22 4Z" />
-                  <path d="M15 6L12 12" />
-                </svg>
-              </div>
-              <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700">
-                Naraa.ai
-              </span>
-            </div>
-
-            {/* Desktop Menu */}
-            <div className="hidden md:flex items-center gap-8">
-              <a href="#features" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Fonctionnalités</a>
-              <a href="#benefits" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Avantages</a>
-              <a href="#testimonials" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Témoignages</a>
-              <a href="#pricing" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Tarifs</a>
-            </div>
-
-            {/* CTA Buttons */}
-            <div className="hidden md:flex items-center gap-4">
-              <Link href="/">
-                <Button variant="ghost" className="font-medium text-slate-600 hover:text-blue-600 hover:bg-blue-50">
-                  Connexion
-                </Button>
-              </Link>
-              <Link href="/">
-                <Button className="rounded-full px-6 bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20">
-                  Demander une démo
-                </Button>
-              </Link>
-            </div>
-
-            {/* Mobile Menu Button */}
-            <div className="md:hidden">
-              <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 text-slate-600">
-                {mobileMenuOpen ? <X /> : <Menu />}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden absolute top-20 left-0 right-0 bg-white border-b border-slate-100 p-4 flex flex-col gap-4 shadow-xl">
-            <a href="#features" className="text-base font-medium text-slate-600 py-2">Fonctionnalités</a>
-            <a href="#benefits" className="text-base font-medium text-slate-600 py-2">Avantages</a>
-            <a href="#pricing" className="text-base font-medium text-slate-600 py-2">Tarifs</a>
-            <div className="border-t border-slate-100 pt-4 flex flex-col gap-3">
-              <Link href="/">
-                <Button variant="outline" className="w-full justify-center">Connexion</Button>
-              </Link>
-              <Link href="/">
-                <Button className="w-full justify-center bg-blue-600">Demander une démo</Button>
-              </Link>
-            </div>
-          </div>
-        )}
-      </nav>
+      <Navbar />
 
       {/* Hero Section */}
       <section className="pt-32 pb-10 lg:pt-48 lg:pb-10 overflow-hidden">
@@ -449,7 +372,7 @@ export default function LandingPage() {
               Bénéficiez d'un prix adapté à vos besoins et objectifs
             </h3>
             <p className="text-lg text-slate-600 mb-10 leading-relaxed">
-              Nos solutions sont conçues pour un déploiement rapide et un retour sur investissement immédiat. Nos prix sont flexibles, en fonction des volumes traités et des caractéristiques de votre projet.
+              Nos solutions sont conçues pour un déploiement rapide et un retour sur investissement immédiat. Nos prix sont flexibles, en fonction des volumes traités et des caractéristiques de votre projet pour votre cabinet d'expertise-comptable
             </p>
             <Link href="/">
               <Button size="lg" className="rounded-full px-8 bg-slate-900 text-white hover:bg-slate-800">
@@ -489,55 +412,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-slate-50 border-t border-slate-200 pt-16 pb-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-12 mb-12">
-            <div className="col-span-1 md:col-span-2">
-              <div className="flex items-center gap-2 mb-6">
-                <div className="h-8 w-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">N</span>
-                </div>
-                <span className="text-xl font-bold text-slate-900">Naraa.ai</span>
-              </div>
-              <p className="text-slate-500 max-w-xs leading-relaxed">
-                La plateforme tout-en-un pour les experts-comptables modernes. Automatisez, collaborez et développez votre cabinet.
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="font-bold text-slate-900 mb-4">Produit</h4>
-              <ul className="space-y-3">
-                <li><a href="#" className="text-slate-500 hover:text-blue-600 transition-colors">Fonctionnalités</a></li>
-                <li><a href="#" className="text-slate-500 hover:text-blue-600 transition-colors">Intégrations</a></li>
-                <li><a href="#" className="text-slate-500 hover:text-blue-600 transition-colors">Tarifs</a></li>
-                <li><a href="#" className="text-slate-500 hover:text-blue-600 transition-colors">Nouveautés</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-bold text-slate-900 mb-4">Entreprise</h4>
-              <ul className="space-y-3">
-                <li><a href="#" className="text-slate-500 hover:text-blue-600 transition-colors">À propos</a></li>
-                <li><a href="#" className="text-slate-500 hover:text-blue-600 transition-colors">Carrières</a></li>
-                <li><a href="#" className="text-slate-500 hover:text-blue-600 transition-colors">Blog</a></li>
-                <li><a href="#" className="text-slate-500 hover:text-blue-600 transition-colors">Contact</a></li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="border-t border-slate-200 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-slate-500 text-sm">
-              © 2026 Naraa SAS. Tous droits réservés.
-            </p>
-            <div className="flex gap-6">
-              <a href="#" className="text-slate-400 hover:text-slate-600">Mentions légales</a>
-              <a href="#" className="text-slate-400 hover:text-slate-600">Confidentialité</a>
-              <a href="#" className="text-slate-400 hover:text-slate-600">CGV</a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

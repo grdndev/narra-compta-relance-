@@ -12,12 +12,14 @@ import ClientDetail from "@/pages/client-detail";
 import Campaigns from "@/pages/campaigns";
 import Settings from "@/pages/settings";
 import LandingPage from "@/website/pages/home";
+import PricingPage from "@/website/pages/pricing";
 import PreviewSwitcher from "@/components/dev/PreviewSwitcher";
 
 function Router() {
   return (
     <Switch>
       <Route path="/site-vitrine" component={LandingPage} />
+      <Route path="/site-vitrine/pricing" component={PricingPage} />
       <Route path="/" component={Dashboard} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/clients" component={Clients} />
