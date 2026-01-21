@@ -47,7 +47,7 @@ export function Navbar() {
             </div>
           </Link>
 
-          {/* Desktop Menu */}
+          {/* Desktop Menu - moved to right side */}
           <div className="hidden md:flex items-center gap-8">
             <a 
               href={isHome ? "#features" : "/site-vitrine#features"} 
@@ -61,10 +61,7 @@ export function Navbar() {
                 Tarifs
               </span>
             </Link>
-          </div>
-
-          {/* CTA Buttons */}
-          <div className="hidden md:flex items-center gap-4">
+            <div className="w-px h-6 bg-slate-200 mx-2"></div>
             <Link href="/">
               <Button variant="ghost" className="font-medium text-slate-600 hover:text-blue-600 hover:bg-blue-50">
                 Connexion
