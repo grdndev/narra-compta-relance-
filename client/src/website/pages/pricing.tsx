@@ -9,7 +9,7 @@ export default function PricingPage() {
       <Navbar />
 
       {/* Pricing Section Content */}
-      <section className="pt-24 pb-12 bg-slate-50 border-b border-slate-200 min-h-[calc(100vh-400px)] flex flex-col justify-center">
+      <section className="pt-20 pb-12 bg-slate-50 border-b border-slate-200 min-h-[calc(100vh-400px)] flex flex-col justify-center">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto">
             <h2 className="text-3xl font-bold text-slate-900 sm:text-4xl mb-6">

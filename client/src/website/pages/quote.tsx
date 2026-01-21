@@ -59,7 +59,7 @@ export default function QuotePage() {
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-blue-100 flex flex-col">
       <Navbar />
       
-      <div className="flex-1 py-12 px-4 sm:px-6 lg:px-8 pt-24">
+      <div className="flex-1 py-12 px-4 sm:px-6 lg:px-8 pt-20">
         <div className="max-w-3xl mx-auto">
           <div className="mb-8">
             <Link href="/site-vitrine/pricing">

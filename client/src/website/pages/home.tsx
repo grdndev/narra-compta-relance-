@@ -19,7 +19,7 @@ export default function LandingPage() {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="pt-24 pb-12 lg:pt-32 lg:pb-12 overflow-hidden">
+      <section className="pt-20 pb-12 lg:pt-24 lg:pb-12 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           
           {/* Background decoration */}
