@@ -21,7 +21,7 @@ export default function PricingPage() {
             <p className="text-lg text-slate-600 mb-10 leading-relaxed">
               Nos solutions sont conçues pour un déploiement rapide et un retour sur investissement immédiat. Nos prix sont flexibles, en fonction des volumes traités et des caractéristiques de votre projet pour votre cabinet d'expertise-comptable
             </p>
-            <Link href="/">
+            <Link href="/site-vitrine/quote">
               <Button size="lg" className="rounded-full px-8 bg-slate-900 text-white hover:bg-slate-800">
                 Demander un devis personnalisé
               </Button>
