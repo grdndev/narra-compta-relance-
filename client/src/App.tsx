@@ -12,6 +12,7 @@ import ClientDetail from "@/pages/client-detail";
 import Campaigns from "@/pages/campaigns";
 import Settings from "@/pages/settings";
 import LandingPage from "@/website/pages/home";
+import FeaturesPage from "@/website/pages/features";
 import PricingPage from "@/website/pages/pricing";
 import QuotePage from "@/website/pages/quote";
 import ContactPage from "@/website/pages/contact";
@@ -24,6 +25,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/site-vitrine" component={LandingPage} />
+      <Route path="/site-vitrine/features" component={FeaturesPage} />
       <Route path="/site-vitrine/pricing" component={PricingPage} />
       <Route path="/site-vitrine/quote" component={QuotePage} />
       <Route path="/site-vitrine/contact" component={ContactPage} />
