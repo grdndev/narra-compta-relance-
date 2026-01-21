@@ -50,7 +50,10 @@ export function Navbar() {
           {/* Desktop Menu - moved to right side */}
           <div className="hidden md:flex items-center gap-8">
             <Link href="/site-vitrine">
-              <span className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors cursor-pointer">
+              <span 
+                className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors cursor-pointer"
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              >
                 Fonctionnalités
               </span>
             </Link>
