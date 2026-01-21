@@ -19,7 +19,9 @@ export default function PricingPage() {
               Bénéficiez d'un prix adapté à vos besoins et objectifs
             </h3>
             <p className="text-lg text-slate-600 mb-10 leading-relaxed">
-              Nos solutions sont conçues pour un déploiement rapide et un retour sur investissement immédiat. Nos prix sont flexibles, en fonction des volumes traités et des caractéristiques de votre projet pour votre cabinet d'expertise-comptable
+              Vous avez déjà une GED et souhaitez la conserver ?
+              <br/>
+              Naraa.ai s’adapte à votre façon de travailler.
             </p>
             <Link href="/site-vitrine/quote">
               <Button size="lg" className="rounded-full px-8 bg-slate-900 text-white hover:bg-slate-800">
