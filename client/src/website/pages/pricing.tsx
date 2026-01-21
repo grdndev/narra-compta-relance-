@@ -9,7 +9,7 @@ export default function PricingPage() {
       <Navbar />
 
       {/* Pricing Section Content */}
-      <section className="pt-32 pb-24 bg-slate-50 border-b border-slate-200 min-h-[calc(100vh-400px)] flex flex-col justify-center">
+      <section className="pt-24 pb-12 bg-slate-50 border-b border-slate-200 min-h-[calc(100vh-400px)] flex flex-col justify-center">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto">
             <h2 className="text-3xl font-bold text-slate-900 sm:text-4xl mb-6">
@@ -31,7 +31,7 @@ export default function PricingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-slate-900 relative overflow-hidden">
+      <section className="py-12 bg-slate-900 relative overflow-hidden">
         {/* Abstract shapes */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600 rounded-full blur-[100px] opacity-20" />
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-600 rounded-full blur-[100px] opacity-20" />

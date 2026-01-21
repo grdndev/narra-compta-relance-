@@ -19,7 +19,7 @@ export default function LandingPage() {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="pt-32 pb-10 lg:pt-48 lg:pb-10 overflow-hidden">
+      <section className="pt-24 pb-12 lg:pt-32 lg:pb-12 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           
           {/* Background decoration */}
@@ -209,12 +209,12 @@ export default function LandingPage() {
 
 
       {/* Features Grid - Centralized Layout */}
-      <section className="py-24 bg-white relative overflow-hidden">
+      <section className="py-12 bg-white relative overflow-hidden">
         {/* Background Gradients */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-50/50 rounded-full blur-3xl -z-10" />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-20 relative z-10">
+          <div className="text-center max-w-3xl mx-auto mb-10 relative z-10">
             <h2 className="text-3xl font-bold text-slate-900 sm:text-4xl mb-6">
               Gagnez jusqu’à 80% de temps sur les relances clients
             </h2>
@@ -362,7 +362,7 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-24 bg-slate-50 border-y border-slate-200">
+      <section id="pricing" className="py-12 bg-slate-50 border-y border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto">
             <h2 className="text-3xl font-bold text-slate-900 sm:text-4xl mb-6">
@@ -384,7 +384,7 @@ export default function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-slate-900 relative overflow-hidden">
+      <section className="py-12 bg-slate-900 relative overflow-hidden">
         {/* Abstract shapes */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600 rounded-full blur-[100px] opacity-20" />
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-600 rounded-full blur-[100px] opacity-20" />

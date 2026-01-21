@@ -56,20 +56,6 @@ export function Navbar() {
             >
               Fonctionnalités
             </a>
-            <a 
-              href={isHome ? "#benefits" : "/site-vitrine#benefits"} 
-              onClick={(e) => isHome && scrollToSection(e, "benefits")}
-              className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors"
-            >
-              Avantages
-            </a>
-            <a 
-              href={isHome ? "#testimonials" : "/site-vitrine#testimonials"}
-              onClick={(e) => isHome && scrollToSection(e, "testimonials")}
-              className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors"
-            >
-              Témoignages
-            </a>
             <Link href="/site-vitrine/pricing">
               <span className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors cursor-pointer">
                 Tarifs
@@ -104,7 +90,6 @@ export function Navbar() {
       {mobileMenuOpen && (
         <div className="md:hidden absolute top-20 left-0 right-0 bg-white border-b border-slate-100 p-4 flex flex-col gap-4 shadow-xl">
           <a href={isHome ? "#features" : "/site-vitrine#features"} className="text-base font-medium text-slate-600 py-2">Fonctionnalités</a>
-          <a href={isHome ? "#benefits" : "/site-vitrine#benefits"} className="text-base font-medium text-slate-600 py-2">Avantages</a>
           <Link href="/site-vitrine/pricing">
             <span className="text-base font-medium text-slate-600 py-2 cursor-pointer">Tarifs</span>
           </Link>
