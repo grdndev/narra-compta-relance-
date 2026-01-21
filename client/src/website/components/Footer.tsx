@@ -1,6 +1,8 @@
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 
 export function Footer() {
+  const [location] = useLocation();
+
   return (
     <footer className="bg-slate-50 border-t border-slate-200 pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -32,15 +34,17 @@ export function Footer() {
           <div>
             <h4 className="font-bold text-slate-900 mb-4">Produit</h4>
             <ul className="space-y-3">
-              <li><a href="#" className="text-slate-500 hover:text-blue-600 transition-colors">Fonctionnalités</a></li>
+              <li><a href={location.pathname === "/site-vitrine" ? "#features" : "/site-vitrine#features"} className="text-slate-500 hover:text-blue-600 transition-colors">Fonctionnalités</a></li>
               <li><Link href="/site-vitrine/pricing"><span className="text-slate-500 hover:text-blue-600 transition-colors cursor-pointer">Tarifs</span></Link></li>
+              <li><Link href="/site-vitrine/about"><span className="text-slate-500 hover:text-blue-600 transition-colors cursor-pointer">À propos</span></Link></li>
             </ul>
           </div>
 
           <div>
             <h4 className="font-bold text-slate-900 mb-4">Entreprise</h4>
             <ul className="space-y-3">
-              <li><Link href="/site-vitrine/about"><span className="text-slate-500 hover:text-blue-600 transition-colors cursor-pointer">À propos</span></Link></li>
+              <li><Link href="/login"><span className="text-slate-500 hover:text-blue-600 transition-colors cursor-pointer">Connexion</span></Link></li>
+              <li><Link href="/site-vitrine/demo"><span className="text-slate-500 hover:text-blue-600 transition-colors cursor-pointer">Réservez une démo</span></Link></li>
               <li><Link href="/site-vitrine/contact"><span className="text-slate-500 hover:text-blue-600 transition-colors cursor-pointer">Contact</span></Link></li>
             </ul>
           </div>
