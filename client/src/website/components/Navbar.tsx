@@ -49,14 +49,13 @@ export function Navbar() {
 
           {/* Desktop Menu - moved to right side */}
           <div className="hidden md:flex items-center gap-8">
-            <Link href="/site-vitrine">
-              <span 
-                className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors cursor-pointer"
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              >
-                Fonctionnalités
-              </span>
-            </Link>
+            <a 
+              href={isHome ? "#features" : "/site-vitrine#features"} 
+              onClick={(e) => isHome && scrollToSection(e, "features")}
+              className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors cursor-pointer"
+            >
+              Fonctionnalités
+            </a>
             <Link href="/site-vitrine/pricing">
               <span className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors cursor-pointer">
                 Tarifs
@@ -91,9 +90,7 @@ export function Navbar() {
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden absolute top-20 left-0 right-0 bg-white border-b border-slate-100 p-4 flex flex-col gap-4 shadow-xl">
-          <Link href="/site-vitrine">
-            <span className="text-base font-medium text-slate-600 py-2 cursor-pointer">Fonctionnalités</span>
-          </Link>
+          <a href={isHome ? "#features" : "/site-vitrine#features"} className="text-base font-medium text-slate-600 py-2">Fonctionnalités</a>
           <Link href="/site-vitrine/pricing">
             <span className="text-base font-medium text-slate-600 py-2 cursor-pointer">Tarifs</span>
           </Link>
