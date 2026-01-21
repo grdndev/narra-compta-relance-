@@ -7,8 +7,20 @@ export function Footer() {
         <div className="grid md:grid-cols-4 gap-12 mb-12">
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-2 mb-6">
-              <div className="h-8 w-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">N</span>
+              <div className="h-10 w-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20 text-white">
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="1.5" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  className="h-6 w-6"
+                >
+                  <path d="M22 4L18 2L15 6L2 8L12 12L6 22L16 16L18 8L22 4Z" />
+                  <path d="M15 6L12 12" />
+                </svg>
               </div>
               <span className="text-xl font-bold text-slate-900">Naraa.ai</span>
             </div>
@@ -21,9 +33,7 @@ export function Footer() {
             <h4 className="font-bold text-slate-900 mb-4">Produit</h4>
             <ul className="space-y-3">
               <li><a href="#" className="text-slate-500 hover:text-blue-600 transition-colors">Fonctionnalités</a></li>
-              <li><a href="#" className="text-slate-500 hover:text-blue-600 transition-colors">Intégrations</a></li>
               <li><Link href="/site-vitrine/pricing"><span className="text-slate-500 hover:text-blue-600 transition-colors cursor-pointer">Tarifs</span></Link></li>
-              <li><a href="#" className="text-slate-500 hover:text-blue-600 transition-colors">Nouveautés</a></li>
             </ul>
           </div>
 
@@ -31,8 +41,6 @@ export function Footer() {
             <h4 className="font-bold text-slate-900 mb-4">Entreprise</h4>
             <ul className="space-y-3">
               <li><a href="#" className="text-slate-500 hover:text-blue-600 transition-colors">À propos</a></li>
-              <li><a href="#" className="text-slate-500 hover:text-blue-600 transition-colors">Carrières</a></li>
-              <li><a href="#" className="text-slate-500 hover:text-blue-600 transition-colors">Blog</a></li>
               <li><Link href="/site-vitrine/contact"><span className="text-slate-500 hover:text-blue-600 transition-colors cursor-pointer">Contact</span></Link></li>
             </ul>
           </div>
