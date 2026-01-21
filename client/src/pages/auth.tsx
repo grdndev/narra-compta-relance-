@@ -20,7 +20,7 @@ export default function LoginPage() {
     setTimeout(() => {
       setIsLoading(false);
       // Redirect to dashboard (which is root / in this mockup)
-      setLocation("/");
+      setLocation("/dashboard");
       toast({
         title: "Connexion réussie",
         description: "Bienvenue sur votre espace Naraa.ai",

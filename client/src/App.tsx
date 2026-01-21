@@ -24,6 +24,7 @@ import PreviewSwitcher from "@/components/dev/PreviewSwitcher";
 function Router() {
   return (
     <Switch>
+      <Route path="/" component={LandingPage} />
       <Route path="/site-vitrine" component={LandingPage} />
       <Route path="/site-vitrine/features" component={FeaturesPage} />
       <Route path="/site-vitrine/pricing" component={PricingPage} />
@@ -32,7 +33,7 @@ function Router() {
       <Route path="/site-vitrine/about" component={AboutPage} />
       <Route path="/site-vitrine/demo" component={DemoPage} />
       <Route path="/login" component={LoginPage} />
-      <Route path="/" component={Dashboard} />
+      <Route path="/app" component={Dashboard} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/clients" component={Clients} />
       <Route path="/clients/:id" component={ClientDetail} />

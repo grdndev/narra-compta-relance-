@@ -13,7 +13,7 @@ export function Navbar() {
     }
   }, [location]);
 
-  const isHome = location === "/site-vitrine";
+  const isHome = location === "/" || location === "/site-vitrine";
 
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     if (!isHome) return; // If not on home, let the router handle it (or use Link)
@@ -30,7 +30,7 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <Link href="/site-vitrine">
+          <Link href="/">
             <div className="flex items-center gap-2 cursor-pointer">
               <div className="h-10 w-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20 text-white">
                 <svg 
