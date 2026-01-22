@@ -291,8 +291,6 @@ export default function LandingPage() {
                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 -mb-4 w-2 h-2 bg-indigo-500 rounded-full blur-[1px]"></div>
                 </div>
               </div>
-              <h3 className="mt-4 text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">Naraa.ai</h3>
-              <p className="text-sm text-slate-500 font-medium">Cœur du système</p>
             </div>
 
             {/* Features Positioning - Desktop: Absolute around center, Mobile: Stacked */}
