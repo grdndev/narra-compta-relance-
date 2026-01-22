@@ -26,6 +26,9 @@ export function Footer() {
               </div>
               <span className="text-xl font-bold text-slate-900">Naraa.ai</span>
             </div>
+            <p className="text-slate-500 max-w-xs leading-relaxed text-justify">
+              La plateforme tout-en-un pour les experts-comptables modernes. Automatisez, collaborez et développez votre cabinet.
+            </p>
           </div>
           
           <div>
