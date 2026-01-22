@@ -41,7 +41,7 @@ export default function QuotePage() {
             </div>
             <h2 className="text-2xl font-bold text-slate-900 mb-2">Demande reçue !</h2>
             <p className="text-slate-600 mb-8">
-              Merci de votre intérêt pour Naraa.ai. Un membre de notre équipe va étudier votre besoin et vous recontactera très prochainement.
+              Merci de votre intérêt pour naraa. Un membre de notre équipe va étudier votre besoin et vous recontactera très prochainement.
             </p>
             <Link href="/site-vitrine">
               <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
@@ -162,7 +162,7 @@ export default function QuotePage() {
                   )}
                 </Button>
                 <p className="text-xs text-slate-500 text-center mt-4">
-                  En soumettant ce formulaire, vous acceptez que Naraa.ai traite vos données conformément à notre politique de confidentialité.
+                  En soumettant ce formulaire, vous acceptez que naraa traite vos données conformément à notre politique de confidentialité.
                 </p>
               </div>
             </form>

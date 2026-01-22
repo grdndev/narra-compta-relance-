@@ -21,7 +21,7 @@ export default function PricingPage() {
             <p className="text-lg text-slate-600 mb-10 leading-relaxed">
               Vous avez déjà une GED et souhaitez la conserver ?
               <br/>
-              Naraa.ai s’adapte à votre façon de travailler.
+              naraa s’adapte à votre façon de travailler.
             </p>
             <Link href="/site-vitrine/quote">
               <Button size="lg" className="rounded-full px-8 bg-slate-900 text-white hover:bg-slate-800">

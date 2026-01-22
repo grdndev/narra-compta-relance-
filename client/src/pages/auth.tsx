@@ -23,7 +23,7 @@ export default function LoginPage() {
       setLocation("/dashboard");
       toast({
         title: "Connexion réussie",
-        description: "Bienvenue sur votre espace Naraa.ai",
+        description: "Bienvenue sur votre espace naraa",
       });
     }, 1500);
   };
@@ -50,7 +50,7 @@ export default function LoginPage() {
                 </svg>
               </div>
               <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700">
-                Naraa.ai
+                naraa
               </span>
             </div>
           </Link>

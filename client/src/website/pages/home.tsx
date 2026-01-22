@@ -219,7 +219,7 @@ export default function LandingPage() {
               Gagnez jusqu’à 80% de temps sur les relances clients
             </h2>
             <p className="text-lg text-slate-600">
-              Naraa.ai diminue votre temps administratif afin de vous concentrer sur des missions à forte valeur ajoutée.
+              naraa diminue votre temps administratif afin de vous concentrer sur des missions à forte valeur ajoutée.
             </p>
           </div>
 
@@ -372,7 +372,7 @@ export default function LandingPage() {
             <p className="text-lg text-slate-600 mb-10 leading-relaxed">
               Vous avez déjà une GED et souhaitez la conserver ?
               <br/>
-              Naraa.ai s’adapte à votre façon de travailler.
+              naraa s’adapte à votre façon de travailler.
             </p>
             <Link href="/site-vitrine/quote">
               <Button size="lg" className="rounded-full px-8 bg-slate-900 text-white hover:bg-slate-800">

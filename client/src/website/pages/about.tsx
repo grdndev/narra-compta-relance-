@@ -20,7 +20,7 @@ export default function AboutPage() {
               Redonner du temps aux <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">experts-comptables</span>
             </h1>
             <p className="text-xl text-slate-600 leading-relaxed">
-              Naraa.ai est née d'une conviction simple : la valeur d'un expert-comptable réside dans le conseil, pas dans la chasse aux factures manquantes.
+              naraa est née d'une conviction simple : la valeur d'un expert-comptable réside dans le conseil, pas dans la chasse aux factures manquantes.
             </p>
           </div>
         </div>
@@ -34,7 +34,7 @@ export default function AboutPage() {
               <div className="aspect-square rounded-2xl overflow-hidden shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-500 border-4 border-white">
                 <img 
                   src="/team-photo.jpg" 
-                  alt="L'équipe Naraa.ai" 
+                  alt="L'équipe naraa" 
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -43,7 +43,7 @@ export default function AboutPage() {
             </div>
             
             <div>
-              <h2 className="text-3xl font-bold text-slate-900 mb-6">La Genèse de Naraa.ai</h2>
+              <h2 className="text-3xl font-bold text-slate-900 mb-6">La Genèse de naraa</h2>
               <div className="space-y-6 text-lg text-slate-600 text-justify">
                 <p>
                   Tout a commencé par mon expérience dans le monde de la comptabilité : 4 ans en cabinet puis 3 ans en start-up. J’ai vu de mes propres yeux combien de temps précieux était perdu sur des tâches administratives répétitives (jusqu’à 70 % de ma journée), comme la relance des pièces comptables, au lieu de se concentrer sur le conseil et l’accompagnement des clients.
@@ -52,7 +52,7 @@ export default function AboutPage() {
                   C’est de cette frustration qu’est née l’idée de ma propre start-up. Je voulais créer une solution radicalement différente, qui permette aux experts-comptable de se libérer de ces tâches chronophages.
                 </p>
                 <p>
-                  Naraa.ai n’est pas juste “un autre logiciel de comptabilité”. C’est un assistant intelligent qui relance automatiquement les pièces manquantes, libérant le potentiel humain des cabinets et leur permettant de se concentrer sur ce qui compte vraiment : leurs clients.
+                  naraa n’est pas juste “un autre logiciel de comptabilité”. C’est un assistant intelligent qui relance automatiquement les pièces manquantes, libérant le potentiel humain des cabinets et leur permettant de se concentrer sur ce qui compte vraiment : leurs clients.
                 </p>
               </div>
             </div>
@@ -117,7 +117,7 @@ export default function AboutPage() {
             Envie d'en savoir plus ?
           </h2>
           <p className="text-lg text-slate-600 mb-10">
-            Discutons de vos enjeux et voyons comment Naraa.ai peut s'intégrer à votre cabinet.
+            Discutons de vos enjeux et voyons comment naraa peut s'intégrer à votre cabinet.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/site-vitrine/contact">
