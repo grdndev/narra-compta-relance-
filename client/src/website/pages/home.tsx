@@ -209,7 +209,7 @@ export default function LandingPage() {
 
 
       {/* Features Grid - Centralized Layout */}
-      <section className="py-12 bg-white relative overflow-hidden">
+      <section className="pt-12 pb-2 bg-white relative overflow-hidden">
         {/* Background Gradients */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-50/50 rounded-full blur-3xl -z-10" />
         
@@ -223,7 +223,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div id="features" className="relative min-h-[600px] lg:min-h-[500px] flex items-center justify-center scroll-mt-32">
+          <div id="features" className="relative min-h-[800px] lg:min-h-[600px] flex items-center justify-center scroll-mt-32">
             {/* Connecting Lines (Desktop only) */}
             <svg className="absolute inset-0 w-full h-full hidden lg:block pointer-events-none z-0" viewBox="0 0 1000 600">
               {/* Lines from center to items */}
@@ -320,7 +320,7 @@ export default function LandingPage() {
             </div>
 
             {/* 3. Bottom Right - Portail Client */}
-            <div className="lg:absolute lg:bottom-[15%] lg:right-[5%] lg:w-80 z-20 mb-8 lg:mb-0 w-full max-w-sm">
+            <div className="lg:absolute lg:bottom-0 lg:right-[5%] lg:w-80 z-20 mb-8 lg:mb-0 w-full max-w-sm">
               <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 lg:text-left text-center hover:scale-105 transition-transform duration-300 relative group">
                 <div className="absolute top-1/2 -left-2 -translate-y-1/2 w-4 h-4 bg-white rotate-45 border-t border-l border-slate-100 hidden lg:block"></div>
                 <div className="inline-flex h-12 w-12 rounded-xl bg-purple-50 items-center justify-center text-purple-600 mb-4 group-hover:bg-purple-600 group-hover:text-white transition-colors">
@@ -332,7 +332,7 @@ export default function LandingPage() {
             </div>
 
             {/* 4. Bottom Left - Messagerie */}
-            <div className="lg:absolute lg:bottom-[15%] lg:left-[5%] lg:w-80 z-20 mb-8 lg:mb-0 w-full max-w-sm">
+            <div className="lg:absolute lg:bottom-0 lg:left-[5%] lg:w-80 z-20 mb-8 lg:mb-0 w-full max-w-sm">
               <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 lg:text-right text-center hover:scale-105 transition-transform duration-300 relative group">
                 <div className="absolute top-1/2 -right-2 -translate-y-1/2 w-4 h-4 bg-white rotate-45 border-t border-r border-slate-100 hidden lg:block"></div>
                 <div className="inline-flex h-12 w-12 rounded-xl bg-indigo-50 items-center justify-center text-indigo-600 mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-colors ml-auto">
