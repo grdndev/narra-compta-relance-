@@ -56,13 +56,13 @@ export default function DemoPage() {
                     <div className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center">
                       <span className="font-bold">1</span>
                     </div>
-                    <span>Audit de vos besoins</span>
+                    <span>Démonstration de la plateforme</span>
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center">
                       <span className="font-bold">2</span>
                     </div>
-                    <span>Démonstration de la plateforme</span>
+                    <span>Audit de vos besoins</span>
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center">
