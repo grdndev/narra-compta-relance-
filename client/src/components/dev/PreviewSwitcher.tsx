@@ -8,7 +8,7 @@ export default function PreviewSwitcher() {
   const [isVisible, setIsVisible] = useState(true);
 
   // Determine active mode
-  const isWebsite = location === "/site-vitrine";
+  const isWebsite = location === "/" || location.startsWith("/site-vitrine");
   
   if (!isVisible) return null;
 
@@ -22,7 +22,7 @@ export default function PreviewSwitcher() {
       </div>
       
       <div className="flex gap-2">
-        <Link href="/">
+        <Link href="/dashboard">
           <Button 
             variant="ghost" 
             size="sm" 
@@ -37,7 +37,7 @@ export default function PreviewSwitcher() {
           </Button>
         </Link>
         
-        <Link href="/site-vitrine">
+        <Link href="/">
           <Button 
             variant="ghost" 
             size="sm" 
