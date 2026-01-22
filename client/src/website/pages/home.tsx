@@ -223,7 +223,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div id="features" className="relative min-h-[800px] lg:min-h-[600px] flex items-center justify-center scroll-mt-32">
+          <div id="features" className="relative min-h-[600px] lg:min-h-[500px] flex items-center justify-center scroll-mt-32">
             {/* Connecting Lines (Desktop only) */}
             <svg className="absolute inset-0 w-full h-full hidden lg:block pointer-events-none z-0" viewBox="0 0 1000 600">
               {/* Lines from center to items */}
