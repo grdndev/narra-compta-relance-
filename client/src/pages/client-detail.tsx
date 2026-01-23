@@ -1541,6 +1541,14 @@ export default function ClientDetail() {
                             >
                                 H+2 (2h)
                             </Button>
+                            <Button 
+                                variant={scheduleOption === 'custom' ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => setScheduleOption('custom')}
+                                className={`rounded-lg ${scheduleOption === 'custom' ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-white text-red-600 hover:text-red-700 border-red-100 hover:bg-red-50'}`}
+                            >
+                                Personnalisé
+                            </Button>
                         </>
                     )}
                 </div>
