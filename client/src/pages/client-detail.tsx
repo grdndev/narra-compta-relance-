@@ -170,7 +170,6 @@ export default function ClientDetail() {
     setCustomDate("");
     
     // Set default channels based on primary contact preferences if available
-    const primaryContact = clientContacts.find(c => c.isPrimary);
     if (primaryContact && primaryContact.preferredChannels && primaryContact.preferredChannels.length > 0) {
         setReminderChannels({
             email: primaryContact.preferredChannels.includes('email'),
