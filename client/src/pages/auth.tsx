@@ -175,7 +175,7 @@ export default function LoginPage() {
           <Link href="/site-vitrine">
             <Button variant="ghost" size="sm" className="text-slate-500 hover:text-slate-900">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Retour au site vitrine
+              Retour
             </Button>
           </Link>
         </div>

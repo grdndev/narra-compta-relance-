@@ -29,7 +29,7 @@ export default function DemoPage() {
             <Link href="/site-vitrine">
               <Button variant="ghost" size="sm" className="text-slate-500 hover:text-slate-900 -ml-4">
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Retour au site
+                Retour
               </Button>
             </Link>
           </div>
