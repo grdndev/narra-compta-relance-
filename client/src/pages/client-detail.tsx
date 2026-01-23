@@ -1473,17 +1473,6 @@ export default function ClientDetail() {
               <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl space-y-4">
                 <div className="flex items-center justify-between">
                    <Label className="font-semibold dark:text-slate-200">Moment de l'envoi</Label>
-                   <div className="flex items-center gap-2">
-                     <Label htmlFor="urgent-mode" className="text-xs font-medium text-red-600 dark:text-red-400 cursor-pointer">Mode Urgence</Label>
-                     <Switch 
-                        id="urgent-mode"
-                        checked={isUrgentReminder}
-                        onCheckedChange={(checked) => {
-                            setIsUrgentReminder(checked);
-                            setScheduleOption('immediate');
-                        }}
-                     />
-                   </div>
                 </div>
                 
                 <div className="flex flex-wrap gap-2">
@@ -1496,61 +1485,30 @@ export default function ClientDetail() {
                         Immédiat
                     </Button>
                     
-                    {!isUrgentReminder ? (
-                        <>
-                            <Button 
-                                variant={scheduleOption === 'd1' ? 'default' : 'outline'}
-                                size="sm"
-                                onClick={() => setScheduleOption('d1')}
-                                className={`rounded-lg ${scheduleOption === 'd1' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600'}`}
-                            >
-                                J+1 (Demain)
-                            </Button>
-                            <Button 
-                                variant={scheduleOption === 'd2' ? 'default' : 'outline'}
-                                size="sm"
-                                onClick={() => setScheduleOption('d2')}
-                                className={`rounded-lg ${scheduleOption === 'd2' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600'}`}
-                            >
-                                J+2
-                            </Button>
-                            <Button 
-                                variant={scheduleOption === 'custom' ? 'default' : 'outline'}
-                                size="sm"
-                                onClick={() => setScheduleOption('custom')}
-                                className={`rounded-lg ${scheduleOption === 'custom' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600'}`}
-                            >
-                                Personnalisé
-                            </Button>
-                        </>
-                    ) : (
-                        <>
-                            <Button 
-                                variant={scheduleOption === 'h1' ? 'default' : 'outline'}
-                                size="sm"
-                                onClick={() => setScheduleOption('h1')}
-                                className={`rounded-lg ${scheduleOption === 'h1' ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-white text-red-600 hover:text-red-700 border-red-100 hover:bg-red-50'}`}
-                            >
-                                H+1 (1h)
-                            </Button>
-                            <Button 
-                                variant={scheduleOption === 'h2' ? 'default' : 'outline'}
-                                size="sm"
-                                onClick={() => setScheduleOption('h2')}
-                                className={`rounded-lg ${scheduleOption === 'h2' ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-white text-red-600 hover:text-red-700 border-red-100 hover:bg-red-50'}`}
-                            >
-                                H+2 (2h)
-                            </Button>
-                            <Button 
-                                variant={scheduleOption === 'custom' ? 'default' : 'outline'}
-                                size="sm"
-                                onClick={() => setScheduleOption('custom')}
-                                className={`rounded-lg ${scheduleOption === 'custom' ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-white text-red-600 hover:text-red-700 border-red-100 hover:bg-red-50'}`}
-                            >
-                                Personnalisé
-                            </Button>
-                        </>
-                    )}
+                    <Button 
+                        variant={scheduleOption === 'd1' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setScheduleOption('d1')}
+                        className={`rounded-lg ${scheduleOption === 'd1' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600'}`}
+                    >
+                        J+1 (Demain)
+                    </Button>
+                    <Button 
+                        variant={scheduleOption === 'd2' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setScheduleOption('d2')}
+                        className={`rounded-lg ${scheduleOption === 'd2' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600'}`}
+                    >
+                        J+2
+                    </Button>
+                    <Button 
+                        variant={scheduleOption === 'custom' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setScheduleOption('custom')}
+                        className={`rounded-lg ${scheduleOption === 'custom' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600'}`}
+                    >
+                        Personnalisé
+                    </Button>
                 </div>
                 
                 {scheduleOption === 'custom' && (
