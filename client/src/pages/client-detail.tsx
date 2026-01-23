@@ -86,6 +86,11 @@ export default function ClientDetail() {
     sms: "",
     whatsapp: ""
   });
+  
+  // Scheduling State
+  const [scheduleOption, setScheduleOption] = useState<'immediate' | 'd1' | 'd2' | 'h1' | 'h2' | 'custom'>('immediate');
+  const [isUrgentReminder, setIsUrgentReminder] = useState(false);
+  const [customDate, setCustomDate] = useState<string>("");
 
   const documents = mockDocuments.filter(d => d.clientId === params?.id);
   const reminders = mockReminders.filter(r => r.clientId === params?.id);
@@ -145,12 +150,24 @@ export default function ClientDetail() {
     const isEntryReminder = selectedEntries.length > 0;
     const piecesCount = isEntryReminder ? selectedEntries.length : pendingDocs.length;
     
+    // Find primary contact
+    const primaryContact = clientContacts.find(c => c.isPrimary) || clientContacts[0];
+    // Simple heuristic for civility (can be improved with real data)
+    const contactName = primaryContact ? primaryContact.name : (client?.name || '');
+    const civility = contactName.toLowerCase().match(/^(marie|sophie|julie|claire|lea|camille|manon|chloe|anne|isabelle|nathalie)/) ? "Madame" : "Monsieur";
+    const politeName = `${civility} ${contactName.split(' ').pop()}`; // Monsieur Dupont
+
     // Set default content
     setReminderContent({
-        email: `Bonjour ${client?.name || ''},\n\nSauf erreur de notre part, nous n'avons pas reçu les justificatifs pour ${isEntryReminder ? 'les écritures suivantes' : 'les documents manquants'}.\n\n${isEntryReminder ? `- ${piecesCount} pièces sélectionnées` : 'Merci de vérifier votre espace client.'}\n\nMerci de nous les faire parvenir dès que possible.\n\nCordialement,\nVotre Expert-Comptable`,
-        sms: `Bonjour, sauf erreur, il nous manque ${piecesCount} documents comptables. Merci de vérifier vos emails. Cdt, Votre Expert-Comptable`,
-        whatsapp: `Bonjour ${client?.name || ''}, il nous manque ${piecesCount} documents pour votre comptabilité. Pourriez-vous vérifier ? Merci !`
+        email: `Bonjour ${politeName},\n\nSauf erreur de notre part, nous n'avons pas reçu les justificatifs pour ${isEntryReminder ? 'les écritures suivantes' : 'les documents manquants'}.\n\n${isEntryReminder ? `- ${piecesCount} pièces sélectionnées` : 'Merci de vérifier votre espace client.'}\n\nMerci de nous les faire parvenir dès que possible.\n\nCordialement,\nVotre Expert-Comptable`,
+        sms: `Bonjour ${politeName}, sauf erreur, il nous manque ${piecesCount} documents comptables. Merci de vérifier vos emails. Cdt, Votre Expert-Comptable`,
+        whatsapp: `Bonjour ${politeName}, il nous manque ${piecesCount} documents pour votre comptabilité. Pourriez-vous vérifier ? Merci !`
     });
+    
+    // Reset scheduling
+    setScheduleOption('immediate');
+    setIsUrgentReminder(false);
+    setCustomDate("");
     
     // Set default channels based on primary contact preferences if available
     const primaryContact = clientContacts.find(c => c.isPrimary);
@@ -181,11 +198,18 @@ export default function ClientDetail() {
         });
         return;
       }
+      
+      let scheduleText = "maintenant";
+      if (scheduleOption === 'd1') scheduleText = "demain (J+1)";
+      if (scheduleOption === 'd2') scheduleText = "après-demain (J+2)";
+      if (scheduleOption === 'h1') scheduleText = "dans 1 heure (H+1)";
+      if (scheduleOption === 'h2') scheduleText = "dans 2 heures (H+2)";
+      if (scheduleOption === 'custom') scheduleText = `le ${customDate}`;
 
     setReminderDialogOpen(false);
     toast({
-      title: "Demande envoyée !",
-      description: `La relance pour ${selectedEntries.length > 0 ? selectedEntries.length : 'les'} pièces a été envoyée via ${channels.join(', ')}.`,
+      title: scheduleOption === 'immediate' ? "Demande envoyée !" : "Relance programmée",
+      description: `La relance pour ${selectedEntries.length > 0 ? selectedEntries.length : 'les'} pièces ${scheduleOption === 'immediate' ? 'a été envoyée' : 'sera envoyée ' + scheduleText} via ${channels.join(', ')}.`,
       className: "bg-green-600 text-white border-none"
     });
     setSelectedEntries([]);
@@ -1446,6 +1470,95 @@ export default function ClientDetail() {
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-6 py-4">
+              {/* Scheduling Section */}
+              <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl space-y-4">
+                <div className="flex items-center justify-between">
+                   <Label className="font-semibold dark:text-slate-200">Moment de l'envoi</Label>
+                   <div className="flex items-center gap-2">
+                     <Label htmlFor="urgent-mode" className="text-xs font-medium text-red-600 dark:text-red-400 cursor-pointer">Mode Urgence</Label>
+                     <Switch 
+                        id="urgent-mode"
+                        checked={isUrgentReminder}
+                        onCheckedChange={(checked) => {
+                            setIsUrgentReminder(checked);
+                            setScheduleOption('immediate');
+                        }}
+                     />
+                   </div>
+                </div>
+                
+                <div className="flex flex-wrap gap-2">
+                    <Button 
+                        variant={scheduleOption === 'immediate' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setScheduleOption('immediate')}
+                        className={`rounded-lg ${scheduleOption === 'immediate' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600'}`}
+                    >
+                        Immédiat
+                    </Button>
+                    
+                    {!isUrgentReminder ? (
+                        <>
+                            <Button 
+                                variant={scheduleOption === 'd1' ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => setScheduleOption('d1')}
+                                className={`rounded-lg ${scheduleOption === 'd1' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600'}`}
+                            >
+                                J+1 (Demain)
+                            </Button>
+                            <Button 
+                                variant={scheduleOption === 'd2' ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => setScheduleOption('d2')}
+                                className={`rounded-lg ${scheduleOption === 'd2' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600'}`}
+                            >
+                                J+2
+                            </Button>
+                            <Button 
+                                variant={scheduleOption === 'custom' ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => setScheduleOption('custom')}
+                                className={`rounded-lg ${scheduleOption === 'custom' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600'}`}
+                            >
+                                Personnalisé
+                            </Button>
+                        </>
+                    ) : (
+                        <>
+                            <Button 
+                                variant={scheduleOption === 'h1' ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => setScheduleOption('h1')}
+                                className={`rounded-lg ${scheduleOption === 'h1' ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-white text-red-600 hover:text-red-700 border-red-100 hover:bg-red-50'}`}
+                            >
+                                H+1 (1h)
+                            </Button>
+                            <Button 
+                                variant={scheduleOption === 'h2' ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => setScheduleOption('h2')}
+                                className={`rounded-lg ${scheduleOption === 'h2' ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-white text-red-600 hover:text-red-700 border-red-100 hover:bg-red-50'}`}
+                            >
+                                H+2 (2h)
+                            </Button>
+                        </>
+                    )}
+                </div>
+                
+                {scheduleOption === 'custom' && (
+                    <div className="animate-in fade-in slide-in-from-top-2">
+                        <Label className="text-xs mb-1.5 block">Date et heure</Label>
+                        <Input 
+                            type="datetime-local" 
+                            value={customDate}
+                            onChange={(e) => setCustomDate(e.target.value)}
+                            className="bg-white"
+                        />
+                    </div>
+                )}
+              </div>
+
               {/* EMAIL SECTION */}
               <div className={`border rounded-xl p-4 transition-all ${reminderChannels.email ? 'border-blue-200 bg-blue-50/30 dark:border-blue-900/50 dark:bg-blue-900/10' : 'border-slate-200 dark:border-slate-800'}`}>
                 <div className="flex items-center space-x-2 mb-3">
