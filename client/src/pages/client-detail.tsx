@@ -148,7 +148,8 @@ export default function ClientDetail() {
   const handleOpenReminderDialog = () => {
     // Determine context (general reminder or specific entries)
     const isEntryReminder = selectedEntries.length > 0;
-    const piecesCount = isEntryReminder ? selectedEntries.length : pendingDocs.length;
+    const isDocReminder = selectedDocs.length > 0;
+    const piecesCount = isEntryReminder ? selectedEntries.length : (isDocReminder ? selectedDocs.length : pendingDocs.length);
     
     // Find primary contact
     const primaryContact = clientContacts.find(c => c.isPrimary) || clientContacts[0];
@@ -159,7 +160,7 @@ export default function ClientDetail() {
 
     // Set default content
     setReminderContent({
-        email: `Bonjour ${politeName},\n\nSauf erreur de notre part, nous n'avons pas reçu les justificatifs pour ${isEntryReminder ? 'les écritures suivantes' : 'les documents manquants'}.\n\n${isEntryReminder ? `- ${piecesCount} pièces sélectionnées` : 'Merci de vérifier votre espace client.'}\n\nMerci de nous les faire parvenir dès que possible.\n\nCordialement,\nVotre Expert-Comptable`,
+        email: `Bonjour ${politeName},\n\nSauf erreur de notre part, nous n'avons pas reçu les justificatifs pour ${isEntryReminder ? 'les écritures suivantes' : (isDocReminder ? 'les documents suivants' : 'les documents manquants')}.\n\n${(isEntryReminder || isDocReminder) ? `- ${piecesCount} pièces sélectionnées` : 'Merci de vérifier votre espace client.'}\n\nMerci de nous les faire parvenir dès que possible.\n\nCordialement,\nVotre Expert-Comptable`,
         sms: `Bonjour ${politeName}, sauf erreur, il nous manque ${piecesCount} documents comptables. Merci de vérifier vos emails. Cdt, Votre Expert-Comptable`,
         whatsapp: `Bonjour ${politeName}, il nous manque ${piecesCount} documents pour votre comptabilité. Pourriez-vous vérifier ? Merci !`
     });
@@ -208,10 +209,11 @@ export default function ClientDetail() {
     setReminderDialogOpen(false);
     toast({
       title: scheduleOption === 'immediate' ? "Demande envoyée !" : "Relance programmée",
-      description: `La relance pour ${selectedEntries.length > 0 ? selectedEntries.length : 'les'} pièces ${scheduleOption === 'immediate' ? 'a été envoyée' : 'sera envoyée ' + scheduleText} via ${channels.join(', ')}.`,
+      description: `La relance pour ${selectedEntries.length > 0 ? selectedEntries.length : (selectedDocs.length > 0 ? selectedDocs.length : 'les')} pièces ${scheduleOption === 'immediate' ? 'a été envoyée' : 'sera envoyée ' + scheduleText} via ${channels.join(', ')}.`,
       className: "bg-green-600 text-white border-none"
     });
     setSelectedEntries([]);
+    setSelectedDocs([]);
   };
 
   const toggleSelectAllDocs = () => {
@@ -1403,11 +1405,11 @@ export default function ClientDetail() {
         </Tabs>
 
         {/* Action Bar for Analysis */}
-        {selectedEntries.length > 0 && (
+        {(selectedEntries.length > 0 || selectedDocs.length > 0) && (
           <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-30 animate-in slide-in-from-bottom-10 fade-in">
             <div className="bg-slate-900 text-white px-2 py-2 rounded-2xl shadow-2xl flex items-center gap-4 pl-6 border border-slate-700">
                <div className="text-sm font-medium">
-                  <span className="text-blue-400 font-bold">{selectedEntries.length} pièces sélectionnées</span>
+                  <span className="text-blue-400 font-bold">{selectedEntries.length + selectedDocs.length} pièces sélectionnées</span>
                </div>
                <Button 
                 size="lg" 
