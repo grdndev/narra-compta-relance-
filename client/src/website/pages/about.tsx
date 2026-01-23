@@ -49,7 +49,7 @@ export default function AboutPage() {
                   Tout a commencé par mon expérience dans le monde de la comptabilité : 4 ans en cabinet puis 3 ans en start-up. J’ai vu de mes propres yeux combien de temps précieux était perdu sur des tâches administratives répétitives (jusqu’à 70 % de ma journée), comme la relance des pièces comptables, au lieu de se concentrer sur le conseil et l’accompagnement des clients.
                 </p>
                 <p>
-                  C’est de cette frustration qu’est née l’idée de ma propre start-up. Je voulais créer une solution radicalement différente, qui permette aux experts-comptable de se libérer de ces tâches chronophages.
+                  C’est de cette frustration qu’est née l’idée de ma propre start-up. Je voulais créer une solution radicalement différente, qui permette aux experts-comptables de se libérer de ces tâches chronophages.
                 </p>
                 <p>
                   naraa n’est pas juste “un autre logiciel de comptabilité”. C’est un assistant intelligent qui relance automatiquement les pièces manquantes, libérant le potentiel humain des cabinets et leur permettant de se concentrer sur ce qui compte vraiment : leurs clients.
@@ -101,7 +101,7 @@ export default function AboutPage() {
               <div className="h-12 w-12 bg-green-500/20 rounded-xl flex items-center justify-center text-green-400 mb-6">
                 <Heart className="h-6 w-6" />
               </div>
-              <h3 className="text-xl font-bold mb-3">Excellence Métier</h3>
+              <h3 className="text-xl font-bold mb-3">Expertise Métier</h3>
               <p className="text-slate-300">
                 Nous connaissons vos contraintes (délais fiscaux, RGPD, exigence client). Notre solution est taillée sur mesure pour votre réalité.
               </p>

@@ -327,7 +327,7 @@ export default function LandingPage() {
                   <Users className="h-6 w-6" />
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 mb-2">Portail Client</h3>
-                <p className="text-sm text-slate-600">Espace collaboratif moderne pour déposer les pièces ou conservation de votre GED</p>
+                <p className="text-sm text-slate-600">Espace collaboratif moderne pour déposer les pièces ou conservation de votre GED.</p>
               </div>
             </div>
 
