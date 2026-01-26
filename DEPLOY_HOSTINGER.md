@@ -5,7 +5,8 @@ Ce projet est une application Fullstack (Node.js + React/Vite). Pour le déploye
 J'ai déjà préparé le projet pour le déploiement :
 1.  **Correction des erreurs** : Les erreurs TypeScript bloquantes ont été corrigées.
 2.  **Favicon** : L'image "ChatGPT Image 26 janv. 2026, 11_16_07.png" a été intégrée comme favicon.
-3.  **Build** : Le projet compile correctement.
+3.  **Lien GitHub :** `https://github.com/grdndev/narra-compta-relance-`
+4.  **Build** : Le projet compile correctement.
 
 ---
 
