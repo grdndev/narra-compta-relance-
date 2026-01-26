@@ -10,14 +10,14 @@ export function Footer() {
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-2 mb-6">
               <div className="h-10 w-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20 text-white">
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="1.5" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                   className="h-6 w-6"
                 >
                   <path d="M22 4L18 2L15 6L2 8L12 12L6 22L16 16L18 8L22 4Z" />
@@ -30,12 +30,12 @@ export function Footer() {
               La plateforme de relance pour les experts-comptables. Automatisez, collaborez et développez votre cabinet.
             </p>
           </div>
-          
+
           <div>
             <h4 className="font-bold text-slate-900 mb-4">Produit</h4>
             <ul className="space-y-3">
               <li>
-                <a href={location.pathname === "/site-vitrine" ? "#process" : "/site-vitrine#process"} className="text-slate-500 hover:text-blue-600 transition-colors">
+                <a href={location === "/site-vitrine" ? "#process" : "/site-vitrine#process"} className="text-slate-500 hover:text-blue-600 transition-colors">
                   Fonctionnalités
                 </a>
               </li>
@@ -53,7 +53,7 @@ export function Footer() {
             </ul>
           </div>
         </div>
-        
+
         <div className="border-t border-slate-200 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-slate-500 text-sm">
             © 2026 Naraa SAS. Tous droits réservés.

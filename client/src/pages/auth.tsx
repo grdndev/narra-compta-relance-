@@ -12,19 +12,35 @@ export default function LoginPage() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
-      // Redirect to dashboard (which is root / in this mockup)
-      setLocation("/dashboard");
-      toast({
-        title: "Connexion réussie",
-        description: "Bienvenue sur votre espace naraa",
-      });
+
+      if (email === "admin@naraa.ai" && password === "comptarelance") {
+        // Simple auth persistence
+        localStorage.setItem("isAuthenticated", "true");
+
+        // Redirect to dashboard
+        setLocation("/dashboard");
+        toast({
+          title: "Connexion réussie",
+          description: "Bienvenue sur votre espace naraa",
+        });
+      } else {
+        toast({
+          title: "Échec de la connexion",
+          description: "Adresse email ou mot de passe incorrect.",
+          variant: "destructive",
+        });
+      }
     }, 1500);
   };
 
@@ -35,14 +51,14 @@ export default function LoginPage() {
           <Link href="/site-vitrine">
             <div className="flex items-center gap-2 cursor-pointer">
               <div className="h-10 w-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20 text-white">
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="1.5" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                   className="h-6 w-6"
                 >
                   <path d="M22 4L18 2L15 6L2 8L12 12L6 22L16 16L18 8L22 4Z" />
@@ -170,7 +186,7 @@ export default function LoginPage() {
             </div>
           </div>
         </div>
-        
+
         <div className="mt-8 text-center">
           <Link href="/site-vitrine">
             <Button variant="ghost" size="sm" className="text-slate-500 hover:text-slate-900">

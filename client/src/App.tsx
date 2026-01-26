@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -20,6 +20,24 @@ import AboutPage from "@/website/pages/about";
 import DemoPage from "@/website/pages/demo";
 import LoginPage from "@/pages/auth";
 import PreviewSwitcher from "@/components/dev/PreviewSwitcher";
+import { useEffect } from "react";
+
+function ProtectedRoute({ component: Component }: { component: React.ComponentType<any> }) {
+  const [, setLocation] = useLocation();
+  const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setLocation("/login");
+    }
+  }, [isAuthenticated, setLocation]);
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  return <Component />;
+}
 
 function Router() {
   return (
@@ -33,12 +51,15 @@ function Router() {
       <Route path="/site-vitrine/about" component={AboutPage} />
       <Route path="/site-vitrine/demo" component={DemoPage} />
       <Route path="/login" component={LoginPage} />
-      <Route path="/app" component={Dashboard} />
-      <Route path="/dashboard" component={Dashboard} />
-      <Route path="/clients" component={Clients} />
-      <Route path="/clients/:id" component={ClientDetail} />
-      <Route path="/campaigns" component={Campaigns} />
-      <Route path="/settings" component={Settings} />
+
+      {/* Protected Routes */}
+      <Route path="/app" component={() => <ProtectedRoute component={Dashboard} />} />
+      <Route path="/dashboard" component={() => <ProtectedRoute component={Dashboard} />} />
+      <Route path="/clients" component={() => <ProtectedRoute component={Clients} />} />
+      <Route path="/clients/:id" component={() => <ProtectedRoute component={ClientDetail} />} />
+      <Route path="/campaigns" component={() => <ProtectedRoute component={Campaigns} />} />
+      <Route path="/settings" component={() => <ProtectedRoute component={Settings} />} />
+
       <Route component={NotFound} />
     </Switch>
   );
