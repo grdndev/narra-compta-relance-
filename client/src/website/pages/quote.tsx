@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, FormEvent } from "react";
 import { Link } from "wouter";
 import { ArrowLeft, CheckCircle2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,25 +9,49 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
 import { useToast } from "@/hooks/use-toast";
+import { sendQuoteRequest, type QuoteFormData } from "@/lib/email-service";
 
 export default function QuotePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    company: "",
+    collaborators: "",
+    software: "",
+    message: ""
+  });
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
+
+    const quoteData: QuoteFormData = {
+      ...formData,
+      timestamp: new Date().toISOString()
+    };
+
+    const result = await sendQuoteRequest(quoteData);
+
+    setIsSubmitting(false);
+
+    if (result.success) {
       setIsSuccess(true);
       toast({
         title: "Demande envoyée",
         description: "Notre équipe vous recontactera sous 24h.",
       });
-    }, 1500);
+    } else {
+      toast({
+        title: "Erreur",
+        description: result.message,
+        variant: "destructive"
+      });
+    }
   };
 
   if (isSuccess) {
@@ -58,7 +82,7 @@ export default function QuotePage() {
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-blue-100 flex flex-col">
       <Navbar />
-      
+
       <div className="flex-1 py-12 px-4 sm:px-6 lg:px-8 pt-20">
         <div className="max-w-3xl mx-auto">
           <div className="mb-8">
@@ -82,34 +106,34 @@ export default function QuotePage() {
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="firstName">Prénom <span className="text-red-500">*</span></Label>
-                  <Input id="firstName" required placeholder="Jean" />
+                  <Input id="firstName" required placeholder="Jean" value={formData.firstName} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lastName">Nom <span className="text-red-500">*</span></Label>
-                  <Input id="lastName" required placeholder="Dupont" />
+                  <Input id="lastName" required placeholder="Dupont" value={formData.lastName} onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} />
                 </div>
               </div>
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email professionnel <span className="text-red-500">*</span></Label>
-                  <Input id="email" type="email" required placeholder="jean.dupont@cabinet.fr" />
+                  <Input id="email" type="email" required placeholder="jean.dupont@cabinet.fr" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone">Téléphone <span className="text-red-500">*</span></Label>
-                  <Input id="phone" type="tel" required placeholder="06 12 34 56 78" />
+                  <Input id="phone" type="tel" required placeholder="06 12 34 56 78" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
                 </div>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="company">Nom du cabinet <span className="text-red-500">*</span></Label>
-                <Input id="company" required placeholder="Cabinet Dupont & Associés" />
+                <Input id="company" required placeholder="Cabinet Dupont & Associés" value={formData.company} onChange={(e) => setFormData({ ...formData, company: e.target.value })} />
               </div>
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="collaborators">Nombre de collaborateurs</Label>
-                  <Select>
+                  <Select value={formData.collaborators} onValueChange={(value) => setFormData({ ...formData, collaborators: value })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Sélectionner" />
                     </SelectTrigger>
@@ -123,7 +147,7 @@ export default function QuotePage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="software">Logiciel de production</Label>
-                  <Select>
+                  <Select value={formData.software} onValueChange={(value) => setFormData({ ...formData, software: value })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Sélectionner" />
                     </SelectTrigger>
@@ -143,10 +167,12 @@ export default function QuotePage() {
 
               <div className="space-y-2">
                 <Label htmlFor="message">Message ou besoins spécifiques</Label>
-                <Textarea 
-                  id="message" 
+                <Textarea
+                  id="message"
                   placeholder="Dites-nous en plus sur vos besoins actuels (ex: volume de dossiers, problématiques de relance...)"
                   className="min-h-[120px]"
+                  value={formData.message}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                 />
               </div>
 
@@ -169,7 +195,7 @@ export default function QuotePage() {
           </div>
         </div>
       </div>
-      
+
       <Footer />
     </div>
   );
