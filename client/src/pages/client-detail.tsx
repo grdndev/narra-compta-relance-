@@ -8,7 +8,7 @@ import { useRoute } from "wouter";
 import { 
   ArrowLeft, Mail, Phone, Building2, Calendar, 
   AlertCircle, CheckCircle2, History, Send, Search, CheckSquare, MessageSquare, ZoomIn, Eye, EyeOff, AlertTriangle,
-  User, Link2, FileText, Trash2, Plus, Save, RotateCcw, Info
+  User, Link2, FileText, Trash2, Plus, Save, RotateCcw, Info, Download
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useMemo } from "react";
@@ -1008,7 +1008,55 @@ export default function ClientDetail() {
               <div className="space-y-6">
                 <Card className="border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] rounded-3xl">
                   <CardHeader>
-                    <CardTitle>Historique des Relances</CardTitle>
+                    <div className="flex items-center justify-between gap-3">
+                      <CardTitle data-testid="title-reminders-history">Historique des Relances</CardTitle>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="rounded-xl"
+                        onClick={() => {
+                          const rows = reminders.map(r => {
+                            const date = new Date(r.date);
+                            return {
+                              date: date.toLocaleDateString('fr-FR'),
+                              heure: date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+                              sujet: (r.subject || '').replace(/\n/g, ' '),
+                              statut: r.status,
+                              canaux: (r.channels?.join(', ') || r.type || '').toString()
+                            };
+                          });
+
+                          const header = ['date', 'heure', 'sujet', 'statut', 'canaux'];
+                          const csv = [
+                            header.join(';'),
+                            ...rows.map(row => header.map(h => {
+                              const v = String((row as any)[h] ?? '');
+                              return `\"${v.replace(/\"/g, '\"\"')}\"`;
+                            }).join(';'))
+                          ].join('\n');
+
+                          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                          const url = URL.createObjectURL(blob);
+                          const link = document.createElement('a');
+                          link.href = url;
+                          link.download = `historique-relances-${client.company.toLowerCase().replace(/\s+/g, '-')}.csv`;
+                          document.body.appendChild(link);
+                          link.click();
+                          link.remove();
+                          URL.revokeObjectURL(url);
+
+                          toast({
+                            title: 'Export prêt',
+                            description: `Historique exporté (${reminders.length} relance${reminders.length > 1 ? 's' : ''}).`,
+                          });
+                        }}
+                        data-testid="button-export-reminders"
+                        disabled={reminders.length === 0}
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        Exporter
+                      </Button>
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <div className="relative border-l border-slate-200 ml-3 space-y-6 pb-2">
