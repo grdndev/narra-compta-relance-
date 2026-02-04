@@ -95,7 +95,8 @@ export default function ClientDetail() {
   const [isUrgentReminder, setIsUrgentReminder] = useState(false);
   const [customDate, setCustomDate] = useState<string>("");
 
-  const [followUpOption, setFollowUpOption] = useState<'none' | 'd1' | 'd3' | 'custom'>('none');
+  const [followUpEnabled, setFollowUpEnabled] = useState(false);
+  const [followUpOption, setFollowUpOption] = useState<'d1' | 'd3' | 'custom'>('d1');
   const [followUpCustomDate, setFollowUpCustomDate] = useState<string>("");
   const [followUpEmail, setFollowUpEmail] = useState<string>("");
 
@@ -184,7 +185,8 @@ export default function ClientDetail() {
         whatsapp: `Bonjour ${politeName}, il nous manque ${piecesCount} document(s) pour votre comptabilité. Pourriez-vous vérifier ? Merci !`
     });
 
-    setFollowUpOption('none');
+    setFollowUpEnabled(false);
+    setFollowUpOption('d1');
     setFollowUpCustomDate("");
     setFollowUpEmail(
       `Bonjour ${politeName},\n\nNous nous permettons de revenir vers vous car nous n'avons pas eu de retour concernant les pièces comptables demandées.\n\nPouvez-vous nous les transmettre dès que possible afin que nous puissions finaliser votre dossier ?\n\nMerci par avance.\n\nCordialement,\nVotre Expert-Comptable`
@@ -232,7 +234,7 @@ export default function ClientDetail() {
       if (scheduleOption === 'custom') scheduleText = `le ${customDate}`;
 
     setReminderDialogOpen(false);
-    const followUpLabel = followUpOption === 'none'
+    const followUpLabel = !followUpEnabled
       ? null
       : followUpOption === 'd1'
         ? 'J+1'
@@ -1735,70 +1737,73 @@ export default function ClientDetail() {
               <div className="p-4 border border-slate-200 dark:border-slate-800 rounded-xl bg-white/70 dark:bg-slate-900/30 space-y-4">
                 <div className="flex items-center justify-between">
                   <Label className="font-semibold dark:text-slate-200">Relance si pas de réponse</Label>
-                  <span className="text-xs text-slate-500 dark:text-slate-400">Optionnel</span>
-                </div>
-
-                <div className="flex flex-wrap gap-2">
                   <Button
                     size="sm"
-                    variant={followUpOption === 'none' ? 'default' : 'outline'}
-                    onClick={() => setFollowUpOption('none')}
-                    className={`rounded-lg ${followUpOption === 'none' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600'}`}
-                    data-testid="button-followup-none"
+                    variant={followUpEnabled ? 'default' : 'outline'}
+                    onClick={() => setFollowUpEnabled(v => !v)}
+                    className={`rounded-lg ${followUpEnabled ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-white text-slate-600'}`}
+                    data-testid="button-followup-toggle"
                   >
-                    Aucune
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant={followUpOption === 'd1' ? 'default' : 'outline'}
-                    onClick={() => setFollowUpOption('d1')}
-                    className={`rounded-lg ${followUpOption === 'd1' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-white text-slate-600'}`}
-                    data-testid="button-followup-d1"
-                  >
-                    J+1
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant={followUpOption === 'd3' ? 'default' : 'outline'}
-                    onClick={() => setFollowUpOption('d3')}
-                    className={`rounded-lg ${followUpOption === 'd3' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-white text-slate-600'}`}
-                    data-testid="button-followup-d3"
-                  >
-                    J+3
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant={followUpOption === 'custom' ? 'default' : 'outline'}
-                    onClick={() => setFollowUpOption('custom')}
-                    className={`rounded-lg ${followUpOption === 'custom' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-white text-slate-600'}`}
-                    data-testid="button-followup-custom"
-                  >
-                    Personnalisé
+                    {followUpEnabled ? 'Activée' : 'Activer'}
                   </Button>
                 </div>
 
-                {followUpOption === 'custom' && (
-                  <div className="animate-in fade-in slide-in-from-top-2">
-                    <Label className="text-xs mb-1.5 block">Date et heure de relance</Label>
-                    <Input
-                      type="datetime-local"
-                      value={followUpCustomDate}
-                      onChange={(e) => setFollowUpCustomDate(e.target.value)}
-                      className="bg-white"
-                      data-testid="input-followup-custom"
-                    />
+                {followUpEnabled && (
+                  <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        size="sm"
+                        variant={followUpOption === 'd1' ? 'default' : 'outline'}
+                        onClick={() => setFollowUpOption('d1')}
+                        className={`rounded-lg ${followUpOption === 'd1' ? 'bg-slate-900 text-white hover:bg-slate-800' : 'bg-white text-slate-600'}`}
+                        data-testid="button-followup-d1"
+                      >
+                        J+1
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={followUpOption === 'd3' ? 'default' : 'outline'}
+                        onClick={() => setFollowUpOption('d3')}
+                        className={`rounded-lg ${followUpOption === 'd3' ? 'bg-slate-900 text-white hover:bg-slate-800' : 'bg-white text-slate-600'}`}
+                        data-testid="button-followup-d3"
+                      >
+                        J+3
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={followUpOption === 'custom' ? 'default' : 'outline'}
+                        onClick={() => setFollowUpOption('custom')}
+                        className={`rounded-lg ${followUpOption === 'custom' ? 'bg-slate-900 text-white hover:bg-slate-800' : 'bg-white text-slate-600'}`}
+                        data-testid="button-followup-custom"
+                      >
+                        Personnalisé
+                      </Button>
+                    </div>
+
+                    {followUpOption === 'custom' && (
+                      <div className="animate-in fade-in slide-in-from-top-2">
+                        <Label className="text-xs mb-1.5 block">Date et heure de relance</Label>
+                        <Input
+                          type="datetime-local"
+                          value={followUpCustomDate}
+                          onChange={(e) => setFollowUpCustomDate(e.target.value)}
+                          className="bg-white"
+                          data-testid="input-followup-custom"
+                        />
+                      </div>
+                    )}
+
+                    <div className="space-y-2">
+                      <Label className="text-xs text-slate-500 dark:text-slate-400">Email de relance</Label>
+                      <Textarea
+                        value={followUpEmail}
+                        onChange={(e) => setFollowUpEmail(e.target.value)}
+                        className="bg-white dark:bg-slate-950 dark:border-slate-800 min-h-[120px] text-sm"
+                        data-testid="textarea-followup-email"
+                      />
+                    </div>
                   </div>
                 )}
-
-                <div className="space-y-2">
-                  <Label className="text-xs text-slate-500 dark:text-slate-400">Email de relance</Label>
-                  <Textarea
-                    value={followUpEmail}
-                    onChange={(e) => setFollowUpEmail(e.target.value)}
-                    className="bg-white dark:bg-slate-950 dark:border-slate-800 min-h-[120px] text-sm"
-                    data-testid="textarea-followup-email"
-                  />
-                </div>
               </div>
 
               {/* EMAIL SECTION */}
