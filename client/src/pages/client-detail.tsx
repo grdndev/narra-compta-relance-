@@ -272,7 +272,7 @@ export default function ClientDetail() {
     }
   };
 
-  const selectByMode = (scope: 'all-av' | 'achats' | 'ventes', mode: 'all' | 'lost' | 'urgent') => {
+  const applySelectionAndPrepareEmail = (scope: 'all-av' | 'achats' | 'ventes', mode: 'all' | 'lost' | 'urgent') => {
     setSelectionMode(mode);
 
     const eligibleBase = filteredEntries.filter(e => e.status === 'missing_doc' && !ignoredEntries.includes(e.id));
@@ -283,17 +283,32 @@ export default function ClientDetail() {
       return e.journal === 'ACH' || e.journal === 'VTE';
     });
 
-    if (mode === 'all') {
-      setSelectedEntries(eligible.map(e => e.id));
-      return;
-    }
+    const selectedIds =
+      mode === 'all'
+        ? eligible.map(e => e.id)
+        : mode === 'lost'
+          ? eligible.filter(e => lostEntries.includes(e.id)).map(e => e.id)
+          : eligible.filter(e => e.isUrgent).map(e => e.id);
 
-    if (mode === 'lost') {
-      setSelectedEntries(eligible.filter(e => lostEntries.includes(e.id)).map(e => e.id));
-      return;
-    }
+    setSelectedEntries(selectedIds);
 
-    setSelectedEntries(eligible.filter(e => e.isUrgent).map(e => e.id));
+    const primaryContact = clientContacts.find(c => c.isPrimary) || clientContacts[0];
+    const contactName = primaryContact ? primaryContact.name : (client?.name || '');
+    const civility = contactName.toLowerCase().match(/^(marie|sophie|julie|claire|lea|camille|manon|chloe|anne|isabelle|nathalie)/) ? "Madame" : "Monsieur";
+    const politeName = `${civility} ${contactName.split(' ').pop()}`;
+
+    setReminderChannels({ email: true, sms: false, whatsapp: false });
+    setScheduleOption('immediate');
+    setIsUrgentReminder(mode === 'urgent');
+    setCustomDate("");
+
+    setReminderContent({
+      email: buildEmailTemplateForSelection(mode, politeName, selectedIds.length),
+      sms: `Bonjour ${politeName}, sauf erreur, il nous manque ${selectedIds.length} document(s) comptable(s). Merci de vérifier vos emails. Cdt, Votre Expert-Comptable`,
+      whatsapp: `Bonjour ${politeName}, il nous manque ${selectedIds.length} document(s) pour votre comptabilité. Pourriez-vous vérifier ? Merci !`
+    });
+
+    setReminderDialogOpen(true);
   };
 
   const handleIgnoreEntry = (id: string) => {
@@ -1006,7 +1021,7 @@ export default function ClientDetail() {
               <Button
                 size="sm"
                 className="rounded-xl bg-slate-900 text-white hover:bg-slate-800"
-                onClick={() => selectByMode('all-av', 'all')}
+                onClick={() => applySelectionAndPrepareEmail('all-av', 'all')}
                 data-testid="button-select-all-av"
               >
                 Tout sélectionner HA + VT
@@ -1025,7 +1040,7 @@ export default function ClientDetail() {
                       <select
                         className="h-9 rounded-xl border border-slate-200 bg-white px-3 pr-8 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-200"
                         value={selectionMode}
-                        onChange={(e) => selectByMode('achats', e.target.value as any)}
+                        onChange={(e) => applySelectionAndPrepareEmail('achats', e.target.value as any)}
                         data-testid="select-achats-selection"
                       >
                         <option value="all">Tout sélectionner</option>
@@ -1085,7 +1100,7 @@ export default function ClientDetail() {
                       <select
                         className="h-9 rounded-xl border border-slate-200 bg-white px-3 pr-8 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-green-200"
                         value={selectionMode}
-                        onChange={(e) => selectByMode('ventes', e.target.value as any)}
+                        onChange={(e) => applySelectionAndPrepareEmail('ventes', e.target.value as any)}
                         data-testid="select-ventes-selection"
                       >
                         <option value="all">Tout sélectionner</option>
