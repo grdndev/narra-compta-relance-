@@ -24,7 +24,7 @@ export function Footer() {
                   <path d="M15 6L12 12" />
                 </svg>
               </div>
-              <span className="text-xl font-bold text-slate-900">naraa</span>
+              <span className="text-xl font-bold text-slate-900">naraa.fr</span>
             </div>
             <p className="text-slate-500 max-w-xs leading-relaxed text-justify">
               La plateforme de relance pour les experts-comptables. Automatisez, collaborez et développez votre cabinet.
@@ -35,7 +35,7 @@ export function Footer() {
             <h4 className="font-bold text-slate-900 mb-4">Produit</h4>
             <ul className="space-y-3">
               <li>
-                <a href={location.pathname === "/site-vitrine" ? "#process" : "/site-vitrine#process"} className="text-slate-500 hover:text-blue-600 transition-colors">
+                <a href={location === "/site-vitrine" ? "#process" : "/site-vitrine#process"} className="text-slate-500 hover:text-blue-600 transition-colors">
                   Fonctionnalités
                 </a>
               </li>

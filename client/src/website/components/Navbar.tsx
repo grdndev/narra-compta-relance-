@@ -48,7 +48,7 @@ export function Navbar() {
                 </svg>
               </div>
               <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700">
-                naraa
+                naraa.fr
               </span>
             </div>
           </Link>

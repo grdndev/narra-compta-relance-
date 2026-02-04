@@ -40,7 +40,7 @@ export default function ContactPage() {
             </div>
             <h2 className="text-2xl font-bold text-slate-900 mb-2">Message reçu !</h2>
             <p className="text-slate-600 mb-8">
-              Merci de nous avoir contactés. Un membre de l'équipe naraa traitera votre demande et reviendra vers vous très rapidement.
+              Merci de nous avoir contactés. Un membre de l'équipe naraa.fr traitera votre demande et reviendra vers vous très rapidement.
             </p>
             <Link href="/site-vitrine">
               <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">

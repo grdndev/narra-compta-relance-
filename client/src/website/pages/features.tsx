@@ -104,7 +104,7 @@ export default function FeaturesPage() {
               Gagnez jusqu’à 80% de temps sur les relances clients
             </h2>
             <p className="text-lg text-slate-600">
-              naraa diminue votre temps administratif afin de vous concentrer sur des missions à forte valeur ajoutée.
+              naraa.fr diminue votre temps administratif afin de vous concentrer sur des missions à forte valeur ajoutée.
             </p>
           </div>
 
@@ -163,7 +163,7 @@ export default function FeaturesPage() {
                   </div>
                 </div>
               </div>
-              <h3 className="mt-4 text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">naraa</h3>
+              <h3 className="mt-4 text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">naraa.fr</h3>
               <p className="text-sm text-slate-500 font-medium">Cœur du système</p>
             </div>
 

@@ -48,7 +48,7 @@ export default function DemoPage() {
                   Réservez votre démo personnalisée
                 </h1>
                 <p className="text-blue-50 text-lg md:text-xl leading-relaxed max-w-md">
-                  Échangez avec nos experts et découvrez comment naraa va révolutionner la gestion de votre cabinet.
+                  Échangez avec nos experts et découvrez comment naraa.fr va révolutionner la gestion de votre cabinet.
                 </p>
                 
                 <div className="mt-12 space-y-4">

@@ -32,7 +32,7 @@ export default function LandingPage() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
               </span>
-              Nouveau : Découvrez l'Assistant IA pour vos journaux
+              Quand je relance c'est l'assurance
             </div>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 mb-8 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100 max-w-5xl mx-auto">
@@ -219,7 +219,7 @@ export default function LandingPage() {
               Gagnez jusqu’à 80% de temps sur les relances clients
             </h2>
             <p className="text-lg text-slate-600">
-              naraa diminue votre temps administratif afin de vous concentrer sur des missions à forte valeur ajoutée.
+              naraa.fr diminue votre temps administratif afin de vous concentrer sur des missions à forte valeur ajoutée.
             </p>
           </div>
 
@@ -372,7 +372,7 @@ export default function LandingPage() {
             <p className="text-lg text-slate-600 mb-10 leading-relaxed">
               Vous avez déjà une GED et souhaitez la conserver ?
               <br/>
-              naraa s’adapte à votre façon de travailler.
+              naraa.fr s’adapte à votre façon de travailler.
             </p>
             <Link href="/site-vitrine/quote">
               <Button size="lg" className="rounded-full px-8 bg-slate-900 text-white hover:bg-slate-800">
