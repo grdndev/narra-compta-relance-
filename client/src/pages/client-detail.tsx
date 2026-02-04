@@ -670,40 +670,40 @@ export default function ClientDetail() {
                     {(() => {
                       const missing = filteredEntries.filter(e => e.status === 'missing_doc');
 
+                      const achatsVentesTotal = missing
+                        .filter(e => e.journal === 'ACH' || e.journal === 'VTE')
+                        .reduce((sum, e) => sum + e.amount, 0);
+
+                      const encDecTotal = missing
+                        .filter(e => e.journal === 'BQ')
+                        .reduce((sum, e) => sum + e.amount, 0);
+
+                      const journauxTotal = missing.reduce((sum, e) => sum + e.amount, 0);
+
+                      if (activeTab === 'emails') {
+                        return `AV ${achatsVentesTotal.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })} • Enc/Déc ${encDecTotal.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })} • Journaux ${journauxTotal.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}`;
+                      }
+
                       // Vision-dependent totals
-                      if (activeTab === 'achats-ventes') {
-                        const total = missing
-                          .filter(e => e.journal === 'ACH' || e.journal === 'VTE')
-                          .reduce((sum, e) => sum + e.amount, 0);
-                        return total.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
-                      }
-
-                      if (activeTab === 'encaissements') {
-                        const total = missing
-                          .filter(e => e.journal === 'BQ')
-                          .reduce((sum, e) => sum + e.amount, 0);
-                        return total.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
-                      }
-
-                      if (activeTab === 'journaux') {
-                        const total = missing.reduce((sum, e) => sum + e.amount, 0);
-                        return total.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
-                      }
+                      if (activeTab === 'achats-ventes') return achatsVentesTotal.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+                      if (activeTab === 'encaissements') return encDecTotal.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+                      if (activeTab === 'journaux') return journauxTotal.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
 
                       // Default (Synthèse and others): global missing total
-                      const total = missing.reduce((sum, e) => sum + e.amount, 0);
-                      return total.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+                      return journauxTotal.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
                     })()}
                   </span>
                   <span className="text-slate-300 dark:text-slate-600">•</span>
                   <span>
-                    {activeTab === 'achats-ventes'
-                      ? 'Total factures non lettrées'
-                      : activeTab === 'encaissements'
-                        ? 'Total paiements non lettrés'
-                        : activeTab === 'journaux'
-                          ? 'Total écritures non lettrées'
-                          : 'Total écritures non lettrées'}
+                    {activeTab === 'emails'
+                      ? 'Totaux non lettrés'
+                      : activeTab === 'achats-ventes'
+                        ? 'Total factures non lettrées'
+                        : activeTab === 'encaissements'
+                          ? 'Total paiements non lettrés'
+                          : activeTab === 'journaux'
+                            ? 'Total écritures non lettrées'
+                            : 'Total écritures non lettrées'}
                   </span>
                 </div>
               </div>
