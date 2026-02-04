@@ -352,7 +352,7 @@ export default function LandingPage() {
                 <div className="inline-flex h-12 w-12 rounded-xl bg-green-50 items-center justify-center text-green-600 mb-4 group-hover:bg-green-600 group-hover:text-white transition-colors ml-auto">
                   <Shield className="h-6 w-6" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-2">Sécurité Bancaire</h3>
+                <h3 className="text-lg font-bold text-slate-900 mb-2">Sécurité</h3>
                 <p className="text-sm text-slate-600">Données sécurisées, hébergement en Europe, respect du RGPD.</p>
               </div>
             </div>
@@ -374,7 +374,7 @@ export default function LandingPage() {
             <p className="text-lg text-slate-600 mb-10 leading-relaxed">
               Vous avez déjà une GED et souhaitez la conserver ?
               <br/>
-              naraa.fr s’adapte à votre façon de travailler.
+              Naraa.fr s’adapte à votre organisation et propose des options de personnalisation selon les pratiques de votre cabinet
             </p>
             <Link href="/site-vitrine/quote">
               <Button size="lg" className="rounded-full px-8 bg-slate-900 text-white hover:bg-slate-800">

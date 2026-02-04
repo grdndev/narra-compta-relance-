@@ -219,7 +219,7 @@ export default function FeaturesPage() {
                 <div className="inline-flex h-12 w-12 rounded-xl bg-green-50 items-center justify-center text-green-600 mb-4 group-hover:bg-green-600 group-hover:text-white transition-colors ml-auto">
                   <Shield className="h-6 w-6" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-2">Sécurité Bancaire</h3>
+                <h3 className="text-lg font-bold text-slate-900 mb-2">Sécurité</h3>
                 <p className="text-sm text-slate-600">Données sécurisées, hébergement en Europe, respect du RGPD.</p>
               </div>
             </div>
