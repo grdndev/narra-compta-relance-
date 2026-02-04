@@ -667,10 +667,44 @@ export default function ClientDetail() {
                   <span>{new Date().toLocaleDateString('fr-FR')}</span>
                   <span className="text-slate-300 dark:text-slate-600">•</span>
                   <span className="font-semibold text-slate-700 dark:text-slate-200">
-                    {filteredEntries.filter(e => e.status === 'missing_doc').reduce((sum, e) => sum + e.amount, 0).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+                    {(() => {
+                      const missing = filteredEntries.filter(e => e.status === 'missing_doc');
+
+                      // Vision-dependent totals
+                      if (activeTab === 'achats-ventes') {
+                        const total = missing
+                          .filter(e => e.journal === 'ACH' || e.journal === 'VTE')
+                          .reduce((sum, e) => sum + e.amount, 0);
+                        return total.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+                      }
+
+                      if (activeTab === 'encaissements') {
+                        const total = missing
+                          .filter(e => e.journal === 'BQ')
+                          .reduce((sum, e) => sum + e.amount, 0);
+                        return total.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+                      }
+
+                      if (activeTab === 'journaux') {
+                        const total = missing.reduce((sum, e) => sum + e.amount, 0);
+                        return total.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+                      }
+
+                      // Default (Synthèse and others): global missing total
+                      const total = missing.reduce((sum, e) => sum + e.amount, 0);
+                      return total.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+                    })()}
                   </span>
                   <span className="text-slate-300 dark:text-slate-600">•</span>
-                  <span>Total écritures non lettrées</span>
+                  <span>
+                    {activeTab === 'achats-ventes'
+                      ? 'Total factures non lettrées'
+                      : activeTab === 'encaissements'
+                        ? 'Total paiements non lettrés'
+                        : activeTab === 'journaux'
+                          ? 'Total écritures non lettrées'
+                          : 'Total écritures non lettrées'}
+                  </span>
                 </div>
               </div>
               {!isEditingNotes ? (
