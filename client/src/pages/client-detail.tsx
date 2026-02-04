@@ -296,6 +296,7 @@ export default function ClientDetail() {
     setSelectedEntries(eligible.filter(e => e.isUrgent).map(e => e.id));
   };
 
+
   const handleIgnoreEntry = (id: string) => {
     if (ignoredEntries.includes(id)) {
       setIgnoredEntries(ignoredEntries.filter(e => e !== id));
