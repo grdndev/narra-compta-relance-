@@ -106,6 +106,17 @@ export default function ClientDetail() {
   const purchases = useMemo(() => filteredEntries.filter(e => e.journal === 'ACH'), [filteredEntries]);
   const sales = useMemo(() => filteredEntries.filter(e => e.journal === 'VTE'), [filteredEntries]);
   const bankEntries = useMemo(() => filteredEntries.filter(e => e.journal === 'BQ'), [filteredEntries]);
+
+  const unjustifiedPiecesTotal = useMemo(() => {
+    const total = activeEntries
+      .filter(e => e.status === 'missing_doc')
+      .reduce((sum, e) => sum + (e.amount || 0), 0);
+    return total;
+  }, [activeEntries]);
+
+  const unjustifiedPiecesTotalLabel = useMemo(() => {
+    return unjustifiedPiecesTotal.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+  }, [unjustifiedPiecesTotal]);
   
   // Split bank entries for display
   const bankReceipts = useMemo(() => bankEntries.filter(e => e.type === 'Debit'), [bankEntries]); // Encaissements (Debit au journal de banque = Entrée d'argent)
@@ -358,23 +369,30 @@ export default function ClientDetail() {
     <Layout>
       <div className="space-y-8">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => window.history.back()} className="dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800">
+          <Button data-testid="button-back" variant="ghost" size="icon" onClick={() => window.history.back()} className="dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800">
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div>
-            <h1 className="text-3xl font-serif font-bold text-slate-900 dark:text-white flex items-center gap-3">
-              {client.company}
-              <Dialog>
-                  <DialogTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400">
+          <div className="flex-1">
+            <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+              <div className="space-y-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1 data-testid="text-client-company" className="text-3xl font-serif font-bold text-slate-900 dark:text-white">
+                    {client.company}
+                  </h1>
+                  <Badge data-testid="badge-unjustified-total" variant="outline" className="rounded-full border-amber-200 bg-amber-50 text-amber-800">
+                    Total pièces non justifiées (J) : <span className="ml-1 font-semibold tabular-nums">{unjustifiedPiecesTotalLabel}</span>
+                  </Badge>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button data-testid="button-client-info" variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400">
                         <Info className="h-5 w-5" />
                       </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto rounded-3xl p-6 dark:bg-slate-900 dark:border-slate-800">
-                    <DialogHeader>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto rounded-3xl p-6 dark:bg-slate-900 dark:border-slate-800">
+                      <DialogHeader>
                         <DialogTitle className="text-2xl font-bold text-slate-800 dark:text-white mb-4">Informations Client</DialogTitle>
-                    </DialogHeader>
-                    <div className="grid gap-6 md:grid-cols-3">
+                      </DialogHeader>
+                      <div className="grid gap-6 md:grid-cols-3">
                {/* Client Identification */}
                <Card className="md:col-span-1 border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] rounded-3xl h-fit dark:bg-slate-900 dark:border dark:border-slate-800">
                  <CardHeader>
@@ -620,11 +638,12 @@ export default function ClientDetail() {
                    <Plus className="h-5 w-5" /> Ajouter un autre contact
                  </Button>
                </div>
-             </div>
-                  </DialogContent>
-              </Dialog>
-            </h1>
-            <div className="flex flex-wrap items-center gap-4 mt-2 text-slate-500 dark:text-slate-400 text-sm">
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+
+                <div data-testid="text-client-meta" className="flex flex-wrap items-center gap-4 mt-2 text-slate-500 dark:text-slate-400 text-sm">
               <span className="flex items-center gap-1"><User className="h-4 w-4" /> {client.name}</span>
               <span className="flex items-center gap-1"><Mail className="h-4 w-4" /> {client.email}</span>
               <span className="flex items-center gap-1"><Phone className="h-4 w-4" /> {client.phone}</span>
@@ -1716,7 +1735,7 @@ function UsersIcon(props: React.SVGProps<SVGSVGElement>) {
       <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
       <path d="M16 3.13a4 4 0 0 1 0 7.75" />
     </svg>
-  )
+  );
 }
 
 function AccountGroupRow({ group, selectedEntries, onToggleSelect, onToggleSelectGroup, onIgnore, onToggleUrgent, onEditComment, showIgnored }: any) {
