@@ -658,10 +658,21 @@ export default function ClientDetail() {
         <Card className="border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] rounded-3xl dark:bg-slate-900 dark:border dark:border-slate-800 max-w-2xl">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                <FileText className="h-5 w-5 text-amber-500" />
-                Notes internes
-              </CardTitle>
+              <div className="flex flex-col gap-1">
+                <CardTitle className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-amber-500" />
+                  Notes internes
+                </CardTitle>
+                <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                  <span>Aujourd'hui</span>
+                  <span className="text-slate-300 dark:text-slate-600">•</span>
+                  <span className="font-semibold text-slate-700 dark:text-slate-200">
+                    {filteredEntries.reduce((sum, e) => sum + e.amount, 0).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+                  </span>
+                  <span className="text-slate-300 dark:text-slate-600">•</span>
+                  <span>Total écritures non lettrées</span>
+                </div>
+              </div>
               {!isEditingNotes ? (
                 <Button 
                   variant="outline" 
