@@ -2,67 +2,19 @@ import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  mockClients,
-  mockDocuments,
-  mockReminders,
-  mockAccountingEntries,
-} from "@/lib/mockData";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { mockClients, mockDocuments, mockReminders, mockAccountingEntries } from "@/lib/mockData";
 import { useRoute } from "wouter";
-import {
-  ArrowLeft,
-  Mail,
-  Phone,
-  Building2,
-  Calendar,
-  AlertCircle,
-  CheckCircle2,
-  History,
-  Send,
-  Search,
-  CheckSquare,
-  MessageSquare,
-  ZoomIn,
-  Eye,
-  EyeOff,
-  AlertTriangle,
-  User,
-  Link2,
-  FileText,
-  Trash2,
-  Plus,
-  Save,
-  RotateCcw,
-  Info,
-  Download,
+import { 
+  ArrowLeft, Mail, Phone, Building2, Calendar, 
+  AlertCircle, CheckCircle2, History, Send, Search, CheckSquare, MessageSquare, ZoomIn, Eye, EyeOff, AlertTriangle,
+  User, Link2, FileText, Trash2, Plus, Save, RotateCcw, Info, Download
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useMemo } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -74,302 +26,197 @@ export default function ClientDetail() {
   const [selectedDocs, setSelectedDocs] = useState<string[]>([]);
   const [selectedEntries, setSelectedEntries] = useState<string[]>([]);
   const [lostEntries, setLostEntries] = useState<string[]>([]);
-  const [selectionMode, setSelectionMode] = useState<"all" | "lost" | "urgent">(
-    "all",
-  );
-  const [selectionScope, setSelectionScope] = useState<
-    "achats" | "ventes" | "all-av" | null
-  >(null);
-  const [selectedJournalEntries, setSelectedJournalEntries] = useState<string[]>(
-    [],
-  );
+  const [selectionMode, setSelectionMode] = useState<'all' | 'lost' | 'urgent'>('all');
+  const [selectionScope, setSelectionScope] = useState<'achats' | 'ventes' | 'all-av' | null>(null);
+  const [selectedJournalEntries, setSelectedJournalEntries] = useState<string[]>([]);
   const [journalChannelModalOpen, setJournalChannelModalOpen] = useState(false);
-  const [journalSelectedChannel, setJournalSelectedChannel] = useState<
-    "email" | "sms" | "whatsapp"
-  >("email");
-  const [journalMessageContent, setJournalMessageContent] = useState("");
+  const [journalSelectedChannel, setJournalSelectedChannel] = useState<'email' | 'sms' | 'whatsapp'>('email');
+  const [journalMessageContent, setJournalMessageContent] = useState('');
   const [newEmailOpen, setNewEmailOpen] = useState(false);
-  const [newEmailContent, setNewEmailContent] = useState({
-    subject: "",
-    message: "",
-  });
+  const [newEmailContent, setNewEmailContent] = useState({ subject: '', message: '' });
 
   const handleSendEmail = () => {
     toast({
       title: "Email envoyé",
-      description: "Votre message a été envoyé avec succès.",
-      className: "bg-green-600 text-white border-none",
+      description: `Votre email a bien été envoyé à ${client?.email}.`,
+      className: "bg-green-600 text-white border-none"
     });
     setNewEmailOpen(false);
+    setNewEmailContent({ subject: '', message: '' });
   };
-
-  const client = mockClients.find((c) => c.id === params?.id);
-
-  const [activeTab, setActiveTab] = useState("overview");
-  const [minAmount, setMinAmount] = useState(0);
   const [ignoredEntries, setIgnoredEntries] = useState<string[]>([]);
   const [showIgnored, setShowIgnored] = useState(false);
-  const [journalFilter, setJournalFilter] = useState<
-    "ALL" | "ACH" | "VTE" | "BQ" | "OD"
-  >("ALL");
+  const [minAmount, setMinAmount] = useState<number>(0);
+  const [journalFilter, setJournalFilter] = useState<string>("ALL");
+  const [activeTab, setActiveTab] = useState("synthesis");
 
+  const [entries, setEntries] = useState(mockAccountingEntries);
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [tempComment, setTempComment] = useState("");
-  const [clientContacts, setClientContacts] = useState<any[]>([
-    {
-      id: "1",
-      name: "Marie Dupont",
-      role: "Dirigeante",
-      email: client?.email || "",
-      phone: "06 12 34 56 78",
-      isPrimary: true,
-      preferredChannels: ["email"],
-    },
-    {
-      id: "2",
-      name: "Paul Martin",
-      role: "Comptable",
-      email: "compta@" + (client?.company || "entreprise") + ".fr",
-      phone: "06 98 76 54 32",
-      isPrimary: false,
-      preferredChannels: ["email", "whatsapp"],
-    },
-  ]);
 
-  const [customFields, setCustomFields] = useState<
-    { id: string; label: string; value: string }[]
-  >(
+  const client = mockClients.find(c => c.id === params?.id);
+  const [clientContacts, setClientContacts] = useState(client?.contacts || []);
+  
+  // Client notes state
+  const [clientNotes, setClientNotes] = useState(client?.notes || "");
+  const [isEditingNotes, setIsEditingNotes] = useState(false);
+  const [tempNotes, setTempNotes] = useState("");
+  
+  // Client status toggles
+  const [cooperates, setCooperates] = useState(client?.cooperates !== false);
+  const [underSurveillance, setUnderSurveillance] = useState(client?.underSurveillance || false);
+  
+  // Custom fields state
+  const [customFields, setCustomFields] = useState<{id: string, label: string, value: string}[]>(
     client?.customFields || [
-      { id: "1", label: "Champ libre 1", value: "" },
-      { id: "2", label: "Champ libre 2", value: "" },
-      { id: "3", label: "Champ libre 3", value: "" },
-      { id: "4", label: "Champ libre 4", value: "" },
-      { id: "5", label: "Champ libre 5", value: "" },
-    ],
+      { id: '1', label: 'Champ libre 1', value: '' },
+      { id: '2', label: 'Champ libre 2', value: '' },
+      { id: '3', label: 'Champ libre 3', value: '' },
+      { id: '4', label: 'Champ libre 4', value: '' },
+      { id: '5', label: 'Champ libre 5', value: '' },
+    ]
   );
-
+  
+  // Reminder Dialog State
   const [reminderDialogOpen, setReminderDialogOpen] = useState(false);
-  const [reminderChannels, setReminderChannels] = useState<{
-    email: boolean;
-    sms: boolean;
-    whatsapp: boolean;
-  }>({
+  const [reminderChannels, setReminderChannels] = useState<{email: boolean, sms: boolean, whatsapp: boolean}>({
     email: true,
     sms: false,
-    whatsapp: false,
+    whatsapp: false
   });
-  const [reminderContent, setReminderContent] = useState<{
-    email: string;
-    sms: string;
-    whatsapp: string;
-  }>({
+  const [reminderContent, setReminderContent] = useState<{email: string, sms: string, whatsapp: string}>({
     email: "",
     sms: "",
-    whatsapp: "",
+    whatsapp: ""
   });
-
-  const [scheduleOption, setScheduleOption] = useState<
-    "immediate" | "d1" | "d2" | "h1" | "h2" | "custom"
-  >("immediate");
+  
+  // Scheduling State
+  const [scheduleOption, setScheduleOption] = useState<'immediate' | 'd1' | 'd2' | 'h1' | 'h2' | 'custom'>('immediate');
   const [isUrgentReminder, setIsUrgentReminder] = useState(false);
   const [customDate, setCustomDate] = useState<string>("");
 
-  type FollowUpDelay = "d1" | "d3" | "d7" | "custom";
-  type FollowUpStep = {
-    id: string;
-    delay: FollowUpDelay;
-    customDate?: string;
-    subject: string;
-    body: string;
-  };
+  type FollowUpDelay = 'd1' | 'd3' | 'd7' | 'custom';
+  type FollowUpStep = { id: string; delay: FollowUpDelay; customDate?: string; subject: string; body: string };
 
   const [followUpEnabled, setFollowUpEnabled] = useState(false);
   const [followUpSteps, setFollowUpSteps] = useState<FollowUpStep[]>([]);
 
-  const documents = mockDocuments.filter((d) => d.clientId === params?.id);
-  const reminders = mockReminders.filter((r) => r.clientId === params?.id);
+  const documents = mockDocuments.filter(d => d.clientId === params?.id);
+  const reminders = mockReminders.filter(r => r.clientId === params?.id);
+  
+  const activeEntries = useMemo(() => entries.filter(e => {
+    const isClient = e.clientId === params?.id;
+    const isIgnored = ignoredEntries.includes(e.id);
+    return isClient && (showIgnored ? isIgnored : !isIgnored);
+  }), [entries, params?.id, ignoredEntries, showIgnored]);
 
-  const [entries, setEntries] = useState(mockAccountingEntries);
+  const filteredEntries = useMemo(() => activeEntries.filter(e => e.amount >= minAmount), [activeEntries, minAmount]);
+  
+  const purchases = useMemo(() => filteredEntries.filter(e => e.journal === 'ACH'), [filteredEntries]);
+  const sales = useMemo(() => filteredEntries.filter(e => e.journal === 'VTE'), [filteredEntries]);
+  const bankEntries = useMemo(() => filteredEntries.filter(e => e.journal === 'BQ'), [filteredEntries]);
+  
+  // Split bank entries for display
+  const bankReceipts = useMemo(() => bankEntries.filter(e => e.type === 'Debit'), [bankEntries]); // Encaissements (Debit au journal de banque = Entrée d'argent)
+  const bankDisbursements = useMemo(() => bankEntries.filter(e => e.type === 'Credit'), [bankEntries]); // Décaissements (Crédit au journal de banque = Sortie d'argent)
 
-  const activeEntries = useMemo(
-    () =>
-      entries.filter((e) => {
-        const isClient = e.clientId === params?.id;
-        const isIgnored = ignoredEntries.includes(e.id);
-        return isClient && (showIgnored ? isIgnored : !isIgnored);
-      }),
-    [entries, params?.id, ignoredEntries, showIgnored],
-  );
-
-  const filteredEntries = useMemo(
-    () => activeEntries.filter((e) => e.amount >= minAmount),
-    [activeEntries, minAmount],
-  );
-
-  const purchases = useMemo(
-    () => filteredEntries.filter((e) => e.journal === "ACH"),
-    [filteredEntries],
-  );
-  const sales = useMemo(
-    () => filteredEntries.filter((e) => e.journal === "VTE"),
-    [filteredEntries],
-  );
-  const bankEntries = useMemo(
-    () => filteredEntries.filter((e) => e.journal === "BQ"),
-    [filteredEntries],
-  );
-
-  const bankReceipts = useMemo(
-    () => bankEntries.filter((e) => e.type === "Debit"),
-    [bankEntries],
-  );
-  const bankDisbursements = useMemo(
-    () => bankEntries.filter((e) => e.type === "Credit"),
-    [bankEntries],
-  );
-
+  // Helper to group entries
   const groupEntries = (entriesList: typeof mockAccountingEntries) => {
-    return Object.values(
-      entriesList.reduce(
-        (acc, entry) => {
-          if (!acc[entry.account]) {
-            acc[entry.account] = {
-              account: entry.account,
-              label: entry.accountLabel,
-              entries: [],
-              totalAmount: 0,
-              count: 0,
-            };
-          }
-          acc[entry.account].entries.push(entry);
-          acc[entry.account].totalAmount += entry.amount;
-          acc[entry.account].count += 1;
-          return acc;
-        },
-        {} as Record<
-          string,
-          {
-            account: string;
-            label: string;
-            entries: typeof mockAccountingEntries;
-            totalAmount: number;
-            count: number;
-          }
-        >,
-      ),
-    );
+    return Object.values(entriesList.reduce((acc, entry) => {
+      if (!acc[entry.account]) {
+        acc[entry.account] = {
+          account: entry.account,
+          label: entry.accountLabel,
+          entries: [],
+          totalAmount: 0,
+          count: 0
+        };
+      }
+      acc[entry.account].entries.push(entry);
+      acc[entry.account].totalAmount += entry.amount;
+      acc[entry.account].count += 1;
+      return acc;
+    }, {} as Record<string, { account: string, label: string, entries: typeof mockAccountingEntries, totalAmount: number, count: number }>));
   };
 
   const purchasesGrouped = useMemo(() => groupEntries(purchases), [purchases]);
   const salesGrouped = useMemo(() => groupEntries(sales), [sales]);
-  const bankReceiptsGrouped = useMemo(
-    () => groupEntries(bankReceipts),
-    [bankReceipts],
-  );
-  const bankDisbursementsGrouped = useMemo(
-    () => groupEntries(bankDisbursements),
-    [bankDisbursements],
-  );
+  const bankReceiptsGrouped = useMemo(() => groupEntries(bankReceipts), [bankReceipts]);
+  const bankDisbursementsGrouped = useMemo(() => groupEntries(bankDisbursements), [bankDisbursements]);
 
   if (!client) {
     return (
       <Layout>
-        <div className="flex items-center justify-center h-full">
-          Client introuvable
-        </div>
+        <div className="flex items-center justify-center h-full">Client introuvable</div>
       </Layout>
     );
   }
 
-  const pendingDocs = documents.filter((d) => d.status === "missing");
+  const pendingDocs = documents.filter(d => d.status === 'missing');
 
-  const gedLink = "https://ged.naraa.fr";
+  const buildEmailTemplateForSelection = (mode: 'all' | 'lost' | 'urgent', politeName: string, count: number) => {
+    if (mode === 'lost') {
+      return `Bonjour ${politeName},\n\nNous constatons que ${count} pièce(s) comptable(s) sont indiquées comme *perdues* (non retrouvées).\n\n⚠️ Sans justificatifs, certaines charges peuvent être considérées comme non déductibles et cela peut poser un risque en cas de contrôle fiscal.\n\nMerci de nous transmettre au plus vite un duplicata (fournisseur / facture / reçu) ou toute preuve équivalente permettant de justifier ces écritures.\n\nCordialement,\nVotre Expert-Comptable`;
+    }
 
-  const appendGedLink = (content: string) => {
-    const c = content || "";
-    if (c.includes(gedLink)) return c;
-    const trimmed = c.trimEnd();
-    return `${trimmed}\n\nLien GED (vos documents) : ${gedLink}`;
+    if (mode === 'urgent') {
+      return `Bonjour ${politeName},\n\nNous vous informons qu’il manque encore ${count} pièce(s) comptable(s) marquées comme *urgentes*.\n\nAfin de mener à bien notre mission et de respecter les deadlines, merci de nous transmettre ces justificatifs dès que possible via votre espace client.\n\nCordialement,\nVotre Expert-Comptable`;
+    }
+
+    return `Bonjour ${politeName},\n\nSauf erreur de notre part, nous n'avons pas reçu les justificatifs pour ${count} pièce(s) comptable(s).\n\nMerci de nous les faire parvenir dès que possible.\n\nCordialement,\nVotre Expert-Comptable`;
   };
-
-  const buildEmailTemplateForSelection = (
-    mode: "all" | "lost" | "urgent",
-    politeName: string,
-    count: number,
-  ) => {
-    const base =
-      mode === "lost"
-        ? `Bonjour ${politeName},\n\nNous constatons que ${count} pièce(s) comptable(s) sont indiquées comme *perdues* (non retrouvées).\n\n⚠️ Sans justificatifs, certaines charges peuvent être considérées comme non déductibles et cela peut poser un risque en cas de contrôle fiscal.\n\nMerci de nous transmettre au plus vite un duplicata (fournisseur / facture / reçu) ou toute preuve équivalente permettant de justifier ces écritures.\n\nCordialement,\nVotre Expert-Comptable`
-        : mode === "urgent"
-          ? `Bonjour ${politeName},\n\nNous vous informons qu’il manque encore ${count} pièce(s) comptable(s) marquées comme *urgentes*.\n\nAfin de mener à bien notre mission et de respecter les deadlines, merci de nous transmettre ces justificatifs dès que possible via votre espace client.\n\nCordialement,\nVotre Expert-Comptable`
-          : `Bonjour ${politeName},\n\nSauf erreur de notre part, nous n'avons pas reçu les justificatifs pour ${count} pièce(s) comptable(s).\n\nMerci de nous les faire parvenir dès que possible.\n\nCordialement,\nVotre Expert-Comptable`;
-
-    return appendGedLink(base);
-  };
-
+  
   const handleOpenReminderDialog = () => {
+    // Determine context (general reminder or specific entries)
     const isEntryReminder = selectedEntries.length > 0;
     const isDocReminder = selectedDocs.length > 0;
-    const piecesCount = isEntryReminder
-      ? selectedEntries.length
-      : isDocReminder
-        ? selectedDocs.length
-        : pendingDocs.length;
+    const piecesCount = isEntryReminder ? selectedEntries.length : (isDocReminder ? selectedDocs.length : pendingDocs.length);
+    
+    // Find primary contact
+    const primaryContact = clientContacts.find(c => c.isPrimary) || clientContacts[0];
+    // Simple heuristic for civility (can be improved with real data)
+    const contactName = primaryContact ? primaryContact.name : (client?.name || '');
+    const civility = contactName.toLowerCase().match(/^(marie|sophie|julie|claire|lea|camille|manon|chloe|anne|isabelle|nathalie)/) ? "Madame" : "Monsieur";
+    const politeName = `${civility} ${contactName.split(' ').pop()}`; // Monsieur Dupont
 
-    const primaryContact =
-      clientContacts.find((c) => c.isPrimary) || clientContacts[0];
-    const contactName = primaryContact ? primaryContact.name : client?.name || "";
-    const civility = contactName
-      .toLowerCase()
-      .match(
-        /^(marie|sophie|julie|claire|lea|camille|manon|chloe|anne|isabelle|nathalie)/,
-      )
-      ? "Madame"
-      : "Monsieur";
-    const politeName = `${civility} ${contactName.split(" ").pop()}`;
-
+    // Set default content
     setReminderContent({
-      email: buildEmailTemplateForSelection(selectionMode, politeName, piecesCount),
-      sms: `Bonjour ${politeName}, sauf erreur, il nous manque ${piecesCount} document(s) comptable(s). Merci de vérifier vos emails. Cdt, Votre Expert-Comptable`,
-      whatsapp: `Bonjour ${politeName}, il nous manque ${piecesCount} document(s) pour votre comptabilité. Pourriez-vous vérifier ? Merci !`,
+        email: buildEmailTemplateForSelection(selectionMode, politeName, piecesCount),
+        sms: `Bonjour ${politeName}, sauf erreur, il nous manque ${piecesCount} document(s) comptable(s). Merci de vérifier vos emails. Cdt, Votre Expert-Comptable`,
+        whatsapp: `Bonjour ${politeName}, il nous manque ${piecesCount} document(s) pour votre comptabilité. Pourriez-vous vérifier ? Merci !`
     });
 
     setFollowUpEnabled(false);
     setFollowUpSteps([
       {
         id: crypto.randomUUID(),
-        delay: "d1",
+        delay: 'd1',
         subject: `Rappel — pièces comptables manquantes`,
-        body: appendGedLink(
-          `Bonjour ${politeName},\n\nJe me permets de revenir vers vous car nous n'avons pas eu de retour concernant les pièces comptables demandées.\n\nPouvez-vous nous les transmettre dès que possible afin que nous puissions finaliser votre dossier ?\n\nMerci par avance.\n\nCordialement,\nVotre Expert-Comptable`,
-        ),
+        body: `Bonjour ${politeName},\n\nJe me permets de revenir vers vous car nous n'avons pas eu de retour concernant les pièces comptables demandées.\n\nPouvez-vous nous les transmettre dès que possible afin que nous puissions finaliser votre dossier ?\n\nMerci par avance.\n\nCordialement,\nVotre Expert-Comptable`
       },
       {
         id: crypto.randomUUID(),
-        delay: "d3",
+        delay: 'd3',
         subject: `2e rappel — pièces comptables manquantes`,
-        body: appendGedLink(
-          `Bonjour ${politeName},\n\nSans retour de votre part, nous ne pouvons pas clôturer certaines écritures.\n\nPouvez-vous nous envoyer les justificatifs manquants (ou nous indiquer si certaines pièces sont perdues) ?\n\nMerci d'avance.\n\nCordialement,\nVotre Expert-Comptable`,
-        ),
-      },
+        body: `Bonjour ${politeName},\n\nSans retour de votre part, nous ne pouvons pas clôturer certaines écritures.\n\nPouvez-vous nous envoyer les justificatifs manquants (ou nous indiquer si certaines pièces sont perdues) ?\n\nMerci d'avance.\n\nCordialement,\nVotre Expert-Comptable`
+      }
     ]);
-
-    setScheduleOption("immediate");
+    
+    // Reset scheduling
+    setScheduleOption('immediate');
     setIsUrgentReminder(false);
     setCustomDate("");
-
-    if (
-      primaryContact &&
-      primaryContact.preferredChannels &&
-      primaryContact.preferredChannels.length > 0
-    ) {
-      setReminderChannels({
-        email: primaryContact.preferredChannels.includes("email"),
-        sms: primaryContact.preferredChannels.includes("phone"),
-        whatsapp: primaryContact.preferredChannels.includes("whatsapp"),
-      });
+    
+    // Set default channels based on primary contact preferences if available
+    if (primaryContact && primaryContact.preferredChannels && primaryContact.preferredChannels.length > 0) {
+        setReminderChannels({
+            email: primaryContact.preferredChannels.includes('email'),
+            sms: primaryContact.preferredChannels.includes('phone'), // Map 'phone' to sms
+            whatsapp: primaryContact.preferredChannels.includes('whatsapp')
+        });
     } else {
-      setReminderChannels({ email: true, sms: false, whatsapp: false });
+         // Default fallback
+         setReminderChannels({ email: true, sms: false, whatsapp: false });
     }
 
     setReminderDialogOpen(true);
@@ -377,40 +224,38 @@ export default function ClientDetail() {
 
   const handleSendEntryReminder = () => {
     const channels = Object.entries(reminderChannels)
-      .filter(([_, checked]) => checked)
-      .map(([channel]) => channel);
+        .filter(([_, checked]) => checked)
+        .map(([channel]) => channel);
 
-    if (channels.length === 0) {
-      toast({
-        title: "Erreur",
-        description: "Veuillez sélectionner au moins un canal.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    let scheduleText = "maintenant";
-    if (scheduleOption === "d1") scheduleText = "demain (J+1)";
-    if (scheduleOption === "d2") scheduleText = "après-demain (J+2)";
-    if (scheduleOption === "h1") scheduleText = "dans 1 heure (H+1)";
-    if (scheduleOption === "h2") scheduleText = "dans 2 heures (H+2)";
-    if (scheduleOption === "custom") scheduleText = `le ${customDate}`;
+      if (channels.length === 0) {
+        toast({
+          title: "Erreur",
+          description: "Veuillez sélectionner au moins un canal.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      let scheduleText = "maintenant";
+      if (scheduleOption === 'd1') scheduleText = "demain (J+1)";
+      if (scheduleOption === 'd2') scheduleText = "après-demain (J+2)";
+      if (scheduleOption === 'h1') scheduleText = "dans 1 heure (H+1)";
+      if (scheduleOption === 'h2') scheduleText = "dans 2 heures (H+2)";
+      if (scheduleOption === 'custom') scheduleText = `le ${customDate}`;
 
     setReminderDialogOpen(false);
-
     const followUpLabel = !followUpEnabled
       ? null
-      : `${followUpSteps.length} relance${followUpSteps.length > 1 ? "s" : ""}`;
+      : `${followUpSteps.length} relance${followUpSteps.length > 1 ? 's' : ''}`;
 
     toast({
-      title: scheduleOption === "immediate" ? "Demande envoyée !" : "Relance programmée",
-      description: `La relance pour ${selectedEntries.length > 0 ? selectedEntries.length : selectedDocs.length > 0 ? selectedDocs.length : "les"} pièces ${scheduleOption === "immediate" ? "a été envoyée" : "sera envoyée " + scheduleText} via ${channels.join(", ")}.${followUpLabel ? ` Relance automatique prévue : ${followUpLabel}.` : ""}`,
-      className: "bg-green-600 text-white border-none",
+      title: scheduleOption === 'immediate' ? "Demande envoyée !" : "Relance programmée",
+      description: `La relance pour ${selectedEntries.length > 0 ? selectedEntries.length : (selectedDocs.length > 0 ? selectedDocs.length : 'les')} pièces ${scheduleOption === 'immediate' ? 'a été envoyée' : 'sera envoyée ' + scheduleText} via ${channels.join(', ')}.${followUpLabel ? ` Relance automatique prévue : ${followUpLabel}.` : ''}`,
+      className: "bg-green-600 text-white border-none"
     });
-
     setSelectedEntries([]);
     setSelectedDocs([]);
-    setSelectionMode("all");
+    setSelectionMode('all');
     setSelectionScope(null);
   };
 
@@ -418,19 +263,19 @@ export default function ClientDetail() {
     if (selectedDocs.length === pendingDocs.length) {
       setSelectedDocs([]);
     } else {
-      setSelectedDocs(pendingDocs.map((d) => d.id));
+      setSelectedDocs(pendingDocs.map(d => d.id));
     }
   };
 
   const toggleSelectAllEntriesInList = (entriesList: typeof entries) => {
-    const ids = entriesList.map((e) => e.id);
-    const allSelected = ids.every((id) => selectedEntries.includes(id));
-
+    const ids = entriesList.map(e => e.id);
+    const allSelected = ids.every(id => selectedEntries.includes(id));
+    
     if (allSelected) {
-      setSelectedEntries(selectedEntries.filter((id) => !ids.includes(id)));
+      setSelectedEntries(selectedEntries.filter(id => !ids.includes(id)));
     } else {
       const newSelected = [...selectedEntries];
-      ids.forEach((id) => {
+      ids.forEach(id => {
         if (!newSelected.includes(id)) {
           newSelected.push(id);
         }
@@ -441,7 +286,7 @@ export default function ClientDetail() {
 
   const toggleDocSelection = (docId: string) => {
     if (selectedDocs.includes(docId)) {
-      setSelectedDocs(selectedDocs.filter((id) => id !== docId));
+      setSelectedDocs(selectedDocs.filter(id => id !== docId));
     } else {
       setSelectedDocs([...selectedDocs, docId]);
     }
@@ -449,38 +294,31 @@ export default function ClientDetail() {
 
   const toggleEntrySelection = (id: string) => {
     if (selectedEntries.includes(id)) {
-      setSelectedEntries(selectedEntries.filter((e) => e !== id));
+      setSelectedEntries(selectedEntries.filter(e => e !== id));
     } else {
       setSelectedEntries([...selectedEntries, id]);
     }
   };
 
-  const selectByMode = (
-    scope: "all-av" | "achats" | "ventes",
-    mode: "all" | "lost" | "urgent",
-  ) => {
+  const selectByMode = (scope: 'all-av' | 'achats' | 'ventes', mode: 'all' | 'lost' | 'urgent') => {
     setSelectionScope(scope);
     setSelectionMode(mode);
 
-    const eligibleBase = filteredEntries.filter(
-      (e) => e.status === "missing_doc" && !ignoredEntries.includes(e.id),
-    );
+    const eligibleBase = filteredEntries.filter(e => e.status === 'missing_doc' && !ignoredEntries.includes(e.id));
 
-    const eligible = eligibleBase.filter((e) => {
-      if (scope === "achats") return e.journal === "ACH";
-      if (scope === "ventes") return e.journal === "VTE";
-      return e.journal === "ACH" || e.journal === "VTE";
+    const eligible = eligibleBase.filter(e => {
+      if (scope === 'achats') return e.journal === 'ACH';
+      if (scope === 'ventes') return e.journal === 'VTE';
+      return e.journal === 'ACH' || e.journal === 'VTE';
     });
 
-    if (mode === "all") {
-      setSelectedEntries(eligible.map((e) => e.id));
+    if (mode === 'all') {
+      setSelectedEntries(eligible.map(e => e.id));
       return;
     }
 
-    if (mode === "lost") {
-      const lostIds = eligible
-        .filter((e) => lostEntries.includes(e.id))
-        .map((e) => e.id);
+    if (mode === 'lost') {
+      const lostIds = eligible.filter(e => lostEntries.includes(e.id)).map(e => e.id);
       setSelectedEntries(lostIds);
 
       if (lostIds.length === 0) {
@@ -492,173 +330,654 @@ export default function ClientDetail() {
       return;
     }
 
-    setSelectedEntries(eligible.filter((e) => e.isUrgent).map((e) => e.id));
+    setSelectedEntries(eligible.filter(e => e.isUrgent).map(e => e.id));
   };
+
 
   const handleIgnoreEntry = (id: string) => {
     if (ignoredEntries.includes(id)) {
-      setIgnoredEntries(ignoredEntries.filter((e) => e !== id));
+      setIgnoredEntries(ignoredEntries.filter(e => e !== id));
       toast({
         title: "Écriture rétablie",
         description: "L'écriture a été réintégrée aux relances.",
       });
-      return;
-    }
-
-    setIgnoredEntries([...ignoredEntries, id]);
-    toast({
-      title: "Écriture ignorée",
-      description: "Cette écriture a été retirée de la liste.",
-    });
-  };
-
-  const handleToggleLost = (id: string) => {
-    if (lostEntries.includes(id)) {
-      setLostEntries(lostEntries.filter((e) => e !== id));
     } else {
-      setLostEntries([...lostEntries, id]);
+      setIgnoredEntries([...ignoredEntries, id]);
+      toast({
+        title: "Écriture ignorée",
+        description: "Cette écriture ne sera plus relancée.",
+      });
     }
   };
 
   const handleToggleUrgent = (id: string) => {
-    setEntries((prev) =>
-      prev.map((e) =>
-        e.id === id
-          ? {
-              ...e,
-              isUrgent: !e.isUrgent,
-            }
-          : e,
-      ),
-    );
+    setEntries(entries.map(e => {
+      if (e.id === id) {
+        return { ...e, isUrgent: !e.isUrgent };
+      }
+      return e;
+    }));
+    toast({
+      title: "Urgence mise à jour",
+      description: "Le statut d'urgence de l'écriture a été modifié.",
+    });
   };
 
-  const filteredJournalEntries = useMemo(() => {
-    const base = filteredEntries.filter((e) => e.status === "missing_doc");
-    if (journalFilter === "ALL") return base;
-    return base.filter((e) => e.journal === journalFilter);
-  }, [filteredEntries, journalFilter]);
+  const handleToggleLost = (id: string) => {
+    setLostEntries(prev => {
+      const next = prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id];
+      toast({
+        title: prev.includes(id) ? "Pièce retirée des perdues" : "Pièce déclarée perdue",
+        description: prev.includes(id)
+          ? "Cette pièce ne sera plus marquée comme perdue."
+          : "Cette pièce est maintenant marquée comme perdue.",
+      });
+      return next;
+    });
+  };
 
-  const toggleJournalEntrySelection = (id: string) => {
-    if (selectedJournalEntries.includes(id)) {
-      setSelectedJournalEntries(selectedJournalEntries.filter((e) => e !== id));
-    } else {
-      setSelectedJournalEntries([...selectedJournalEntries, id]);
+  const handleOpenComment = (id: string, currentComment?: string) => {
+    setEditingCommentId(id);
+    setTempComment(currentComment || "");
+  };
+
+  const handleSaveComment = () => {
+    if (editingCommentId) {
+      setEntries(entries.map(e => {
+        if (e.id === editingCommentId) {
+          return { ...e, comment: tempComment };
+        }
+        return e;
+      }));
+      setEditingCommentId(null);
+      setTempComment("");
+      toast({
+        title: "Commentaire ajouté",
+        description: "Le commentaire a été enregistré sur l'écriture.",
+      });
     }
   };
 
+  const handleSendEntryMessage = (entry: typeof entries[0], channel: 'email' | 'sms' | 'whatsapp') => {
+    const channelLabels = { email: 'Email', sms: 'SMS', whatsapp: 'WhatsApp' };
+    const amount = entry.amount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+    toast({
+      title: `${channelLabels[channel]} envoyé`,
+      description: `Relance envoyée pour l'écriture "${entry.label}" (${amount}).`,
+      className: "bg-green-600 text-white border-none"
+    });
+  };
+
+  const toggleJournalEntrySelection = (id: string) => {
+    setSelectedJournalEntries(prev => 
+      prev.includes(id) ? prev.filter(e => e !== id) : [...prev, id]
+    );
+  };
+
+  const filteredJournalEntries = filteredEntries.filter(e => journalFilter === 'ALL' || e.journal === journalFilter);
+  
   const toggleSelectAllJournalEntries = () => {
-    const ids = filteredJournalEntries.map((e) => e.id);
-    const allSelected = ids.every((id) => selectedJournalEntries.includes(id));
-    if (allSelected) {
-      setSelectedJournalEntries(
-        selectedJournalEntries.filter((id) => !ids.includes(id)),
-      );
+    if (selectedJournalEntries.length === filteredJournalEntries.length) {
+      setSelectedJournalEntries([]);
     } else {
-      setSelectedJournalEntries(Array.from(new Set([...selectedJournalEntries, ...ids])));
+      setSelectedJournalEntries(filteredJournalEntries.map(e => e.id));
     }
   };
 
   const handleSendJournalEntriesMessage = () => {
+    const channelLabels = { email: 'Email', sms: 'SMS', whatsapp: 'WhatsApp' };
     toast({
-      title: "Message prêt",
-      description: "Ce prototype simule l'envoi via le canal choisi.",
+      title: `${channelLabels[journalSelectedChannel]} envoyé`,
+      description: `Relance envoyée pour ${selectedJournalEntries.length} écriture(s).`,
+      className: "bg-green-600 text-white border-none"
     });
     setJournalChannelModalOpen(false);
     setSelectedJournalEntries([]);
   };
 
-  const handleOpenComment = (id: string, current: string) => {
-    setEditingCommentId(id);
-    setTempComment(current || "");
-  };
-
-  const handleSaveComment = () => {
-    if (!editingCommentId) return;
-    setEntries((prev) =>
-      prev.map((e) => (e.id === editingCommentId ? { ...e, comment: tempComment } : e)),
-    );
-    setEditingCommentId(null);
+  const handleBulkIgnore = () => {
+    setIgnoredEntries([...ignoredEntries, ...selectedEntries]);
+    setSelectedEntries([]);
+    toast({
+      title: "Écritures ignorées",
+      description: `${selectedEntries.length} écritures ont été ignorées.`,
+    });
   };
 
   return (
     <Layout>
-      <div className="max-w-7xl mx-auto px-6 py-10 space-y-10">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              className="rounded-xl"
-              onClick={() => history.back()}
-              data-testid="button-back"
-            >
-              <ArrowLeft className="h-5 w-5 mr-2" />
-              Retour
-            </Button>
-            <div>
-              <h1
-                className="text-3xl font-bold text-slate-900"
-                data-testid="text-client-company"
-              >
-                {client.company}
-              </h1>
-              <p className="text-sm text-slate-500" data-testid="text-client-email">
-                {client.email}
-              </p>
+      <div className="space-y-8">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={() => window.history.back()} className="dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-serif font-bold text-slate-900 dark:text-white flex items-center gap-3">
+              {client.company}
+              <Dialog>
+                  <DialogTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400">
+                        <Info className="h-5 w-5" />
+                      </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto rounded-3xl p-6 dark:bg-slate-900 dark:border-slate-800">
+                    <DialogHeader>
+                        <DialogTitle className="text-2xl font-bold text-slate-800 dark:text-white mb-4">Informations Client</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid gap-6 md:grid-cols-3">
+               {/* Client Identification */}
+               <Card className="md:col-span-1 border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] rounded-3xl h-fit dark:bg-slate-900 dark:border dark:border-slate-800">
+                 <CardHeader>
+                   <CardTitle className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                     <Building2 className="h-5 w-5 text-blue-500" />
+                     Identification
+                   </CardTitle>
+                 </CardHeader>
+                 <CardContent className="space-y-4">
+                   <div className="space-y-2">
+                     <Label className="dark:text-slate-300">Dénomination Sociale</Label>
+                     <Input defaultValue={client.company} className="rounded-xl border-slate-200 dark:bg-slate-950 dark:border-slate-800" />
+                   </div>
+                   <div className="space-y-2">
+                     <Label className="dark:text-slate-300">Forme Juridique</Label>
+                     <Input defaultValue={client.legalForm || 'SAS'} className="rounded-xl border-slate-200 dark:bg-slate-950 dark:border-slate-800" />
+                   </div>
+                   <div className="grid grid-cols-2 gap-4">
+                     <div className="space-y-2">
+                       <Label className="dark:text-slate-300">SIREN</Label>
+                       <Input defaultValue={client.siren} className="rounded-xl border-slate-200 dark:bg-slate-950 dark:border-slate-800" />
+                     </div>
+                     <div className="space-y-2">
+                       <Label className="dark:text-slate-300">Code APE</Label>
+                       <Input defaultValue={client.ape || '6201Z'} className="rounded-xl border-slate-200 dark:bg-slate-950 dark:border-slate-800" />
+                     </div>
+                   </div>
+                   <div className="space-y-2">
+                     <Label className="dark:text-slate-300">Date de création</Label>
+                     <Input type="date" defaultValue={client.creationDate || '2020-01-01'} className="rounded-xl border-slate-200 dark:bg-slate-950 dark:border-slate-800" />
+                   </div>
+                   <div className="space-y-2">
+                     <Label className="dark:text-slate-300">Adresse Siège</Label>
+                     <Textarea defaultValue={client.address || ''} className="rounded-xl border-slate-200 min-h-[80px] dark:bg-slate-950 dark:border-slate-800" />
+                   </div>
+                   
+                   {/* Status Toggles */}
+                   <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
+                     <div className="flex items-center justify-between">
+                       <div className="flex items-center gap-2">
+                         <div className={`w-3 h-3 rounded-full ${cooperates ? 'bg-green-500' : 'bg-red-500'}`} />
+                         <Label className="dark:text-slate-300">Client coopératif</Label>
+                       </div>
+                       <Switch 
+                         checked={cooperates}
+                         onCheckedChange={(checked) => {
+                           setCooperates(checked);
+                           toast({
+                             title: checked ? "Client coopératif" : "Client non coopératif",
+                             description: `Le statut de coopération a été mis à jour.`,
+                           });
+                         }}
+                       />
+                     </div>
+                     <div className="flex items-center justify-between">
+                       <div className="flex items-center gap-2">
+                         <AlertTriangle className={`h-4 w-4 ${underSurveillance ? 'text-amber-500' : 'text-slate-300'}`} />
+                         <Label className="dark:text-slate-300">En surveillance</Label>
+                       </div>
+                       <Switch 
+                         checked={underSurveillance}
+                         onCheckedChange={(checked) => {
+                           setUnderSurveillance(checked);
+                           toast({
+                             title: checked ? "Client en surveillance" : "Surveillance désactivée",
+                             description: `Le statut de surveillance a été mis à jour.`,
+                           });
+                         }}
+                       />
+                     </div>
+                   </div>
+
+                   {/* Custom Fields */}
+                   <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
+                     <Label className="dark:text-slate-300 font-semibold">Champs personnalisés</Label>
+                     {customFields.map((field, index) => (
+                       <div key={field.id} className="grid grid-cols-5 gap-2">
+                         <Input 
+                           value={field.label}
+                           onChange={(e) => setCustomFields(customFields.map(f => f.id === field.id ? {...f, label: e.target.value} : f))}
+                           placeholder="Libellé"
+                           className="col-span-2 rounded-xl border-slate-200 dark:bg-slate-950 dark:border-slate-800 text-xs"
+                         />
+                         <Input 
+                           value={field.value}
+                           onChange={(e) => setCustomFields(customFields.map(f => f.id === field.id ? {...f, value: e.target.value} : f))}
+                           placeholder="Valeur"
+                           className="col-span-3 rounded-xl border-slate-200 dark:bg-slate-950 dark:border-slate-800 text-xs"
+                         />
+                       </div>
+                     ))}
+                     <Button 
+                       variant="outline" 
+                       size="sm"
+                       className="w-full rounded-xl border-dashed border-slate-300 dark:border-slate-700 text-slate-500 hover:text-slate-700 dark:text-slate-400"
+                       onClick={() => setCustomFields([...customFields, { id: Date.now().toString(), label: '', value: '' }])}
+                     >
+                       <Plus className="h-4 w-4 mr-2" /> Ajouter un champ
+                     </Button>
+                   </div>
+
+                   <Button className="w-full rounded-xl bg-slate-900 text-white hover:bg-slate-800 mt-2 dark:bg-blue-600 dark:hover:bg-blue-700">
+                      <Save className="h-4 w-4 mr-2" /> Enregistrer
+                   </Button>
+                 </CardContent>
+               </Card>
+
+               {/* Contacts */}
+               <div className="md:col-span-2 space-y-6">
+                 {clientContacts.length === 0 ? (
+                    <div className="text-center p-8 bg-white rounded-3xl border border-slate-100 shadow-sm dark:bg-slate-900 dark:border-slate-800">
+                        <User className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+                        <h3 className="text-lg font-medium text-slate-900 dark:text-white">Aucun contact</h3>
+                        <p className="text-slate-500 mb-4 dark:text-slate-400">Ajoutez des contacts pour ce dossier.</p>
+                        <Button variant="outline" onClick={() => setClientContacts([...clientContacts, { id: Date.now().toString(), name: '', role: '', email: '', phone: '', isPrimary: false, preferredChannels: ['email'] }])}>
+                            Ajouter un contact
+                        </Button>
+                    </div>
+                 ) : (
+                    clientContacts.map((contact, index) => (
+                     <Card key={contact.id} className={`border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] rounded-3xl relative group dark:bg-slate-900 dark:border dark:border-slate-800 ${!contact.active ? 'opacity-60 grayscale' : ''}`}>
+                     <div className="absolute top-4 right-4 flex items-center gap-2">
+                       <div className="flex items-center space-x-2">
+                         <Label htmlFor={`active-${contact.id}`} className="text-xs text-slate-500 dark:text-slate-400">Actif</Label>
+                         <Switch 
+                           id={`active-${contact.id}`}
+                           checked={contact.active !== false}
+                           onCheckedChange={(checked) => {
+                             setClientContacts(clientContacts.map(c => 
+                               c.id === contact.id ? { ...c, active: checked } : c
+                             ));
+                             toast({
+                               title: checked ? "Contact activé" : "Contact désactivé",
+                               description: `Le contact ${contact.name} a été ${checked ? 'activé' : 'désactivé'}.`
+                             });
+                           }}
+                         />
+                       </div>
+                       <Button 
+                         variant="ghost" 
+                         size="icon" 
+                         className="text-slate-400 hover:text-red-500 rounded-xl"
+                         onClick={() => setClientContacts(clientContacts.filter(c => c.id !== contact.id))}
+                       >
+                         <Trash2 className="h-4 w-4" />
+                       </Button>
+                     </div>
+                     <CardHeader>
+                       <CardTitle className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                         <User className={`h-5 w-5 ${contact.isPrimary ? 'text-blue-500' : 'text-slate-400'}`} />
+                         {contact.name || 'Nouveau contact'} {contact.isPrimary && <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-none ml-2 dark:bg-blue-900/30 dark:text-blue-400">Principal</Badge>}
+                       </CardTitle>
+                     </CardHeader>
+                     <CardContent>
+                       <div className="grid md:grid-cols-2 gap-4">
+                         <div className="space-y-2">
+                           <Label className="dark:text-slate-300">Nom / Prénom</Label>
+                           <Input defaultValue={contact.name} className="rounded-xl border-slate-200 dark:bg-slate-950 dark:border-slate-800" />
+                         </div>
+                         <div className="space-y-2">
+                           <Label className="dark:text-slate-300">Fonction</Label>
+                           <Input defaultValue={contact.role} className="rounded-xl border-slate-200 dark:bg-slate-950 dark:border-slate-800" />
+                         </div>
+                         <div className="space-y-2">
+                           <Label className="dark:text-slate-300">Email</Label>
+                           <div className="relative">
+                             <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                             <Input defaultValue={contact.email} className="pl-10 rounded-xl border-slate-200 dark:bg-slate-950 dark:border-slate-800" />
+                           </div>
+                         </div>
+                         <div className="space-y-2">
+                           <Label className="dark:text-slate-300">Téléphone</Label>
+                           <div className="relative">
+                             <Phone className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                             <Input defaultValue={contact.phone} className="pl-10 rounded-xl border-slate-200 dark:bg-slate-950 dark:border-slate-800" />
+                           </div>
+                         </div>
+                         <div className="md:col-span-2 space-y-2">
+                           <Label className="dark:text-slate-300">Canaux préférés (2 max)</Label>
+                          <div className="flex gap-4">
+                            <Button 
+                                variant="outline" 
+                                className={`flex-1 rounded-xl transition-all ${contact.preferredChannels?.includes('email') ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-500'}`}
+                                onClick={() => {
+                                    const current = contact.preferredChannels || [];
+                                    let updated: ('email' | 'phone' | 'whatsapp')[];
+                                    if (current.includes('email')) {
+                                        updated = current.filter(c => c !== 'email');
+                                    } else {
+                                        if (current.length >= 2) return;
+                                        updated = [...current, 'email'] as ('email' | 'phone' | 'whatsapp')[];
+                                    }
+                                    setClientContacts(clientContacts.map(c => c.id === contact.id ? { ...c, preferredChannels: updated } : c));
+                                }}
+                            >
+                                <Mail className="w-4 h-4 mr-2" /> Email
+                            </Button>
+                            <Button 
+                                variant="outline" 
+                                className={`flex-1 rounded-xl transition-all ${contact.preferredChannels?.includes('phone') ? 'border-purple-500 bg-purple-50 text-purple-700' : 'border-slate-200 text-slate-500'}`}
+                                onClick={() => {
+                                    const current = contact.preferredChannels || [];
+                                    let updated: ('email' | 'phone' | 'whatsapp')[];
+                                    if (current.includes('phone')) {
+                                        updated = current.filter(c => c !== 'phone');
+                                    } else {
+                                        if (current.length >= 2) return;
+                                        updated = [...current, 'phone'] as ('email' | 'phone' | 'whatsapp')[];
+                                    }
+                                    setClientContacts(clientContacts.map(c => c.id === contact.id ? { ...c, preferredChannels: updated } : c));
+                                }}
+                            >
+                                <Phone className="w-4 h-4 mr-2" /> SMS
+                            </Button>
+                            <Button 
+                                variant="outline" 
+                                className={`flex-1 rounded-xl transition-all ${contact.preferredChannels?.includes('whatsapp') ? 'border-green-500 bg-green-50 text-green-700' : 'border-slate-200 text-slate-500'}`}
+                                onClick={() => {
+                                    const current = contact.preferredChannels || [];
+                                    let updated: ('email' | 'phone' | 'whatsapp')[];
+                                    if (current.includes('whatsapp')) {
+                                        updated = current.filter(c => c !== 'whatsapp');
+                                    } else {
+                                        if (current.length >= 2) return;
+                                        updated = [...current, 'whatsapp'] as ('email' | 'phone' | 'whatsapp')[];
+                                    }
+                                    setClientContacts(clientContacts.map(c => c.id === contact.id ? { ...c, preferredChannels: updated } : c));
+                                }}
+                            >
+                                <Send className="w-4 h-4 mr-2" /> WhatsApp
+                            </Button>
+                          </div>
+                           <p className="text-xs text-slate-400 mt-1">Sélectionnez jusqu'à 2 canaux de communication privilégiés.</p>
+                         </div>
+                       </div>
+                     </CardContent>
+                   </Card>
+                 )))}
+                 
+                 <Button variant="outline" className="w-full rounded-2xl border-dashed border-2 border-slate-200 py-8 hover:bg-slate-50 hover:border-slate-300 text-slate-500 gap-2 dark:border-slate-700 dark:hover:bg-slate-800" 
+                    onClick={() => setClientContacts([...clientContacts, { id: Date.now().toString(), name: '', role: '', email: '', phone: '', isPrimary: false, preferredChannels: ['email'], active: true }])}
+                 >
+                   <Plus className="h-5 w-5" /> Ajouter un autre contact
+                 </Button>
+               </div>
+             </div>
+                  </DialogContent>
+              </Dialog>
+            </h1>
+            <div className="flex flex-wrap items-center gap-4 mt-2 text-slate-500 dark:text-slate-400 text-sm">
+              <span className="flex items-center gap-1"><User className="h-4 w-4" /> {client.name}</span>
+              <span className="flex items-center gap-1"><Mail className="h-4 w-4" /> {client.email}</span>
+              <span className="flex items-center gap-1"><Phone className="h-4 w-4" /> {client.phone}</span>
+              <span className="flex items-center gap-1 border-l border-slate-300 dark:border-slate-700 pl-4"><Building2 className="h-4 w-4" /> SIREN : {client.siren}</span>
+              {clientContacts.slice(1).map(contact => (
+                <span key={contact.id} className="flex items-center gap-1 border-l border-slate-300 dark:border-slate-700 pl-4">
+                   <Badge variant="secondary" className="font-normal bg-slate-50 text-slate-700 hover:bg-slate-100 border-none dark:bg-slate-800 dark:text-slate-300">
+                      {contact.role || 'Contact'} : {contact.name}
+                   </Badge>
+                </span>
+              ))}
             </div>
+          </div>
+          <div className="ml-auto flex gap-3">
+             <Button variant="destructive" className="bg-red-50 text-red-600 hover:bg-red-100 border-red-200 border shadow-none dark:bg-red-900/20 dark:text-red-400 dark:border-red-900/50 dark:hover:bg-red-900/40" onClick={() => {
+                 toast({
+                     title: "Données supprimées",
+                     description: "Les données du client ont été supprimées conformément au RGPD.",
+                 });
+             }}>
+                Supprimer (RGPD)
+             </Button>
+            <Button className="bg-slate-900 text-white hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700" onClick={handleOpenReminderDialog}>
+              <Send className="h-4 w-4 mr-2" />
+              Relancer le client
+            </Button>
           </div>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="bg-white border border-slate-100 rounded-2xl p-1">
-            <TabsTrigger value="overview" className="rounded-xl" data-testid="tab-overview">
-              Vue d'ensemble
-            </TabsTrigger>
-            <TabsTrigger value="achats-ventes" className="rounded-xl" data-testid="tab-achats-ventes">
-              Achats & Ventes
-            </TabsTrigger>
-            <TabsTrigger value="journaux" className="rounded-xl" data-testid="tab-journaux">
-              Journaux
-            </TabsTrigger>
-            <TabsTrigger value="encaissements" className="rounded-xl" data-testid="tab-encaissements">
-              Enc / Déc
-            </TabsTrigger>
-            <TabsTrigger value="emails" className="rounded-xl" data-testid="tab-emails">
-              Emails
+        {/* Notes Section */}
+        <Card className="border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] rounded-3xl dark:bg-slate-900 dark:border dark:border-slate-800 max-w-2xl">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-1">
+                <CardTitle className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-amber-500" />
+                  Notes internes
+                </CardTitle>
+                <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                  <span>{new Date().toLocaleDateString('fr-FR')}</span>
+                  <span className="text-slate-300 dark:text-slate-600">•</span>
+                  <span className="font-semibold text-slate-700 dark:text-slate-200">
+                    {(() => {
+                      const missing = filteredEntries.filter(e => e.status === 'missing_doc');
+
+                      const achatsVentesTotal = missing
+                        .filter(e => e.journal === 'ACH' || e.journal === 'VTE')
+                        .reduce((sum, e) => sum + e.amount, 0);
+
+                      const encDecTotal = missing
+                        .filter(e => e.journal === 'BQ')
+                        .reduce((sum, e) => sum + e.amount, 0);
+
+                      const journauxTotal = missing.reduce((sum, e) => sum + e.amount, 0);
+
+                      if (activeTab === 'emails') {
+                        return `AV ${achatsVentesTotal.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })} • Enc/Déc ${encDecTotal.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })} • Journaux ${journauxTotal.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}`;
+                      }
+
+                      // Vision-dependent totals
+                      if (activeTab === 'achats-ventes') return achatsVentesTotal.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+                      if (activeTab === 'encaissements') return encDecTotal.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+                      if (activeTab === 'journaux') return journauxTotal.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+
+                      // Default (Synthèse and others): global missing total
+                      return journauxTotal.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+                    })()}
+                  </span>
+                  <span className="text-slate-300 dark:text-slate-600">•</span>
+                  <span>
+                    {activeTab === 'emails'
+                      ? 'Totaux non lettrés'
+                      : activeTab === 'achats-ventes'
+                        ? 'Total factures non lettrées'
+                        : activeTab === 'encaissements'
+                          ? 'Total paiements non lettrés'
+                          : activeTab === 'journaux'
+                            ? 'Total écritures non lettrées'
+                            : 'Total écritures non lettrées'}
+                  </span>
+                </div>
+              </div>
+              {!isEditingNotes ? (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="rounded-xl border-slate-200 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                  onClick={() => {
+                    setTempNotes(clientNotes);
+                    setIsEditingNotes(true);
+                  }}
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  Modifier
+                </Button>
+              ) : (
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="rounded-xl border-slate-200 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                    onClick={() => {
+                      setIsEditingNotes(false);
+                      setTempNotes("");
+                    }}
+                  >
+                    Annuler
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    className="rounded-xl bg-slate-900 text-white hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700"
+                    onClick={() => {
+                      setClientNotes(tempNotes);
+                      setIsEditingNotes(false);
+                      toast({
+                        title: "Notes enregistrées",
+                        description: "Les notes ont été mises à jour avec succès.",
+                        className: "bg-green-600 text-white border-none"
+                      });
+                    }}
+                  >
+                    <Save className="h-4 w-4 mr-2" />
+                    Enregistrer
+                  </Button>
+                </div>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent>
+            {isEditingNotes ? (
+              <Textarea 
+                value={tempNotes}
+                onChange={(e) => setTempNotes(e.target.value)}
+                placeholder="Ajoutez des notes internes sur ce client (informations importantes, rappels, historique des échanges...)"
+                className="min-h-[120px] rounded-xl border-slate-200 dark:bg-slate-950 dark:border-slate-800 dark:text-white resize-none"
+              />
+            ) : (
+              <div className="min-h-[60px]">
+                {clientNotes ? (
+                  <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{clientNotes}</p>
+                ) : (
+                  <p className="text-slate-400 dark:text-slate-500 italic">Aucune note pour ce client. Cliquez sur "Modifier" pour en ajouter.</p>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Global Filters */}
+        <div className="flex flex-col items-end gap-2 ml-auto mb-4 w-fit">
+            <div className="flex items-center justify-end gap-2 bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-100 dark:bg-slate-900 dark:border-slate-800">
+                {ignoredEntries.length > 0 && (
+                  <>
+                    <Button
+                      variant={showIgnored ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setShowIgnored(!showIgnored)}
+                      className={`h-8 px-3 text-xs font-medium border-slate-200 dark:border-slate-700 ${showIgnored ? "bg-slate-900 text-white hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700" : "text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"}`}
+                    >
+                      IGN <span className="ml-1.5 bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300 px-1.5 py-0.5 rounded-full text-[10px]">{ignoredEntries.length}</span>
+                    </Button>
+                    <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-2" />
+                  </>
+                )}
+                <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Montant min. :</span>
+                <div className="relative w-24">
+                  <Input 
+                    type="number" 
+                    value={minAmount} 
+                    onChange={(e) => setMinAmount(Number(e.target.value))}
+                    className="h-8 rounded-lg pl-6 pr-2 text-right border-slate-200 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                    placeholder="0"
+                  />
+                  <span className="absolute left-2 top-1.5 text-slate-400 text-xs">€</span>
+                </div>
+            </div>
+            {selectedEntries.length > 0 && (
+              <div className="flex items-center gap-1 self-start mr-auto">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleBulkIgnore} 
+                  className="text-slate-400 hover:text-red-600 dark:hover:text-red-400 h-6 px-2 text-xs"
+                >
+                  <EyeOff className="h-3 w-3 mr-1.5" />
+                  Ignorer
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setSelectedEntries([])} 
+                  className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 h-6 px-2 text-xs"
+                >
+                  <RotateCcw className="h-3 w-3 mr-1.5" />
+                  Décocher
+                </Button>
+              </div>
+            )}
+        </div>
+
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-5 rounded-2xl p-1 bg-white border border-slate-200 shadow-sm mb-6 dark:bg-slate-900 dark:border-slate-800">
+            <TabsTrigger value="synthesis" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900/20 dark:data-[state=active]:text-blue-400 dark:text-slate-400">Synthèse</TabsTrigger>
+            <TabsTrigger value="achats-ventes" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900/20 dark:data-[state=active]:text-blue-400 dark:text-slate-400">Achats / Ventes</TabsTrigger>
+            <TabsTrigger value="journaux" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900/20 dark:data-[state=active]:text-blue-400 dark:text-slate-400">Journaux</TabsTrigger>
+            <TabsTrigger value="encaissements" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900/20 dark:data-[state=active]:text-blue-400 dark:text-slate-400">Enc. / Déc.</TabsTrigger>
+            <TabsTrigger value="emails" className="rounded-xl data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900/20 dark:data-[state=active]:text-blue-400 dark:text-slate-400 flex items-center gap-1.5">
+              <Mail className="h-4 w-4" />
+              E-mails
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="space-y-8">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 space-y-6">
+
+          <TabsContent value="synthesis" className="space-y-8">
+            <div className="grid grid-cols-3 gap-8">
+              <div className="col-span-2 space-y-6">
                 <Card className="border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] rounded-3xl">
                   <CardHeader>
                     <CardTitle>Documents</CardTitle>
-                    <CardDescription>Pièces manquantes et reçues</CardDescription>
+                    <CardDescription>Gérez l'état des pièces comptables attendues.</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <Tabs defaultValue="missing">
-                      <TabsList className="bg-slate-50 rounded-2xl p-1">
-                        <TabsTrigger value="missing" className="rounded-xl">
-                          Manquants
+                    <Tabs defaultValue="missing" className="w-full">
+                      <TabsList className="mb-4 bg-slate-50 rounded-xl p-1">
+                        <TabsTrigger value="missing" className="gap-2 rounded-lg">
+                          Manquants <Badge variant="secondary" className="bg-orange-100 text-orange-800 ml-1">{pendingDocs.length}</Badge>
                         </TabsTrigger>
-                        <TabsTrigger value="all" className="rounded-xl">
-                          Tous
-                        </TabsTrigger>
+                        <TabsTrigger value="all" className="rounded-lg">Tous les documents</TabsTrigger>
                       </TabsList>
-
+                      
                       <TabsContent value="missing" className="space-y-4">
-                        {pendingDocs.length === 0 ? (
-                          <p className="text-sm text-slate-500">Aucun document manquant.</p>
+                      <div className="flex justify-end mb-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={toggleSelectAllDocs}
+                          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                        >
+                          <CheckSquare className="h-4 w-4 mr-2" />
+                          {selectedDocs.length === pendingDocs.length && pendingDocs.length > 0 ? "Tout désélectionner" : "Tout sélectionner"}
+                        </Button>
+                      </div>
+                      {pendingDocs.length === 0 ? (
+                          <div className="text-center py-8 text-slate-500">
+                            <CheckCircle2 className="h-12 w-12 mx-auto text-green-500 mb-2" />
+                            <p>Tout est à jour ! Aucun document manquant.</p>
+                          </div>
                         ) : (
-                          pendingDocs.map((doc) => (
-                            <div
-                              key={doc.id}
-                              className="flex items-center p-4 border border-slate-100 rounded-xl bg-white shadow-sm"
-                            >
+                          pendingDocs.map(doc => (
+                            <div key={doc.id} className="flex items-center p-4 border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors bg-white shadow-sm">
+                              <Checkbox 
+                                checked={selectedDocs.includes(doc.id)}
+                                onCheckedChange={() => toggleDocSelection(doc.id)}
+                                className="mr-4 rounded-md"
+                              />
                               <div className="flex-1">
-                                <h4 className="font-medium text-slate-900">{doc.name}</h4>
-                                <p className="text-sm text-slate-500">{doc.type}</p>
+                                <div className="flex items-center gap-2">
+                                  <h4 className="font-medium text-slate-900">{doc.name}</h4>
+                                  <Badge variant="outline" className="text-xs font-normal bg-slate-50">Compte {doc.accountCode}</Badge>
+                                </div>
+                                <p className="text-sm text-slate-500 mt-1">
+                                  Échéance : {new Date(doc.dueDate).toLocaleDateString('fr-FR')} • {doc.type}
+                                </p>
                               </div>
                               <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-200 border-none px-3 py-1">
                                 En retard
@@ -667,28 +986,18 @@ export default function ClientDetail() {
                           ))
                         )}
                       </TabsContent>
-
+                      
                       <TabsContent value="all" className="space-y-4">
-                        {documents.map((doc) => (
-                          <div
-                            key={doc.id}
-                            className="flex items-center p-4 border border-slate-100 rounded-xl bg-white shadow-sm"
-                          >
-                            <div className="flex-1">
-                              <h4 className="font-medium text-slate-900">{doc.name}</h4>
-                              <p className="text-sm text-slate-500">{doc.type}</p>
+                        {documents.map(doc => (
+                           <div key={doc.id} className="flex items-center p-4 border border-slate-100 rounded-xl bg-white shadow-sm">
+                              <div className="flex-1">
+                                <h4 className="font-medium text-slate-900">{doc.name}</h4>
+                                <p className="text-sm text-slate-500">{doc.type}</p>
+                              </div>
+                              <Badge variant={doc.status === 'missing' ? 'destructive' : 'secondary'} className={doc.status === 'missing' ? 'bg-orange-100 text-orange-700 hover:bg-orange-200 border-none' : 'bg-green-100 text-green-700 hover:bg-green-200 border-none'}>
+                                {doc.status === 'missing' ? 'Manquant' : 'Reçu'}
+                              </Badge>
                             </div>
-                            <Badge
-                              variant={doc.status === "missing" ? "destructive" : "secondary"}
-                              className={
-                                doc.status === "missing"
-                                  ? "bg-orange-100 text-orange-700 hover:bg-orange-200 border-none"
-                                  : "bg-green-100 text-green-700 hover:bg-green-200 border-none"
-                              }
-                            >
-                              {doc.status === "missing" ? "Manquant" : "Reçu"}
-                            </Badge>
-                          </div>
                         ))}
                       </TabsContent>
                     </Tabs>
@@ -706,48 +1015,39 @@ export default function ClientDetail() {
                         variant="outline"
                         className="rounded-xl"
                         onClick={() => {
-                          const rows = reminders.map((r) => {
+                          const rows = reminders.map(r => {
                             const date = new Date(r.date);
                             return {
-                              date: date.toLocaleDateString("fr-FR"),
-                              heure: date.toLocaleTimeString("fr-FR", {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              }),
-                              sujet: (r.subject || "").replace(/\n/g, " "),
+                              date: date.toLocaleDateString('fr-FR'),
+                              heure: date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+                              sujet: (r.subject || '').replace(/\n/g, ' '),
                               statut: r.status,
-                              canaux: (r.channels?.join(", ") || r.type || "").toString(),
+                              canaux: (r.channels?.join(', ') || r.type || '').toString()
                             };
                           });
 
-                          const header = ["date", "heure", "sujet", "statut", "canaux"];
+                          const header = ['date', 'heure', 'sujet', 'statut', 'canaux'];
                           const csv = [
-                            header.join(";"),
-                            ...rows.map((row) =>
-                              header
-                                .map((h) => {
-                                  const v = String((row as any)[h] ?? "");
-                                  return `\"${v.replace(/\"/g, '\"\"')}\"`;
-                                })
-                                .join(";"),
-                            ),
-                          ].join("\n");
+                            header.join(';'),
+                            ...rows.map(row => header.map(h => {
+                              const v = String((row as any)[h] ?? '');
+                              return `\"${v.replace(/\"/g, '\"\"')}\"`;
+                            }).join(';'))
+                          ].join('\n');
 
-                          const blob = new Blob([csv], {
-                            type: "text/csv;charset=utf-8;",
-                          });
+                          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
                           const url = URL.createObjectURL(blob);
-                          const link = document.createElement("a");
+                          const link = document.createElement('a');
                           link.href = url;
-                          link.download = `historique-relances-${client.company.toLowerCase().replace(/\s+/g, "-")}.csv`;
+                          link.download = `historique-relances-${client.company.toLowerCase().replace(/\s+/g, '-')}.csv`;
                           document.body.appendChild(link);
                           link.click();
                           link.remove();
                           URL.revokeObjectURL(url);
 
                           toast({
-                            title: "Export prêt",
-                            description: `Historique exporté (${reminders.length} relance${reminders.length > 1 ? "s" : ""}).`,
+                            title: 'Export prêt',
+                            description: `Historique exporté (${reminders.length} relance${reminders.length > 1 ? 's' : ''}).`,
                           });
                         }}
                         data-testid="button-export-reminders"
@@ -771,42 +1071,10 @@ export default function ClientDetail() {
                                 {reminder.subject}
                               </span>
                               <span className="text-xs text-slate-500">
-                                {new Date(reminder.date).toLocaleDateString("fr-FR", {
-                                  day: "2-digit",
-                                  month: "2-digit",
-                                  year: "numeric",
-                                })}{" "}
-                                •{" "}
-                                {new Date(reminder.date).toLocaleTimeString("fr-FR", {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}{" "}
-                                • Via{" "}
-                                {reminder.channels
-                                  ?.map((c: string) =>
-                                    c.charAt(0).toUpperCase() + c.slice(1),
-                                  )
-                                  .join(", ") || reminder.type}
+                                {new Date(reminder.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })} • {new Date(reminder.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} • Via {reminder.channels?.map(c => c.charAt(0).toUpperCase() + c.slice(1)).join(', ') || reminder.type}
                               </span>
-                              <Badge
-                                variant="outline"
-                                className={`w-fit text-[10px] px-1.5 py-0 h-5 border-slate-200 ${
-                                  reminder.status === "opened"
-                                    ? "bg-green-50 text-green-700 border-green-200"
-                                    : reminder.status === "sent"
-                                      ? "bg-blue-50 text-blue-700 border-blue-200"
-                                      : reminder.status === "failed"
-                                        ? "bg-red-50 text-red-700 border-red-200"
-                                        : ""
-                                }`}
-                              >
-                                {reminder.status === "opened"
-                                  ? "Ouvert"
-                                  : reminder.status === "sent"
-                                    ? "En cours"
-                                    : reminder.status === "failed"
-                                      ? "Échec"
-                                      : reminder.status}
+                              <Badge variant="outline" className={`w-fit text-[10px] px-1.5 py-0 h-5 border-slate-200 ${reminder.status === 'opened' ? 'bg-green-50 text-green-700 border-green-200' : reminder.status === 'sent' ? 'bg-blue-50 text-blue-700 border-blue-200' : reminder.status === 'failed' ? 'bg-red-50 text-red-700 border-red-200' : ''}`}>
+                                {reminder.status === 'opened' ? 'Ouvert' : reminder.status === 'sent' ? 'En cours' : reminder.status === 'failed' ? 'Échec' : reminder.status}
                               </Badge>
                             </div>
                           </div>
@@ -819,31 +1087,20 @@ export default function ClientDetail() {
             </div>
           </TabsContent>
 
-          <TabsContent
-            value="achats-ventes"
-            className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500"
-          >
+          <TabsContent value="achats-ventes" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex items-center justify-end">
               <Button
                 size="sm"
-                variant={
-                  selectionScope === "all-av" && selectionMode === "all"
-                    ? "default"
-                    : "outline"
-                }
-                className={`rounded-xl ${
-                  selectionScope === "all-av" && selectionMode === "all"
-                    ? "bg-slate-900 text-white hover:bg-slate-800"
-                    : "bg-white hover:bg-slate-50"
-                }`}
-                onClick={() => selectByMode("all-av", "all")}
+                variant={selectionScope === 'all-av' && selectionMode === 'all' ? "default" : "outline"}
+                className={`rounded-xl ${selectionScope === 'all-av' && selectionMode === 'all' ? 'bg-slate-900 text-white hover:bg-slate-800' : 'bg-white hover:bg-slate-50'}`}
+                onClick={() => selectByMode('all-av', 'all')}
                 data-testid="button-select-all-av"
               >
                 Tout sélectionner HA + VT
               </Button>
             </div>
-
             <div className="space-y-8">
+              {/* ACHATS */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
@@ -853,164 +1110,72 @@ export default function ClientDetail() {
                   <div className="flex items-center gap-2">
                     <Button
                       size="sm"
-                      variant={
-                        selectionScope === "achats" && selectionMode === "all"
-                          ? "default"
-                          : "outline"
-                      }
-                      className={`rounded-xl ${
-                        selectionScope === "achats" && selectionMode === "all"
-                          ? "bg-blue-600 text-white hover:bg-blue-700 border-blue-600"
-                          : "bg-white hover:bg-slate-50 text-blue-700 border-blue-200"
-                      }`}
-                      onClick={() => selectByMode("achats", "all")}
+                      variant={selectionScope === 'achats' && selectionMode === 'all' ? "default" : "outline"}
+                      className={`rounded-xl ${selectionScope === 'achats' && selectionMode === 'all' ? 'bg-blue-600 text-white hover:bg-blue-700 border-blue-600' : 'bg-white hover:bg-slate-50 text-blue-700 border-blue-200'}`}
+                      onClick={() => selectByMode('achats', 'all')}
                       data-testid="button-select-achats-all"
                     >
                       Tout sélectionner
                     </Button>
                     <Button
                       size="sm"
-                      variant={
-                        selectionScope === "achats" && selectionMode === "lost"
-                          ? "default"
-                          : "outline"
-                      }
-                      className={`rounded-xl ${
-                        selectionScope === "achats" && selectionMode === "lost"
-                          ? "bg-amber-600 text-white hover:bg-amber-700 border-amber-600"
-                          : "bg-white hover:bg-amber-50 text-amber-800 border-amber-200"
-                      }`}
-                      onClick={() => selectByMode("achats", "lost")}
+                      variant={selectionScope === 'achats' && selectionMode === 'lost' ? "default" : "outline"}
+                      className={`rounded-xl ${selectionScope === 'achats' && selectionMode === 'lost' ? 'bg-amber-600 text-white hover:bg-amber-700 border-amber-600' : 'bg-white hover:bg-amber-50 text-amber-800 border-amber-200'}`}
+                      onClick={() => selectByMode('achats', 'lost')}
                       data-testid="button-select-achats-lost"
                     >
                       Perdues uniquement
                     </Button>
                     <Button
                       size="sm"
-                      variant={
-                        selectionScope === "achats" && selectionMode === "urgent"
-                          ? "default"
-                          : "outline"
-                      }
-                      className={`rounded-xl ${
-                        selectionScope === "achats" && selectionMode === "urgent"
-                          ? "bg-red-600 text-white hover:bg-red-700 border-red-600"
-                          : "bg-white hover:bg-red-50 text-red-700 border-red-200"
-                      }`}
-                      onClick={() => selectByMode("achats", "urgent")}
+                      variant={selectionScope === 'achats' && selectionMode === 'urgent' ? "default" : "outline"}
+                      className={`rounded-xl ${selectionScope === 'achats' && selectionMode === 'urgent' ? 'bg-red-600 text-white hover:bg-red-700 border-red-600' : 'bg-white hover:bg-red-50 text-red-700 border-red-200'}`}
+                      onClick={() => selectByMode('achats', 'urgent')}
                       data-testid="button-select-achats-urgent"
                     >
                       Urgentes uniquement
                     </Button>
                   </div>
                 </div>
-
                 <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_2px_20px_rgba(0,0,0,0.02)] overflow-hidden">
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
+                        <TableHead className="w-[150px] font-bold text-slate-600">N° de compte aux</TableHead>
+                        <TableHead className="font-bold text-slate-600">Libellé compte</TableHead>
+                        <TableHead className="text-center font-bold text-slate-600">Justificatifs manquants</TableHead>
+                        <TableHead className="text-right font-bold text-slate-600 pr-8">Montant Total</TableHead>
                         <TableHead className="w-[50px]"></TableHead>
-                        <TableHead className="font-bold text-slate-600">
-                          Date
-                        </TableHead>
-                        <TableHead className="font-bold text-slate-600">
-                          Libellé
-                        </TableHead>
-                        <TableHead className="text-right font-bold text-slate-600">
-                          Montant
-                        </TableHead>
-                        <TableHead className="text-right font-bold text-slate-600 pr-6">
-                          Actions
-                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {purchases
-                        .filter((e) => e.status === "missing_doc")
-                        .map((entry) => (
-                          <TableRow
-                            key={entry.id}
-                            className={`border-slate-50 transition-colors ${
-                              lostEntries.includes(entry.id)
-                                ? "bg-amber-50"
-                                : entry.isUrgent
-                                  ? "bg-red-50"
-                                  : "hover:bg-slate-50"
-                            }`}
-                          >
-                            <TableCell className="pl-4">
-                              <Checkbox
-                                checked={selectedEntries.includes(entry.id)}
-                                onCheckedChange={() => toggleEntrySelection(entry.id)}
-                                data-testid={`checkbox-entry-${entry.id}`}
-                              />
-                            </TableCell>
-                            <TableCell className="text-slate-600">
-                              {new Date(entry.date).toLocaleDateString("fr-FR")}
-                            </TableCell>
-                            <TableCell className="font-medium text-slate-900">
-                              {entry.label}
-                            </TableCell>
-                            <TableCell className="text-right font-medium text-slate-700">
-                              {entry.amount.toLocaleString("fr-FR", {
-                                style: "currency",
-                                currency: "EUR",
-                              })}
-                            </TableCell>
-                            <TableCell className="text-right pr-6">
-                              <div className="flex items-center justify-end gap-2">
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className={`h-8 w-8 rounded-lg ${
-                                    entry.isUrgent
-                                      ? "text-red-600 bg-red-100 border-red-200 border"
-                                      : "text-slate-300 hover:text-red-600 hover:bg-red-50"
-                                  }`}
-                                  onClick={() => handleToggleUrgent(entry.id)}
-                                  data-testid={`button-urgent-entry-${entry.id}`}
-                                >
-                                  <AlertTriangle className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className={`h-8 px-2 rounded-lg border ${
-                                    lostEntries.includes(entry.id)
-                                      ? "text-amber-800 bg-amber-100 border-amber-200 hover:bg-amber-200"
-                                      : "text-slate-500 border-slate-200 hover:text-amber-700 hover:bg-amber-50"
-                                  }`}
-                                  onClick={() => handleToggleLost(entry.id)}
-                                  data-testid={`button-lost-entry-${entry.id}`}
-                                >
-                                  Perdu
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className={`h-8 w-8 rounded-lg ${
-                                    ignoredEntries.includes(entry.id)
-                                      ? "text-blue-500 hover:text-blue-700 hover:bg-blue-50"
-                                      : "text-slate-300 hover:text-slate-600 hover:bg-slate-100"
-                                  }`}
-                                  onClick={() => handleIgnoreEntry(entry.id)}
-                                  data-testid={`button-ignore-entry-${entry.id}`}
-                                >
-                                  {ignoredEntries.includes(entry.id) ? (
-                                    <RotateCcw className="h-4 w-4" />
-                                  ) : (
-                                    <EyeOff className="h-4 w-4" />
-                                  )}
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                      {purchasesGrouped.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={5} className="text-center text-slate-400 py-8">Aucune écriture d'achat trouvée.</TableCell>
+                        </TableRow>
+                      ) : (
+                        purchasesGrouped.map((group) => (
+                          <AccountGroupRow 
+                            key={group.account} 
+                            group={group} 
+                            selectedEntries={selectedEntries}
+                            onToggleSelect={toggleEntrySelection}
+                            onToggleSelectGroup={() => toggleSelectAllEntriesInList(group.entries)}
+                            onIgnore={handleIgnoreEntry}
+                            onToggleUrgent={handleToggleUrgent}
+                            onToggleLost={handleToggleLost}
+                            lostEntries={lostEntries}
+                            onEditComment={handleOpenComment}
+                            showIgnored={showIgnored}
+                          />
+                        ))
+                      )}
                     </TableBody>
                   </Table>
                 </div>
               </div>
 
+              {/* VENTES */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
@@ -1020,159 +1185,66 @@ export default function ClientDetail() {
                   <div className="flex items-center gap-2">
                     <Button
                       size="sm"
-                      variant={
-                        selectionScope === "ventes" && selectionMode === "all"
-                          ? "default"
-                          : "outline"
-                      }
-                      className={`rounded-xl ${
-                        selectionScope === "ventes" && selectionMode === "all"
-                          ? "bg-green-600 text-white hover:bg-green-700 border-green-600"
-                          : "bg-white hover:bg-slate-50 text-green-700 border-green-200"
-                      }`}
-                      onClick={() => selectByMode("ventes", "all")}
+                      variant={selectionScope === 'ventes' && selectionMode === 'all' ? "default" : "outline"}
+                      className={`rounded-xl ${selectionScope === 'ventes' && selectionMode === 'all' ? 'bg-green-600 text-white hover:bg-green-700 border-green-600' : 'bg-white hover:bg-slate-50 text-green-700 border-green-200'}`}
+                      onClick={() => selectByMode('ventes', 'all')}
                       data-testid="button-select-ventes-all"
                     >
                       Tout sélectionner
                     </Button>
                     <Button
                       size="sm"
-                      variant={
-                        selectionScope === "ventes" && selectionMode === "lost"
-                          ? "default"
-                          : "outline"
-                      }
-                      className={`rounded-xl ${
-                        selectionScope === "ventes" && selectionMode === "lost"
-                          ? "bg-amber-600 text-white hover:bg-amber-700 border-amber-600"
-                          : "bg-white hover:bg-amber-50 text-amber-800 border-amber-200"
-                      }`}
-                      onClick={() => selectByMode("ventes", "lost")}
+                      variant={selectionScope === 'ventes' && selectionMode === 'lost' ? "default" : "outline"}
+                      className={`rounded-xl ${selectionScope === 'ventes' && selectionMode === 'lost' ? 'bg-amber-600 text-white hover:bg-amber-700 border-amber-600' : 'bg-white hover:bg-amber-50 text-amber-800 border-amber-200'}`}
+                      onClick={() => selectByMode('ventes', 'lost')}
                       data-testid="button-select-ventes-lost"
                     >
                       Perdues uniquement
                     </Button>
                     <Button
                       size="sm"
-                      variant={
-                        selectionScope === "ventes" && selectionMode === "urgent"
-                          ? "default"
-                          : "outline"
-                      }
-                      className={`rounded-xl ${
-                        selectionScope === "ventes" && selectionMode === "urgent"
-                          ? "bg-red-600 text-white hover:bg-red-700 border-red-600"
-                          : "bg-white hover:bg-red-50 text-red-700 border-red-200"
-                      }`}
-                      onClick={() => selectByMode("ventes", "urgent")}
+                      variant={selectionScope === 'ventes' && selectionMode === 'urgent' ? "default" : "outline"}
+                      className={`rounded-xl ${selectionScope === 'ventes' && selectionMode === 'urgent' ? 'bg-red-600 text-white hover:bg-red-700 border-red-600' : 'bg-white hover:bg-red-50 text-red-700 border-red-200'}`}
+                      onClick={() => selectByMode('ventes', 'urgent')}
                       data-testid="button-select-ventes-urgent"
                     >
                       Urgentes uniquement
                     </Button>
                   </div>
                 </div>
-
                 <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_2px_20px_rgba(0,0,0,0.02)] overflow-hidden">
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
+                        <TableHead className="w-[150px] font-bold text-slate-600">N° de compte aux</TableHead>
+                        <TableHead className="font-bold text-slate-600">Libellé compte</TableHead>
+                        <TableHead className="text-center font-bold text-slate-600">Justificatifs manquants</TableHead>
+                        <TableHead className="text-right font-bold text-slate-600 pr-8">Montant Total</TableHead>
                         <TableHead className="w-[50px]"></TableHead>
-                        <TableHead className="font-bold text-slate-600">
-                          Date
-                        </TableHead>
-                        <TableHead className="font-bold text-slate-600">
-                          Libellé
-                        </TableHead>
-                        <TableHead className="text-right font-bold text-slate-600">
-                          Montant
-                        </TableHead>
-                        <TableHead className="text-right font-bold text-slate-600 pr-6">
-                          Actions
-                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {sales
-                        .filter((e) => e.status === "missing_doc")
-                        .map((entry) => (
-                          <TableRow
-                            key={entry.id}
-                            className={`border-slate-50 transition-colors ${
-                              lostEntries.includes(entry.id)
-                                ? "bg-amber-50"
-                                : entry.isUrgent
-                                  ? "bg-red-50"
-                                  : "hover:bg-slate-50"
-                            }`}
-                          >
-                            <TableCell className="pl-4">
-                              <Checkbox
-                                checked={selectedEntries.includes(entry.id)}
-                                onCheckedChange={() => toggleEntrySelection(entry.id)}
-                                data-testid={`checkbox-entry-${entry.id}`}
-                              />
-                            </TableCell>
-                            <TableCell className="text-slate-600">
-                              {new Date(entry.date).toLocaleDateString("fr-FR")}
-                            </TableCell>
-                            <TableCell className="font-medium text-slate-900">
-                              {entry.label}
-                            </TableCell>
-                            <TableCell className="text-right font-medium text-slate-700">
-                              {entry.amount.toLocaleString("fr-FR", {
-                                style: "currency",
-                                currency: "EUR",
-                              })}
-                            </TableCell>
-                            <TableCell className="text-right pr-6">
-                              <div className="flex items-center justify-end gap-2">
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className={`h-8 w-8 rounded-lg ${
-                                    entry.isUrgent
-                                      ? "text-red-600 bg-red-100 border-red-200 border"
-                                      : "text-slate-300 hover:text-red-600 hover:bg-red-50"
-                                  }`}
-                                  onClick={() => handleToggleUrgent(entry.id)}
-                                  data-testid={`button-urgent-entry-${entry.id}`}
-                                >
-                                  <AlertTriangle className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className={`h-8 px-2 rounded-lg border ${
-                                    lostEntries.includes(entry.id)
-                                      ? "text-amber-800 bg-amber-100 border-amber-200 hover:bg-amber-200"
-                                      : "text-slate-500 border-slate-200 hover:text-amber-700 hover:bg-amber-50"
-                                  }`}
-                                  onClick={() => handleToggleLost(entry.id)}
-                                  data-testid={`button-lost-entry-${entry.id}`}
-                                >
-                                  Perdu
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className={`h-8 w-8 rounded-lg ${
-                                    ignoredEntries.includes(entry.id)
-                                      ? "text-blue-500 hover:text-blue-700 hover:bg-blue-50"
-                                      : "text-slate-300 hover:text-slate-600 hover:bg-slate-100"
-                                  }`}
-                                  onClick={() => handleIgnoreEntry(entry.id)}
-                                  data-testid={`button-ignore-entry-${entry.id}`}
-                                >
-                                  {ignoredEntries.includes(entry.id) ? (
-                                    <RotateCcw className="h-4 w-4" />
-                                  ) : (
-                                    <EyeOff className="h-4 w-4" />
-                                  )}
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                      {salesGrouped.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={5} className="text-center text-slate-400 py-8">Aucune écriture de vente trouvée.</TableCell>
+                        </TableRow>
+                      ) : (
+                        salesGrouped.map((group) => (
+                          <AccountGroupRow 
+                            key={group.account} 
+                            group={group} 
+                            selectedEntries={selectedEntries}
+                            onToggleSelect={toggleEntrySelection}
+                            onToggleSelectGroup={() => toggleSelectAllEntriesInList(group.entries)}
+                            onIgnore={handleIgnoreEntry}
+                            onToggleUrgent={handleToggleUrgent}
+                            onToggleLost={handleToggleLost}
+                            lostEntries={lostEntries}
+                            onEditComment={handleOpenComment}
+                            showIgnored={showIgnored}
+                          />
+                        ))
+                      )}
                     </TableBody>
                   </Table>
                 </div>
@@ -1180,48 +1252,432 @@ export default function ClientDetail() {
             </div>
           </TabsContent>
 
-          <TabsContent value="journaux" className="space-y-8"></TabsContent>
-          <TabsContent value="encaissements" className="space-y-8"></TabsContent>
-          <TabsContent value="emails" className="space-y-6"></TabsContent>
+          <TabsContent value="journaux" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+             <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_2px_20px_rgba(0,0,0,0.02)] overflow-hidden">
+                <div className="p-4 border-b border-slate-50 flex items-center justify-between bg-white">
+                  <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                    <History className="h-5 w-5 text-slate-500" />
+                    Grand Livre
+                  </h3>
+                  <div className="flex items-center gap-2">
+                    <Badge 
+                      variant={journalFilter === 'ALL' ? 'default' : 'outline'} 
+                      className={`cursor-pointer ${journalFilter === 'ALL' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-slate-50'}`}
+                      onClick={() => setJournalFilter('ALL')}
+                    >
+                      Tout
+                    </Badge>
+                    <Badge 
+                      variant={journalFilter === 'ACH' ? 'default' : 'outline'} 
+                      className={`cursor-pointer ${journalFilter === 'ACH' ? 'bg-blue-500 text-white' : 'text-slate-500 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200'}`}
+                      onClick={() => setJournalFilter('ACH')}
+                    >
+                      Achats
+                    </Badge>
+                    <Badge 
+                      variant={journalFilter === 'VTE' ? 'default' : 'outline'} 
+                      className={`cursor-pointer ${journalFilter === 'VTE' ? 'bg-green-500 text-white' : 'text-slate-500 hover:bg-green-50 hover:text-green-600 hover:border-green-200'}`}
+                      onClick={() => setJournalFilter('VTE')}
+                    >
+                      Ventes
+                    </Badge>
+                    <Badge 
+                      variant={journalFilter === 'BQ' ? 'default' : 'outline'} 
+                      className={`cursor-pointer ${journalFilter === 'BQ' ? 'bg-purple-500 text-white' : 'text-slate-500 hover:bg-purple-50 hover:text-purple-600 hover:border-purple-200'}`}
+                      onClick={() => setJournalFilter('BQ')}
+                    >
+                      Banque
+                    </Badge>
+                    <Badge 
+                      variant={journalFilter === 'OD' ? 'default' : 'outline'} 
+                      className={`cursor-pointer ${journalFilter === 'OD' ? 'bg-orange-500 text-white' : 'text-slate-500 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200'}`}
+                      onClick={() => setJournalFilter('OD')}
+                    >
+                      OD
+                    </Badge>
+                  </div>
+                </div>
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
+                      <TableHead className="w-[50px]">
+                        <Checkbox 
+                          checked={filteredJournalEntries.length > 0 && selectedJournalEntries.length === filteredJournalEntries.length}
+                          onCheckedChange={toggleSelectAllJournalEntries}
+                        />
+                      </TableHead>
+                      <TableHead className="w-[100px] font-bold text-slate-600">Date</TableHead>
+                      <TableHead className="w-[80px] font-bold text-slate-600">Jnl</TableHead>
+                      <TableHead className="w-[100px] font-bold text-slate-600">Compte</TableHead>
+                      <TableHead className="font-bold text-slate-600">Libellé</TableHead>
+                      <TableHead className="font-bold text-slate-600">Libellé Écriture</TableHead>
+                      <TableHead className="text-right font-bold text-slate-600">Débit</TableHead>
+                      <TableHead className="text-right font-bold text-slate-600">Crédit</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredJournalEntries
+                      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                      .map((entry) => (
+                      <TableRow 
+                        key={entry.id} 
+                        className={`hover:bg-blue-50/30 transition-colors cursor-pointer ${selectedJournalEntries.includes(entry.id) ? 'bg-blue-50/50' : ''}`}
+                        onClick={() => toggleJournalEntrySelection(entry.id)}
+                      >
+                        <TableCell onClick={(e) => e.stopPropagation()}>
+                          <Checkbox 
+                            checked={selectedJournalEntries.includes(entry.id)}
+                            onCheckedChange={() => toggleJournalEntrySelection(entry.id)}
+                          />
+                        </TableCell>
+                        <TableCell className="font-medium text-slate-700">
+                          {new Date(entry.date).toLocaleDateString('fr-FR')}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className={`
+                            ${entry.journal === 'ACH' ? 'text-blue-600 border-blue-200 bg-blue-50' : ''}
+                            ${entry.journal === 'VTE' ? 'text-green-600 border-green-200 bg-green-50' : ''}
+                            ${entry.journal === 'BQ' ? 'text-purple-600 border-purple-200 bg-purple-50' : ''}
+                            ${entry.journal === 'OD' ? 'text-orange-600 border-orange-200 bg-orange-50' : ''}
+                          `}>
+                            {entry.journal}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="font-mono text-slate-600 text-xs">
+                          {entry.account}
+                        </TableCell>
+                        <TableCell className="text-slate-600 text-sm">
+                          {entry.accountLabel}
+                        </TableCell>
+                        <TableCell className="text-slate-900 font-medium text-sm">
+                          {entry.label}
+                        </TableCell>
+                        <TableCell className="text-right font-mono text-slate-600">
+                          {entry.type === 'Debit' ? entry.amount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' }) : '-'}
+                        </TableCell>
+                        <TableCell className="text-right font-mono text-slate-600">
+                          {entry.type === 'Credit' ? entry.amount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' }) : '-'}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {filteredJournalEntries.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={8} className="text-center py-12 text-slate-400">
+                          Aucune écriture trouvée pour ce journal.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+
+                {/* Floating Action Bar for selected entries */}
+                {selectedJournalEntries.length > 0 && (
+                  <div className="sticky bottom-0 bg-white border-t border-slate-100 p-4 flex items-center justify-between shadow-lg">
+                    <div className="flex items-center gap-3">
+                      <Badge variant="secondary" className="bg-blue-100 text-blue-700 px-3 py-1">
+                        {selectedJournalEntries.length} écriture{selectedJournalEntries.length > 1 ? 's' : ''} sélectionnée{selectedJournalEntries.length > 1 ? 's' : ''}
+                      </Badge>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => setSelectedJournalEntries([])}
+                        className="text-slate-500 hover:text-slate-700"
+                      >
+                        Désélectionner tout
+                      </Button>
+                    </div>
+                    <Button 
+                      className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-6"
+                      onClick={() => {
+                        const selectedItems = filteredJournalEntries.filter(e => selectedJournalEntries.includes(e.id));
+                        const itemsList = selectedItems.map(e => `• ${e.label} (${e.amount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })})`).join('\n');
+                        const defaultMessage = `Bonjour,\n\nNous vous contactons concernant les écritures comptables suivantes pour lesquelles nous avons besoin de justificatifs :\n\n${itemsList}\n\nMerci de nous transmettre les documents correspondants dans les meilleurs délais.\n\nCordialement,\nVotre cabinet comptable`;
+                        setJournalMessageContent(defaultMessage);
+                        setJournalChannelModalOpen(true);
+                      }}
+                    >
+                      <Send className="h-4 w-4 mr-2" />
+                      Demander au client
+                    </Button>
+                  </div>
+                )}
+             </div>
+          </TabsContent>
+
+          <TabsContent value="encaissements" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="space-y-8">
+              {/* ENCAISSEMENTS */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <span className="w-2 h-8 bg-green-500 rounded-full"></span>
+                    Encaissements
+                  </h3>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => toggleSelectAllEntriesInList(bankReceipts)}
+                    className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                  >
+                    <CheckSquare className="h-4 w-4 mr-2" />
+                    Tout sélectionner
+                  </Button>
+                </div>
+                <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_2px_20px_rgba(0,0,0,0.02)] overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
+                        <TableHead className="w-[150px] font-bold text-slate-600">N° de compte</TableHead>
+                        <TableHead className="font-bold text-slate-600">Libellé compte</TableHead>
+                        <TableHead className="text-center font-bold text-slate-600">Justificatifs manquants</TableHead>
+                        <TableHead className="text-right font-bold text-slate-600 pr-8">Montant Total</TableHead>
+                        <TableHead className="w-[50px]"></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {bankReceiptsGrouped.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={5} className="text-center text-slate-400 py-8">Aucun encaissement trouvé.</TableCell>
+                        </TableRow>
+                      ) : (
+                        bankReceiptsGrouped.map((group) => (
+                          <AccountGroupRow 
+                            key={group.account} 
+                            group={group} 
+                            selectedEntries={selectedEntries}
+                            onToggleSelect={toggleEntrySelection}
+                            onToggleSelectGroup={() => toggleSelectAllEntriesInList(group.entries)}
+                            onIgnore={handleIgnoreEntry}
+                            onToggleUrgent={handleToggleUrgent}
+                            onToggleLost={handleToggleLost}
+                            lostEntries={lostEntries}
+                            onEditComment={handleOpenComment}
+                            showIgnored={showIgnored}
+                          />
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+
+              {/* DECAISSEMENTS */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <span className="w-2 h-8 bg-orange-500 rounded-full"></span>
+                    Décaissements
+                  </h3>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => toggleSelectAllEntriesInList(bankDisbursements)}
+                    className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                  >
+                    <CheckSquare className="h-4 w-4 mr-2" />
+                    Tout sélectionner
+                  </Button>
+                </div>
+                <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_2px_20px_rgba(0,0,0,0.02)] overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
+                        <TableHead className="w-[150px] font-bold text-slate-600">N° de compte</TableHead>
+                        <TableHead className="font-bold text-slate-600">Libellé compte</TableHead>
+                        <TableHead className="text-center font-bold text-slate-600">Justificatifs manquants</TableHead>
+                        <TableHead className="text-right font-bold text-slate-600 pr-8">Montant Total</TableHead>
+                        <TableHead className="w-[50px]"></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {bankDisbursementsGrouped.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={5} className="text-center text-slate-400 py-8">Aucun décaissement trouvé.</TableCell>
+                        </TableRow>
+                      ) : (
+                        bankDisbursementsGrouped.map((group) => (
+                          <AccountGroupRow 
+                            key={group.account} 
+                            group={group} 
+                            selectedEntries={selectedEntries}
+                            onToggleSelect={toggleEntrySelection}
+                            onToggleSelectGroup={() => toggleSelectAllEntriesInList(group.entries)}
+                            onIgnore={handleIgnoreEntry}
+                            onToggleUrgent={handleToggleUrgent}
+                            onToggleLost={handleToggleLost}
+                            lostEntries={lostEntries}
+                            onEditComment={handleOpenComment}
+                            showIgnored={showIgnored}
+                          />
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="emails" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_2px_20px_rgba(0,0,0,0.02)] overflow-hidden dark:bg-slate-900 dark:border-slate-800">
+              <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                    <Mail className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-800 dark:text-white">Boîte e-mail</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Échanges avec {client.company}</p>
+                  </div>
+                </div>
+                <Button 
+                  className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white"
+                  onClick={() => setNewEmailOpen(true)}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nouveau message
+                </Button>
+              </div>
+
+              <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                {[
+                  {
+                    id: '1',
+                    from: 'cabinet',
+                    subject: 'Relance - Documents comptables manquants',
+                    preview: 'Bonjour, nous vous contactons concernant les pièces justificatives manquantes pour le mois de décembre...',
+                    date: '2026-01-10T14:30:00',
+                    read: true
+                  },
+                  {
+                    id: '2',
+                    from: 'client',
+                    subject: 'RE: Relance - Documents comptables manquants',
+                    preview: 'Bonjour, je vous transmets en pièce jointe les factures demandées. Concernant la facture EDF, je suis...',
+                    date: '2026-01-10T16:45:00',
+                    read: true,
+                    hasAttachment: true
+                  },
+                  {
+                    id: '3',
+                    from: 'cabinet',
+                    subject: 'Confirmation de réception',
+                    preview: 'Nous accusons bonne réception de vos documents. Il nous manque encore la facture EDF mentionnée...',
+                    date: '2026-01-11T09:15:00',
+                    read: true
+                  },
+                  {
+                    id: '4',
+                    from: 'cabinet',
+                    subject: 'Déclaration TVA - Action requise',
+                    preview: 'Dans le cadre de la préparation de votre déclaration de TVA du 4ème trimestre 2025, nous avons besoin...',
+                    date: '2026-01-08T11:00:00',
+                    read: true
+                  },
+                  {
+                    id: '5',
+                    from: 'client',
+                    subject: 'RE: Déclaration TVA - Action requise',
+                    preview: 'Merci pour ce rappel. Voici les informations demandées concernant les opérations intracommunautaires...',
+                    date: '2026-01-09T08:30:00',
+                    read: true,
+                    hasAttachment: true
+                  },
+                  {
+                    id: '6',
+                    from: 'cabinet',
+                    subject: 'Bilan annuel 2025 - Rendez-vous de présentation',
+                    preview: 'Suite à la clôture de votre exercice comptable, nous souhaiterions organiser un rendez-vous pour...',
+                    date: '2026-01-05T10:00:00',
+                    read: true
+                  }
+                ].map((email) => (
+                  <div 
+                    key={email.id}
+                    className={`p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors ${!email.read ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className={`h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                        email.from === 'cabinet' 
+                          ? 'bg-blue-100 dark:bg-blue-900/30' 
+                          : 'bg-slate-100 dark:bg-slate-800'
+                      }`}>
+                        {email.from === 'cabinet' ? (
+                          <Building2 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        ) : (
+                          <User className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="flex items-center gap-2">
+                            <span className={`text-sm font-medium ${email.from === 'cabinet' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-700 dark:text-slate-300'}`}>
+                              {email.from === 'cabinet' ? 'Cabinet Comptable' : client.company}
+                            </span>
+                            {email.hasAttachment && (
+                              <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 border-slate-200 dark:border-slate-700">
+                                <FileText className="h-3 w-3 mr-1" />
+                                PJ
+                              </Badge>
+                            )}
+                          </div>
+                          <span className="text-xs text-slate-400">
+                            {new Date(email.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                        <h4 className={`text-sm mb-1 truncate ${!email.read ? 'font-bold text-slate-900 dark:text-white' : 'font-medium text-slate-700 dark:text-slate-300'}`}>
+                          {email.subject}
+                        </h4>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
+                          {email.preview}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
+                <p className="text-center text-sm text-slate-500 dark:text-slate-400">
+                  6 messages • Dernière synchronisation il y a 5 minutes
+                </p>
+              </div>
+            </div>
+          </TabsContent>
         </Tabs>
 
+        {/* Action Bar for Analysis */}
         {(selectedEntries.length > 0 || selectedDocs.length > 0) && (
           <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-30 animate-in slide-in-from-bottom-10 fade-in">
             <div className="bg-slate-900 text-white px-2 py-2 rounded-2xl shadow-2xl flex items-center gap-4 pl-6 border border-slate-700">
-              <div className="text-sm font-medium">
-                <span className="text-blue-400 font-bold">
-                  {selectedEntries.length + selectedDocs.length} pièces sélectionnées
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  size="lg"
+               <div className="text-sm font-medium">
+                  <span className="text-blue-400 font-bold">{selectedEntries.length + selectedDocs.length} pièces sélectionnées</span>
+               </div>
+               <div className="flex items-center gap-2">
+                 <Button 
+                  size="lg" 
                   className="rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 shadow-lg shadow-blue-900/50"
                   onClick={handleOpenReminderDialog}
                   data-testid="button-request-client"
-                >
-                  <Send className="h-5 w-5 mr-2" />
-                  Demander au client
-                </Button>
-                <Button
+                 >
+                   <Send className="h-5 w-5 mr-2" />
+                   Demander au client
+                 </Button>
+                 <Button
                   size="lg"
                   variant="outline"
                   className="rounded-xl border-slate-600/50 text-slate-200 hover:bg-white/10 hover:text-white"
-                  onClick={() => {
-                    setSelectedEntries([]);
-                    setSelectedDocs([]);
-                    setSelectionMode("all");
-                    setSelectionScope(null);
-                  }}
+                  onClick={() => { setSelectedEntries([]); setSelectedDocs([]); setSelectionMode('all'); setSelectionScope(null); }}
                   data-testid="button-cancel-selection"
-                >
-                  Annuler
-                </Button>
-              </div>
+                 >
+                   Annuler
+                 </Button>
+               </div>
             </div>
           </div>
         )}
 
+                {/* New Email Dialog */}
         <Dialog open={newEmailOpen} onOpenChange={setNewEmailOpen}>
           <DialogContent className="sm:max-w-[600px] rounded-3xl dark:bg-slate-900 dark:border-slate-800">
             <DialogHeader>
@@ -1232,54 +1688,34 @@ export default function ClientDetail() {
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div>
-                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">
-                  Objet
-                </Label>
-                <Input
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">Objet</Label>
+                <Input 
                   value={newEmailContent.subject}
-                  onChange={(e) =>
-                    setNewEmailContent({ ...newEmailContent, subject: e.target.value })
-                  }
+                  onChange={(e) => setNewEmailContent({...newEmailContent, subject: e.target.value})}
                   className="rounded-xl border-slate-200 dark:bg-slate-950 dark:border-slate-800"
                   placeholder="Objet du message"
-                  data-testid="input-new-email-subject"
                 />
               </div>
               <div>
-                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">
-                  Message
-                </Label>
-                <Textarea
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">Message</Label>
+                <Textarea 
                   value={newEmailContent.message}
-                  onChange={(e) =>
-                    setNewEmailContent({ ...newEmailContent, message: e.target.value })
-                  }
+                  onChange={(e) => setNewEmailContent({...newEmailContent, message: e.target.value})}
                   className="min-h-[200px] bg-white dark:bg-slate-950 dark:border-slate-800 text-sm rounded-xl border-slate-200"
                   placeholder="Rédigez votre message..."
-                  data-testid="textarea-new-email-message"
                 />
               </div>
             </div>
             <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setNewEmailOpen(false)}
-                className="rounded-xl"
-                data-testid="button-new-email-cancel"
-              >
-                Annuler
-              </Button>
-              <Button
-                onClick={handleSendEmail}
-                className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white"
-                data-testid="button-new-email-send"
-              >
+              <Button variant="outline" onClick={() => setNewEmailOpen(false)} className="rounded-xl">Annuler</Button>
+              <Button onClick={handleSendEmail} className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white">
                 <Send className="mr-2 h-4 w-4" /> Envoyer
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
 
+        {/* Reminder Dialog */}
         <Dialog open={reminderDialogOpen} onOpenChange={setReminderDialogOpen}>
           <DialogContent className="sm:max-w-[600px] rounded-3xl dark:bg-slate-900 dark:border-slate-800 max-h-[85vh] overflow-y-auto">
             <DialogHeader>
@@ -1288,217 +1724,158 @@ export default function ClientDetail() {
                 Personnalisez et envoyez vos messages via les canaux sélectionnés.
               </DialogDescription>
             </DialogHeader>
-
             <div className="grid gap-6 py-4">
+              {/* Scheduling Section */}
               <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl space-y-4">
                 <div className="flex items-center justify-between">
-                  <Label className="font-semibold dark:text-slate-200">Moment de l'envoi</Label>
+                   <Label className="font-semibold dark:text-slate-200">Moment de l'envoi</Label>
                 </div>
-
+                
                 <div className="flex flex-wrap gap-2">
-                  <Button
-                    variant={scheduleOption === "immediate" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setScheduleOption("immediate")}
-                    className={`rounded-lg ${scheduleOption === "immediate" ? "bg-slate-900 text-white" : "bg-white text-slate-600"}`}
-                    data-testid="button-schedule-immediate"
-                  >
-                    Immédiat
-                  </Button>
-                  <Button
-                    variant={scheduleOption === "d1" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setScheduleOption("d1")}
-                    className={`rounded-lg ${scheduleOption === "d1" ? "bg-slate-900 text-white" : "bg-white text-slate-600"}`}
-                    data-testid="button-schedule-d1"
-                  >
-                    J+1 (Demain)
-                  </Button>
-                  <Button
-                    variant={scheduleOption === "d2" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setScheduleOption("d2")}
-                    className={`rounded-lg ${scheduleOption === "d2" ? "bg-slate-900 text-white" : "bg-white text-slate-600"}`}
-                    data-testid="button-schedule-d2"
-                  >
-                    J+2
-                  </Button>
-                  <Button
-                    variant={scheduleOption === "custom" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setScheduleOption("custom")}
-                    className={`rounded-lg ${scheduleOption === "custom" ? "bg-slate-900 text-white" : "bg-white text-slate-600"}`}
-                    data-testid="button-schedule-custom"
-                  >
-                    Personnalisé
-                  </Button>
+                    <Button 
+                        variant={scheduleOption === 'immediate' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setScheduleOption('immediate')}
+                        className={`rounded-lg ${scheduleOption === 'immediate' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600'}`}
+                        data-testid="button-schedule-immediate"
+                    >
+                        Immédiat
+                    </Button>
+                    
+                    <Button 
+                        variant={scheduleOption === 'd1' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setScheduleOption('d1')}
+                        className={`rounded-lg ${scheduleOption === 'd1' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600'}`}
+                        data-testid="button-schedule-d1"
+                    >
+                        J+1 (Demain)
+                    </Button>
+                    <Button 
+                        variant={scheduleOption === 'd2' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setScheduleOption('d2')}
+                        className={`rounded-lg ${scheduleOption === 'd2' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600'}`}
+                        data-testid="button-schedule-d2"
+                    >
+                        J+2
+                    </Button>
+                    <Button 
+                        variant={scheduleOption === 'custom' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setScheduleOption('custom')}
+                        className={`rounded-lg ${scheduleOption === 'custom' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600'}`}
+                        data-testid="button-schedule-custom"
+                    >
+                        Personnalisé
+                    </Button>
                 </div>
-
-                {scheduleOption === "custom" && (
-                  <div className="animate-in fade-in slide-in-from-top-2">
-                    <Label className="text-xs mb-1.5 block">Date et heure</Label>
-                    <Input
-                      type="datetime-local"
-                      value={customDate}
-                      onChange={(e) => setCustomDate(e.target.value)}
-                      className="bg-white"
-                      data-testid="input-schedule-custom"
-                    />
-                  </div>
+                
+                {scheduleOption === 'custom' && (
+                    <div className="animate-in fade-in slide-in-from-top-2">
+                        <Label className="text-xs mb-1.5 block">Date et heure</Label>
+                        <Input 
+                            type="datetime-local" 
+                            value={customDate}
+                            onChange={(e) => setCustomDate(e.target.value)}
+                            className="bg-white"
+                            data-testid="input-schedule-custom"
+                        />
+                    </div>
                 )}
               </div>
 
-              <div
-                className={`border rounded-xl p-4 transition-all ${reminderChannels.email ? "border-blue-200 bg-blue-50/30 dark:border-blue-900/50 dark:bg-blue-900/10" : "border-slate-200 dark:border-slate-800"}`}
-              >
+              {/* EMAIL SECTION */}
+              <div className={`border rounded-xl p-4 transition-all ${reminderChannels.email ? 'border-blue-200 bg-blue-50/30 dark:border-blue-900/50 dark:bg-blue-900/10' : 'border-slate-200 dark:border-slate-800'}`}>
                 <div className="flex items-center space-x-2 mb-3">
-                  <Checkbox
-                    id="email"
-                    checked={reminderChannels.email}
-                    onCheckedChange={(checked) =>
-                      setReminderChannels({
-                        ...reminderChannels,
-                        email: checked as boolean,
-                      })
-                    }
-                    data-testid="checkbox-channel-email"
-                  />
-                  <Label
-                    htmlFor="email"
-                    className="flex-1 cursor-pointer font-semibold dark:text-slate-200 flex items-center gap-2"
-                  >
-                    <Mail className="h-4 w-4" /> Email
-                  </Label>
+                    <Checkbox 
+                      id="email" 
+                      checked={reminderChannels.email}
+                      onCheckedChange={(checked) => setReminderChannels({...reminderChannels, email: checked as boolean})}
+                    />
+                    <Label htmlFor="email" className="flex-1 cursor-pointer font-semibold dark:text-slate-200 flex items-center gap-2">
+                        <Mail className="h-4 w-4" /> Email
+                    </Label>
                 </div>
                 {reminderChannels.email && (
-                  <div className="pl-6 animate-in fade-in slide-in-from-top-2 duration-200">
-                    <Label className="text-xs text-slate-500 dark:text-slate-400 mb-1.5 block">
-                      Message Email
-                    </Label>
-                    <Textarea
-                      value={reminderContent.email}
-                      onChange={(e) =>
-                        setReminderContent({
-                          ...reminderContent,
-                          email: appendGedLink(e.target.value),
-                        })
-                      }
-                      className="bg-white dark:bg-slate-950 dark:border-slate-800 min-h-[120px] text-sm"
-                      data-testid="textarea-reminder-email"
-                    />
-                  </div>
+                    <div className="pl-6 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <Label className="text-xs text-slate-500 dark:text-slate-400 mb-1.5 block">Message Email</Label>
+                        <Textarea 
+                            value={reminderContent.email}
+                            onChange={(e) => setReminderContent({...reminderContent, email: e.target.value})}
+                            className="bg-white dark:bg-slate-950 dark:border-slate-800 min-h-[120px] text-sm"
+                        />
+                    </div>
                 )}
               </div>
 
-              <div
-                className={`border rounded-xl p-4 transition-all ${reminderChannels.sms ? "border-purple-200 bg-purple-50/30 dark:border-purple-900/50 dark:bg-purple-900/10" : "border-slate-200 dark:border-slate-800"}`}
-              >
+              {/* SMS SECTION */}
+              <div className={`border rounded-xl p-4 transition-all ${reminderChannels.sms ? 'border-purple-200 bg-purple-50/30 dark:border-purple-900/50 dark:bg-purple-900/10' : 'border-slate-200 dark:border-slate-800'}`}>
                 <div className="flex items-center space-x-2 mb-3">
-                  <Checkbox
-                    id="sms"
-                    checked={reminderChannels.sms}
-                    onCheckedChange={(checked) =>
-                      setReminderChannels({
-                        ...reminderChannels,
-                        sms: checked as boolean,
-                      })
-                    }
-                    data-testid="checkbox-channel-sms"
-                  />
-                  <Label
-                    htmlFor="sms"
-                    className="flex-1 cursor-pointer font-semibold dark:text-slate-200 flex items-center gap-2"
-                  >
-                    <Phone className="h-4 w-4" /> SMS
-                  </Label>
+                    <Checkbox 
+                      id="sms" 
+                      checked={reminderChannels.sms}
+                      onCheckedChange={(checked) => setReminderChannels({...reminderChannels, sms: checked as boolean})}
+                    />
+                    <Label htmlFor="sms" className="flex-1 cursor-pointer font-semibold dark:text-slate-200 flex items-center gap-2">
+                        <Phone className="h-4 w-4" /> SMS
+                    </Label>
                 </div>
                 {reminderChannels.sms && (
-                  <div className="pl-6 animate-in fade-in slide-in-from-top-2 duration-200">
-                    <Label className="text-xs text-slate-500 dark:text-slate-400 mb-1.5 block">
-                      Message SMS
-                    </Label>
-                    <Textarea
-                      value={reminderContent.sms}
-                      onChange={(e) =>
-                        setReminderContent({
-                          ...reminderContent,
-                          sms: e.target.value,
-                        })
-                      }
-                      className="bg-white dark:bg-slate-950 dark:border-slate-800 min-h-[60px] text-sm"
-                      maxLength={160}
-                      data-testid="textarea-reminder-sms"
-                    />
-                    <p className="text-xs text-slate-400 mt-1 text-right">
-                      {reminderContent.sms.length}/160
-                    </p>
-                  </div>
+                    <div className="pl-6 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <Label className="text-xs text-slate-500 dark:text-slate-400 mb-1.5 block">Message SMS</Label>
+                        <Textarea 
+                            value={reminderContent.sms}
+                            onChange={(e) => setReminderContent({...reminderContent, sms: e.target.value})}
+                            className="bg-white dark:bg-slate-950 dark:border-slate-800 min-h-[60px] text-sm"
+                            maxLength={160}
+                        />
+                        <p className="text-xs text-slate-400 mt-1 text-right">{reminderContent.sms.length}/160</p>
+                    </div>
                 )}
               </div>
 
-              <div
-                className={`border rounded-xl p-4 transition-all ${reminderChannels.whatsapp ? "border-green-200 bg-green-50/30 dark:border-green-900/50 dark:bg-green-900/10" : "border-slate-200 dark:border-slate-800"}`}
-              >
+              {/* WHATSAPP SECTION */}
+              <div className={`border rounded-xl p-4 transition-all ${reminderChannels.whatsapp ? 'border-green-200 bg-green-50/30 dark:border-green-900/50 dark:bg-green-900/10' : 'border-slate-200 dark:border-slate-800'}`}>
                 <div className="flex items-center space-x-2 mb-3">
-                  <Checkbox
-                    id="whatsapp"
-                    checked={reminderChannels.whatsapp}
-                    onCheckedChange={(checked) =>
-                      setReminderChannels({
-                        ...reminderChannels,
-                        whatsapp: checked as boolean,
-                      })
-                    }
-                    data-testid="checkbox-channel-whatsapp"
-                  />
-                  <Label
-                    htmlFor="whatsapp"
-                    className="flex-1 cursor-pointer font-semibold dark:text-slate-200 flex items-center gap-2"
-                  >
-                    <Send className="h-4 w-4" /> WhatsApp
-                  </Label>
+                    <Checkbox 
+                      id="whatsapp" 
+                      checked={reminderChannels.whatsapp}
+                      onCheckedChange={(checked) => setReminderChannels({...reminderChannels, whatsapp: checked as boolean})}
+                    />
+                    <Label htmlFor="whatsapp" className="flex-1 cursor-pointer font-semibold dark:text-slate-200 flex items-center gap-2">
+                        <Send className="h-4 w-4" /> WhatsApp
+                    </Label>
                 </div>
                 {reminderChannels.whatsapp && (
-                  <div className="pl-6 animate-in fade-in slide-in-from-top-2 duration-200">
-                    <Label className="text-xs text-slate-500 dark:text-slate-400 mb-1.5 block">
-                      Message WhatsApp
-                    </Label>
-                    <Textarea
-                      value={reminderContent.whatsapp}
-                      onChange={(e) =>
-                        setReminderContent({
-                          ...reminderContent,
-                          whatsapp: e.target.value,
-                        })
-                      }
-                      className="bg-white dark:bg-slate-950 dark:border-slate-800 min-h-[80px] text-sm"
-                      data-testid="textarea-reminder-whatsapp"
-                    />
-                  </div>
+                    <div className="pl-6 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <Label className="text-xs text-slate-500 dark:text-slate-400 mb-1.5 block">Message WhatsApp</Label>
+                        <Textarea 
+                            value={reminderContent.whatsapp}
+                            onChange={(e) => setReminderContent({...reminderContent, whatsapp: e.target.value})}
+                            className="bg-white dark:bg-slate-950 dark:border-slate-800 min-h-[80px] text-sm"
+                        />
+                    </div>
                 )}
               </div>
 
+              {/* Follow-up Section */}
               <div className="p-4 rounded-xl border border-indigo-200/60 dark:border-indigo-900/50 bg-indigo-50/60 dark:bg-indigo-900/10 space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className="font-semibold text-indigo-900 dark:text-indigo-100">
-                      Séquence de relance (emails)
-                    </Label>
-                    <p
-                      className="text-xs text-indigo-800/70 dark:text-indigo-200/70 mt-0.5"
-                      data-testid="text-followup-hint"
-                    >
+                    <Label className="font-semibold text-indigo-900 dark:text-indigo-100">Séquence de relance (emails)</Label>
+                    <p className="text-xs text-indigo-800/70 dark:text-indigo-200/70 mt-0.5" data-testid="text-followup-hint">
                       Créez une suite de relances.
                     </p>
                   </div>
                   <Button
                     size="sm"
-                    variant={followUpEnabled ? "default" : "outline"}
-                    onClick={() => setFollowUpEnabled((v) => !v)}
-                    className={`rounded-lg ${followUpEnabled ? "bg-indigo-700 text-white hover:bg-indigo-800" : "bg-white text-slate-600"}`}
+                    variant={followUpEnabled ? 'default' : 'outline'}
+                    onClick={() => setFollowUpEnabled(v => !v)}
+                    className={`rounded-lg ${followUpEnabled ? 'bg-indigo-700 text-white hover:bg-indigo-800' : 'bg-white text-slate-600'}`}
                     data-testid="button-followup-toggle"
                   >
-                    {followUpEnabled ? "Activée" : "Activer"}
+                    {followUpEnabled ? 'Activée' : 'Activer'}
                   </Button>
                 </div>
 
@@ -1506,14 +1883,13 @@ export default function ClientDetail() {
                   <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
                     <div className="space-y-3">
                       {followUpSteps.map((step, idx) => {
-                        const delayLabel =
-                          step.delay === "d1"
-                            ? "J+1"
-                            : step.delay === "d3"
-                              ? "J+3"
-                              : step.delay === "d7"
-                                ? "J+7"
-                                : "Personnalisé";
+                        const delayLabel = step.delay === 'd1'
+                          ? 'J+1'
+                          : step.delay === 'd3'
+                            ? 'J+3'
+                            : step.delay === 'd7'
+                              ? 'J+7'
+                              : 'Personnalisé';
 
                         return (
                           <div
@@ -1523,26 +1899,14 @@ export default function ClientDetail() {
                           >
                             <div className="flex items-center justify-between px-4 py-3 bg-indigo-50/70 dark:bg-indigo-900/20">
                               <div className="flex items-center gap-3">
-                                <div
-                                  className="w-8 h-8 rounded-lg bg-indigo-700 text-white flex items-center justify-center text-xs font-bold"
-                                  data-testid={`text-followup-step-number-${step.id}`}
-                                >
+                                <div className="w-8 h-8 rounded-lg bg-indigo-700 text-white flex items-center justify-center text-xs font-bold" data-testid={`text-followup-step-number-${step.id}`}>
                                   {idx + 1}
                                 </div>
-                                <div
-                                  className="text-sm font-semibold text-slate-900 dark:text-white"
-                                  data-testid={`text-followup-step-title-${step.id}`}
-                                >
+                                <div className="text-sm font-semibold text-slate-900 dark:text-white" data-testid={`text-followup-step-title-${step.id}`}>
                                   Relance {idx + 1}
                                 </div>
-                                <div
-                                  className="text-xs text-slate-500 dark:text-slate-400"
-                                  data-testid={`text-followup-step-delay-${step.id}`}
-                                >
-                                  {delayLabel}
-                                  {step.delay === "custom" && step.customDate
-                                    ? ` (${step.customDate})`
-                                    : ""}
+                                <div className="text-xs text-slate-500 dark:text-slate-400" data-testid={`text-followup-step-delay-${step.id}`}>
+                                  {delayLabel}{step.delay === 'custom' && step.customDate ? ` (${step.customDate})` : ''}
                                 </div>
                               </div>
                               <div className="flex items-center gap-2">
@@ -1551,9 +1915,7 @@ export default function ClientDetail() {
                                   variant="outline"
                                   className="rounded-lg"
                                   onClick={() => {
-                                    setFollowUpSteps((prev) =>
-                                      prev.filter((s) => s.id !== step.id),
-                                    );
+                                    setFollowUpSteps(prev => prev.filter(s => s.id !== step.id));
                                   }}
                                   data-testid={`button-followup-remove-${step.id}`}
                                 >
@@ -1564,56 +1926,31 @@ export default function ClientDetail() {
 
                             <div className="p-4 space-y-3">
                               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                                {([
-                                  "d1",
-                                  "d3",
-                                  "d7",
-                                  "custom",
-                                ] as FollowUpDelay[]).map((opt) => (
+                                {(['d1', 'd3', 'd7', 'custom'] as FollowUpDelay[]).map(opt => (
                                   <Button
                                     key={opt}
                                     size="sm"
-                                    variant={step.delay === opt ? "default" : "outline"}
+                                    variant={step.delay === opt ? 'default' : 'outline'}
                                     onClick={() => {
-                                      setFollowUpSteps((prev) =>
-                                        prev.map((s) =>
-                                          s.id === step.id
-                                            ? { ...s, delay: opt }
-                                            : s,
-                                        ),
-                                      );
+                                      setFollowUpSteps(prev => prev.map(s => s.id === step.id ? { ...s, delay: opt } : s));
                                     }}
-                                    className={`rounded-lg ${step.delay === opt ? "bg-indigo-700 text-white hover:bg-indigo-800" : "bg-white text-slate-600"}`}
+                                    className={`rounded-lg ${step.delay === opt ? 'bg-indigo-700 text-white hover:bg-indigo-800' : 'bg-white text-slate-600'}`}
                                     data-testid={`button-followup-delay-${step.id}-${opt}`}
                                   >
-                                    {opt === "d1"
-                                      ? "J+1"
-                                      : opt === "d3"
-                                        ? "J+3"
-                                        : opt === "d7"
-                                          ? "J+7"
-                                          : "Personnalisé"}
+                                    {opt === 'd1' ? 'J+1' : opt === 'd3' ? 'J+3' : opt === 'd7' ? 'J+7' : 'Personnalisé'}
                                   </Button>
                                 ))}
                               </div>
 
-                              {step.delay === "custom" && (
+                              {step.delay === 'custom' && (
                                 <div className="animate-in fade-in slide-in-from-top-2">
-                                  <Label className="text-xs mb-1.5 block">
-                                    Date et heure
-                                  </Label>
+                                  <Label className="text-xs mb-1.5 block">Date et heure</Label>
                                   <Input
                                     type="datetime-local"
-                                    value={step.customDate || ""}
+                                    value={step.customDate || ''}
                                     onChange={(e) => {
                                       const v = e.target.value;
-                                      setFollowUpSteps((prev) =>
-                                        prev.map((s) =>
-                                          s.id === step.id
-                                            ? { ...s, customDate: v }
-                                            : s,
-                                        ),
-                                      );
+                                      setFollowUpSteps(prev => prev.map(s => s.id === step.id ? { ...s, customDate: v } : s));
                                     }}
                                     className="bg-white"
                                     data-testid={`input-followup-custom-${step.id}`}
@@ -1622,18 +1959,12 @@ export default function ClientDetail() {
                               )}
 
                               <div>
-                                <Label className="text-xs text-slate-500 dark:text-slate-400">
-                                  Objet
-                                </Label>
+                                <Label className="text-xs text-slate-500 dark:text-slate-400">Objet</Label>
                                 <Input
                                   value={step.subject}
                                   onChange={(e) => {
                                     const v = e.target.value;
-                                    setFollowUpSteps((prev) =>
-                                      prev.map((s) =>
-                                        s.id === step.id ? { ...s, subject: v } : s,
-                                      ),
-                                    );
+                                    setFollowUpSteps(prev => prev.map(s => s.id === step.id ? { ...s, subject: v } : s));
                                   }}
                                   className="bg-white dark:bg-slate-950 dark:border-slate-800 mt-1"
                                   data-testid={`input-followup-subject-${step.id}`}
@@ -1641,18 +1972,12 @@ export default function ClientDetail() {
                               </div>
 
                               <div>
-                                <Label className="text-xs text-slate-500 dark:text-slate-400">
-                                  Email
-                                </Label>
+                                <Label className="text-xs text-slate-500 dark:text-slate-400">Email</Label>
                                 <Textarea
                                   value={step.body}
                                   onChange={(e) => {
-                                    const v = appendGedLink(e.target.value);
-                                    setFollowUpSteps((prev) =>
-                                      prev.map((s) =>
-                                        s.id === step.id ? { ...s, body: v } : s,
-                                      ),
-                                    );
+                                    const v = e.target.value;
+                                    setFollowUpSteps(prev => prev.map(s => s.id === step.id ? { ...s, body: v } : s));
                                   }}
                                   className="bg-white dark:bg-slate-950 dark:border-slate-800 min-h-[120px] text-sm mt-1"
                                   data-testid={`textarea-followup-body-${step.id}`}
@@ -1665,11 +1990,8 @@ export default function ClientDetail() {
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
-                      <p
-                        className="text-xs text-indigo-900/70 dark:text-indigo-200/70"
-                        data-testid="text-followup-count"
-                      >
-                        {followUpSteps.length} étape{followUpSteps.length > 1 ? "s" : ""}
+                      <p className="text-xs text-indigo-900/70 dark:text-indigo-200/70" data-testid="text-followup-count">
+                        {followUpSteps.length} étape{followUpSteps.length > 1 ? 's' : ''}
                       </p>
                       <Button
                         size="sm"
@@ -1677,17 +1999,15 @@ export default function ClientDetail() {
                         className="rounded-lg bg-white/80"
                         onClick={() => {
                           if (followUpSteps.length >= 5) return;
-                          setFollowUpSteps((prev) => [
+                          setFollowUpSteps(prev => ([
                             ...prev,
                             {
                               id: crypto.randomUUID(),
-                              delay: "d3",
+                              delay: 'd3',
                               subject: `Rappel — pièces comptables manquantes`,
-                              body: appendGedLink(
-                                `Bonjour,\n\nPetit rappel concernant les pièces comptables demandées.\n\nMerci d'avance.\n\nCordialement,\nVotre Expert-Comptable`,
-                              ),
-                            },
-                          ]);
+                              body: `Bonjour,\n\nPetit rappel concernant les pièces comptables demandées.\n\nMerci d'avance.\n\nCordialement,\nVotre Expert-Comptable`
+                            }
+                          ]));
                         }}
                         disabled={followUpSteps.length >= 5}
                         data-testid="button-followup-add-step"
@@ -1699,44 +2019,265 @@ export default function ClientDetail() {
                 )}
               </div>
             </div>
-
             <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setReminderDialogOpen(false)}
-                className="rounded-xl dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
-                data-testid="button-reminder-cancel"
-              >
-                Annuler
-              </Button>
-              <Button
-                onClick={handleSendEntryReminder}
-                className="rounded-xl bg-slate-900 text-white hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700"
-                data-testid="button-reminder-send"
-              >
-                <Send className="mr-2 h-4 w-4" /> Envoyer
-                {Object.values(reminderChannels).filter(Boolean).length > 0
-                  ? `(${Object.values(reminderChannels).filter(Boolean).length})`
-                  : ""}
+              <Button variant="outline" onClick={() => setReminderDialogOpen(false)} className="rounded-xl dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">Annuler</Button>
+              <Button onClick={handleSendEntryReminder} className="rounded-xl bg-slate-900 text-white hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700">
+                <Send className="mr-2 h-4 w-4" /> Envoyer {Object.values(reminderChannels).filter(Boolean).length > 0 ? `(${Object.values(reminderChannels).filter(Boolean).length})` : ''}
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
 
-        <Dialog
-          open={journalChannelModalOpen}
-          onOpenChange={setJournalChannelModalOpen}
-        >
-          <DialogContent className="sm:max-w-[600px] rounded-3xl dark:bg-slate-900 dark:border-slate-800 max-h-[85vh] overflow-y-auto"></DialogContent>
+        {/* Journal Channel Selection Modal */}
+        <Dialog open={journalChannelModalOpen} onOpenChange={setJournalChannelModalOpen}>
+          <DialogContent className="sm:max-w-[600px] rounded-3xl dark:bg-slate-900 dark:border-slate-800 max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="dark:text-white">Demander les justificatifs</DialogTitle>
+              <DialogDescription className="dark:text-slate-400">
+                Personnalisez le message et choisissez le canal d'envoi pour {selectedJournalEntries.length} écriture{selectedJournalEntries.length > 1 ? 's' : ''}.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">Message</Label>
+                <Textarea 
+                  value={journalMessageContent}
+                  onChange={(e) => setJournalMessageContent(e.target.value)}
+                  className="min-h-[200px] bg-white dark:bg-slate-950 dark:border-slate-800 text-sm"
+                  placeholder="Écrivez votre message..."
+                />
+              </div>
+              
+              <div>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">Canal d'envoi</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  <Button 
+                    variant={journalSelectedChannel === 'email' ? 'default' : 'outline'}
+                    className={`flex-col h-16 rounded-xl ${journalSelectedChannel === 'email' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'hover:bg-blue-50 hover:border-blue-200'}`}
+                    onClick={() => setJournalSelectedChannel('email')}
+                  >
+                    <Mail className="h-5 w-5 mb-1" />
+                    <span className="text-xs">Email</span>
+                  </Button>
+                  <Button 
+                    variant={journalSelectedChannel === 'sms' ? 'default' : 'outline'}
+                    className={`flex-col h-16 rounded-xl ${journalSelectedChannel === 'sms' ? 'bg-purple-600 text-white hover:bg-purple-700' : 'hover:bg-purple-50 hover:border-purple-200'}`}
+                    onClick={() => setJournalSelectedChannel('sms')}
+                  >
+                    <MessageSquare className="h-5 w-5 mb-1" />
+                    <span className="text-xs">SMS</span>
+                  </Button>
+                  <Button 
+                    variant={journalSelectedChannel === 'whatsapp' ? 'default' : 'outline'}
+                    className={`flex-col h-16 rounded-xl ${journalSelectedChannel === 'whatsapp' ? 'bg-green-600 text-white hover:bg-green-700' : 'hover:bg-green-50 hover:border-green-200'}`}
+                    onClick={() => setJournalSelectedChannel('whatsapp')}
+                  >
+                    <Phone className="h-5 w-5 mb-1" />
+                    <span className="text-xs">WhatsApp</span>
+                  </Button>
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setJournalChannelModalOpen(false)} className="rounded-xl">Annuler</Button>
+              <Button onClick={handleSendJournalEntriesMessage} className="rounded-xl bg-slate-900 text-white hover:bg-slate-800">
+                <Send className="mr-2 h-4 w-4" /> Envoyer
+              </Button>
+            </DialogFooter>
+          </DialogContent>
         </Dialog>
 
-        <Dialog
-          open={!!editingCommentId}
-          onOpenChange={(open) => !open && setEditingCommentId(null)}
-        >
-          <DialogContent className="sm:max-w-[425px] rounded-3xl p-6"></DialogContent>
+        {/* Comment Modal */}
+        <Dialog open={!!editingCommentId} onOpenChange={(open) => !open && setEditingCommentId(null)}>
+          <DialogContent className="sm:max-w-[425px] rounded-3xl p-6">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold text-slate-800">Ajouter un commentaire</DialogTitle>
+              <DialogDescription>
+                Ce commentaire sera visible pour vous et le client.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <Textarea
+                id="comment"
+                placeholder="Ex: Montant élevé, à vérifier..."
+                className="col-span-3 min-h-[100px] border-slate-200 rounded-xl"
+                value={tempComment}
+                onChange={(e) => setTempComment(e.target.value)}
+              />
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditingCommentId(null)} className="rounded-xl border-slate-200">Annuler</Button>
+              <Button onClick={handleSaveComment} className="rounded-xl bg-slate-900 text-white hover:bg-slate-800">Enregistrer</Button>
+            </DialogFooter>
+          </DialogContent>
         </Dialog>
       </div>
     </Layout>
+  );
+}
+
+function UsersIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  )
+}
+
+function AccountGroupRow({ group, selectedEntries, lostEntries, onToggleSelect, onToggleSelectGroup, onIgnore, onToggleUrgent, onToggleLost, onEditComment, showIgnored }: any) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <>
+      <TableRow className="hover:bg-slate-50 cursor-pointer border-slate-100" onClick={() => setIsOpen(!isOpen)}>
+        <TableCell className="font-bold text-blue-600 pl-6">{group.account}</TableCell>
+        <TableCell className="font-medium text-slate-800">{group.label}</TableCell>
+        <TableCell className="text-center">
+          <Badge variant="secondary" className="bg-orange-100 text-orange-700 hover:bg-orange-200 border-none">
+            {group.count} manquants
+          </Badge>
+        </TableCell>
+        <TableCell className="text-right font-bold text-slate-900 pr-8">
+          {group.totalAmount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+        </TableCell>
+        <TableCell>
+           <Search className={`h-5 w-5 text-slate-400 transition-transform duration-200 ${isOpen ? "text-blue-500" : ""}`} />
+        </TableCell>
+      </TableRow>
+      {isOpen && (
+        <TableRow className="bg-slate-50/30">
+          <TableCell colSpan={5} className="p-0">
+            <div className="pl-8 pr-4 py-6 border-l-4 border-blue-500/20 ml-6 my-2 bg-slate-50/50 rounded-r-xl">
+               <div className="mb-4">
+                 <h4 className="text-sm font-bold text-slate-700 uppercase tracking-wide flex items-center gap-2">
+                   <Search className="h-4 w-4 text-blue-500" />
+                   Détail des écritures non lettrées
+                 </h4>
+               </div>
+               
+               <div className="rounded-xl border border-slate-200 overflow-hidden bg-white shadow-sm">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-slate-100/50 hover:bg-slate-100/50">
+                        <TableHead className="w-[50px] pl-4">
+                          <Checkbox 
+                            checked={group.entries.length > 0 && group.entries.every((e: any) => selectedEntries.includes(e.id))}
+                            onCheckedChange={onToggleSelectGroup}
+                            className="rounded-md border-slate-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                          />
+                        </TableHead>
+                        <TableHead className="font-bold text-slate-600">Journal</TableHead>
+                        <TableHead className="font-bold text-slate-600">Libellé de l'opération</TableHead>
+                        <TableHead className="font-bold text-slate-600">Date de facturation</TableHead>
+                        <TableHead className="font-bold text-slate-600">N° Pièce</TableHead>
+                        <TableHead className="text-right font-bold text-slate-600">Débit</TableHead>
+                        <TableHead className="text-right font-bold text-slate-600">Crédit</TableHead>
+                        <TableHead className="text-center font-bold text-slate-600">Lettrage</TableHead>
+                        <TableHead className="text-right font-bold text-slate-600 pr-6">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {group.entries.map((entry: any) => (
+                        <TableRow key={entry.id} className={`group hover:bg-blue-50/10 border-slate-50 transition-colors ${lostEntries?.includes(entry.id) ? 'bg-amber-50' : entry.isUrgent ? 'bg-red-50' : ''}`}>
+                          <TableCell className="pl-4">
+                            <Checkbox 
+                              checked={selectedEntries.includes(entry.id)}
+                              onCheckedChange={() => onToggleSelect(entry.id)}
+                              className="rounded-md border-slate-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                              data-testid={`checkbox-entry-${entry.id}`}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="font-mono text-xs bg-slate-50">{entry.journal}</Badge>
+                          </TableCell>
+                          <TableCell className="font-medium text-slate-900">
+                             {entry.label}
+                             {entry.comment && (
+                               <div className="text-xs text-orange-600 mt-0.5 flex items-center gap-1">
+                                 <MessageSquare className="h-3 w-3" /> {entry.comment}
+                               </div>
+                             )}
+                          </TableCell>
+                          <TableCell className="text-slate-600">{new Date(entry.date).toLocaleDateString('fr-FR')}</TableCell>
+                          <TableCell className="font-mono text-sm text-slate-500">{entry.pieceRef || '-'}</TableCell>
+                          <TableCell className="text-right font-medium text-slate-700">
+                            {entry.type === 'Debit' ? entry.amount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' }) : '-'}
+                          </TableCell>
+                          <TableCell className="text-right font-medium text-slate-700">
+                            {entry.type === 'Credit' ? entry.amount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' }) : '-'}
+                          </TableCell>
+                          <TableCell className="text-center text-slate-300 italic">
+                             -
+                          </TableCell>
+                          <TableCell className="text-right pr-6">
+                            <div className="flex items-center justify-end gap-2">
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className={`h-8 w-8 rounded-lg ${entry.isUrgent ? 'text-red-600 bg-red-100 border-red-200 border' : 'text-slate-300 hover:text-red-600 hover:bg-red-50'}`}
+                                onClick={(e) => { e.stopPropagation(); onToggleUrgent(entry.id); }}
+                                title="Marquer comme urgent"
+                                data-testid={`button-urgent-entry-${entry.id}`}
+                              >
+                                <AlertTriangle className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 text-slate-300 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
+                                onClick={(e) => { e.stopPropagation(); onEditComment(entry.id, entry.comment); }}
+                                title="Ajouter un commentaire"
+                                data-testid={`button-comment-entry-${entry.id}`}
+                              >
+                                <MessageSquare className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className={`h-8 w-8 rounded-lg ${showIgnored ? 'text-blue-500 hover:text-blue-700 hover:bg-blue-50' : 'text-slate-300 hover:text-slate-600 hover:bg-slate-100'}`}
+                                onClick={(e) => { e.stopPropagation(); onIgnore(entry.id); }}
+                                title={showIgnored ? "Rétablir l'écriture" : "Ignorer cette écriture"}
+                                data-testid={`button-ignore-entry-${entry.id}`}
+                              >
+                                {showIgnored ? <RotateCcw className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                              </Button>
+                              {(entry.journal === 'ACH' || entry.journal === 'VTE') && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className={`h-8 px-2 rounded-lg border ${lostEntries?.includes(entry.id) ? 'text-amber-800 bg-amber-100 border-amber-200 hover:bg-amber-200' : 'text-slate-500 border-slate-200 hover:text-amber-700 hover:bg-amber-50'}`}
+                                  onClick={(e) => { e.stopPropagation(); onToggleLost(entry.id); }}
+                                  data-testid={`button-lost-entry-${entry.id}`}
+                                  title="Déclarer la pièce perdue"
+                                >
+                                  Perdu
+                                </Button>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+               </div>
+            </div>
+          </TableCell>
+        </TableRow>
+      )}
+    </>
   );
 }
