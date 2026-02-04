@@ -272,10 +272,16 @@ export default function ClientDetail() {
     }
   };
 
-  const selectByMode = (mode: 'all' | 'lost' | 'urgent') => {
+  const selectByMode = (scope: 'all-av' | 'achats' | 'ventes', mode: 'all' | 'lost' | 'urgent') => {
     setSelectionMode(mode);
 
-    const eligible = filteredEntries.filter(e => e.status === 'missing_doc' && !ignoredEntries.includes(e.id));
+    const eligibleBase = filteredEntries.filter(e => e.status === 'missing_doc' && !ignoredEntries.includes(e.id));
+
+    const eligible = eligibleBase.filter(e => {
+      if (scope === 'achats') return e.journal === 'ACH';
+      if (scope === 'ventes') return e.journal === 'VTE';
+      return e.journal === 'ACH' || e.journal === 'VTE';
+    });
 
     if (mode === 'all') {
       setSelectedEntries(eligible.map(e => e.id));
@@ -1005,34 +1011,46 @@ export default function ClientDetail() {
                     Achats
                   </h3>
                   <div className="flex items-center gap-2">
-                    <Button 
-                      size="sm" 
-                      variant={selectionMode === 'all' ? "default" : "ghost"}
-                      onClick={() => selectByMode('all')}
-                      className={`${selectionMode === 'all' ? 'bg-slate-900 text-white hover:bg-slate-800' : 'text-blue-600 hover:text-blue-700 hover:bg-blue-50'} rounded-xl`}
-                      data-testid="button-select-all"
-                    >
-                      <CheckSquare className="h-4 w-4 mr-2" />
-                      Tout
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant={selectionMode === 'lost' ? "default" : "outline"}
-                      onClick={() => selectByMode('lost')}
-                      className={`${selectionMode === 'lost' ? 'bg-amber-600 text-white hover:bg-amber-700 border-amber-600' : 'bg-white hover:bg-amber-50 border-amber-200 text-amber-800'} rounded-xl`}
-                      data-testid="button-select-lost"
-                    >
-                      Perdues
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant={selectionMode === 'urgent' ? "default" : "outline"}
-                      onClick={() => selectByMode('urgent')}
-                      className={`${selectionMode === 'urgent' ? 'bg-red-600 text-white hover:bg-red-700 border-red-600' : 'bg-white hover:bg-red-50 border-red-200 text-red-700'} rounded-xl`}
-                      data-testid="button-select-urgent"
-                    >
-                      Urgentes
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        size="sm" 
+                        variant={selectionMode === 'all' ? "default" : "ghost"}
+                        onClick={() => selectByMode('achats', 'all')}
+                        className={`${selectionMode === 'all' ? 'bg-slate-900 text-white hover:bg-slate-800' : 'text-blue-600 hover:text-blue-700 hover:bg-blue-50'} rounded-xl`}
+                        data-testid="button-select-achats-all"
+                      >
+                        <CheckSquare className="h-4 w-4 mr-2" />
+                        Tout
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant={selectionMode === 'lost' ? "default" : "outline"}
+                        onClick={() => selectByMode('achats', 'lost')}
+                        className={`${selectionMode === 'lost' ? 'bg-amber-600 text-white hover:bg-amber-700 border-amber-600' : 'bg-white hover:bg-amber-50 border-amber-200 text-amber-800'} rounded-xl`}
+                        data-testid="button-select-achats-lost"
+                      >
+                        Perdues
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant={selectionMode === 'urgent' ? "default" : "outline"}
+                        onClick={() => selectByMode('achats', 'urgent')}
+                        className={`${selectionMode === 'urgent' ? 'bg-red-600 text-white hover:bg-red-700 border-red-600' : 'bg-white hover:bg-red-50 border-red-200 text-red-700'} rounded-xl`}
+                        data-testid="button-select-achats-urgent"
+                      >
+                        Urgentes
+                      </Button>
+                      <div className="w-px h-6 bg-slate-200 mx-1" />
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => selectByMode('all-av', selectionMode)}
+                        className="rounded-xl bg-white hover:bg-slate-50"
+                        data-testid="button-select-av"
+                      >
+                        Achats + Ventes
+                      </Button>
+                    </div>
                   </div>
                 </div>
                 <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_2px_20px_rgba(0,0,0,0.02)] overflow-hidden">
@@ -1081,34 +1099,46 @@ export default function ClientDetail() {
                     Ventes
                   </h3>
                   <div className="flex items-center gap-2">
-                    <Button 
-                      size="sm" 
-                      variant={selectionMode === 'all' ? "default" : "ghost"}
-                      onClick={() => selectByMode('all')}
-                      className={`${selectionMode === 'all' ? 'bg-slate-900 text-white hover:bg-slate-800' : 'text-green-600 hover:text-green-700 hover:bg-green-50'} rounded-xl`}
-                      data-testid="button-select-all"
-                    >
-                      <CheckSquare className="h-4 w-4 mr-2" />
-                      Tout
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant={selectionMode === 'lost' ? "default" : "outline"}
-                      onClick={() => selectByMode('lost')}
-                      className={`${selectionMode === 'lost' ? 'bg-amber-600 text-white hover:bg-amber-700 border-amber-600' : 'bg-white hover:bg-amber-50 border-amber-200 text-amber-800'} rounded-xl`}
-                      data-testid="button-select-lost"
-                    >
-                      Perdues
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant={selectionMode === 'urgent' ? "default" : "outline"}
-                      onClick={() => selectByMode('urgent')}
-                      className={`${selectionMode === 'urgent' ? 'bg-red-600 text-white hover:bg-red-700 border-red-600' : 'bg-white hover:bg-red-50 border-red-200 text-red-700'} rounded-xl`}
-                      data-testid="button-select-urgent"
-                    >
-                      Urgentes
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        size="sm" 
+                        variant={selectionMode === 'all' ? "default" : "ghost"}
+                        onClick={() => selectByMode('ventes', 'all')}
+                        className={`${selectionMode === 'all' ? 'bg-slate-900 text-white hover:bg-slate-800' : 'text-green-600 hover:text-green-700 hover:bg-green-50'} rounded-xl`}
+                        data-testid="button-select-ventes-all"
+                      >
+                        <CheckSquare className="h-4 w-4 mr-2" />
+                        Tout
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant={selectionMode === 'lost' ? "default" : "outline"}
+                        onClick={() => selectByMode('ventes', 'lost')}
+                        className={`${selectionMode === 'lost' ? 'bg-amber-600 text-white hover:bg-amber-700 border-amber-600' : 'bg-white hover:bg-amber-50 border-amber-200 text-amber-800'} rounded-xl`}
+                        data-testid="button-select-ventes-lost"
+                      >
+                        Perdues
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant={selectionMode === 'urgent' ? "default" : "outline"}
+                        onClick={() => selectByMode('ventes', 'urgent')}
+                        className={`${selectionMode === 'urgent' ? 'bg-red-600 text-white hover:bg-red-700 border-red-600' : 'bg-white hover:bg-red-50 border-red-200 text-red-700'} rounded-xl`}
+                        data-testid="button-select-ventes-urgent"
+                      >
+                        Urgentes
+                      </Button>
+                      <div className="w-px h-6 bg-slate-200 mx-1" />
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => selectByMode('all-av', selectionMode)}
+                        className="rounded-xl bg-white hover:bg-slate-50"
+                        data-testid="button-select-av"
+                      >
+                        Achats + Ventes
+                      </Button>
+                    </div>
                   </div>
                 </div>
                 <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_2px_20px_rgba(0,0,0,0.02)] overflow-hidden">
