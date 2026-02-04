@@ -888,10 +888,10 @@ export default function ClientDetail() {
                                 {reminder.subject}
                               </span>
                               <span className="text-xs text-slate-500">
-                                {new Date(reminder.date).toLocaleDateString('fr-FR')} • Via {reminder.channels?.map(c => c.charAt(0).toUpperCase() + c.slice(1)).join(', ') || reminder.type}
+                                {new Date(reminder.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })} • {new Date(reminder.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} • Via {reminder.channels?.map(c => c.charAt(0).toUpperCase() + c.slice(1)).join(', ') || reminder.type}
                               </span>
-                              <Badge variant="outline" className="w-fit text-[10px] px-1.5 py-0 h-5 border-slate-200">
-                                {reminder.status}
+                              <Badge variant="outline" className={`w-fit text-[10px] px-1.5 py-0 h-5 border-slate-200 ${reminder.status === 'opened' ? 'bg-green-50 text-green-700 border-green-200' : reminder.status === 'sent' ? 'bg-blue-50 text-blue-700 border-blue-200' : reminder.status === 'failed' ? 'bg-red-50 text-red-700 border-red-200' : ''}`}>
+                                {reminder.status === 'opened' ? 'Ouvert' : reminder.status === 'sent' ? 'En cours' : reminder.status === 'failed' ? 'Échec' : reminder.status}
                               </Badge>
                             </div>
                           </div>
