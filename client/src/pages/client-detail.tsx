@@ -664,10 +664,10 @@ export default function ClientDetail() {
                   Notes internes
                 </CardTitle>
                 <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                  <span>Aujourd'hui</span>
+                  <span>{new Date().toLocaleDateString('fr-FR')}</span>
                   <span className="text-slate-300 dark:text-slate-600">•</span>
                   <span className="font-semibold text-slate-700 dark:text-slate-200">
-                    {filteredEntries.reduce((sum, e) => sum + e.amount, 0).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+                    {filteredEntries.filter(e => e.status === 'missing_doc').reduce((sum, e) => sum + e.amount, 0).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
                   </span>
                   <span className="text-slate-300 dark:text-slate-600">•</span>
                   <span>Total écritures non lettrées</span>
