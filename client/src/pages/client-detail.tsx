@@ -289,7 +289,15 @@ export default function ClientDetail() {
     }
 
     if (mode === 'lost') {
-      setSelectedEntries(eligible.filter(e => lostEntries.includes(e.id)).map(e => e.id));
+      const lostIds = eligible.filter(e => lostEntries.includes(e.id)).map(e => e.id);
+      setSelectedEntries(lostIds);
+
+      if (lostIds.length === 0) {
+        toast({
+          title: "Aucune pièce perdue",
+          description: "Aucune écriture marquée comme perdue dans cette liste.",
+        });
+      }
       return;
     }
 
