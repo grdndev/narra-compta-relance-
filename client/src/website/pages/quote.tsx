@@ -82,18 +82,18 @@ export default function QuotePage() {
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="firstName">Prénom <span className="text-red-500">*</span></Label>
-                  <Input id="firstName" required placeholder="Jean" />
+                  <Input id="firstName" required placeholder="Marie" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lastName">Nom <span className="text-red-500">*</span></Label>
-                  <Input id="lastName" required placeholder="Dupont" />
+                  <Input id="lastName" required placeholder="Victoire" />
                 </div>
               </div>
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email professionnel <span className="text-red-500">*</span></Label>
-                  <Input id="email" type="email" required placeholder="jean.dupont@cabinet.fr" />
+                  <Input id="email" type="email" required placeholder="marie.victoire@cabinet.fr" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone">Téléphone <span className="text-red-500">*</span></Label>
@@ -103,7 +103,7 @@ export default function QuotePage() {
 
               <div className="space-y-2">
                 <Label htmlFor="company">Nom du cabinet <span className="text-red-500">*</span></Label>
-                <Input id="company" required placeholder="Cabinet Dupont & Associés" />
+                <Input id="company" required placeholder="Cabinet Victoire & Associés" />
               </div>
 
               <div className="grid md:grid-cols-2 gap-6">
