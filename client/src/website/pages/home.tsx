@@ -15,7 +15,7 @@ import { Footer } from "../components/Footer";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-blue-100">
+    <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-blue-100 overflow-x-hidden">
       <Navbar />
 
       {/* Hero Section */}
@@ -133,9 +133,10 @@ export default function LandingPage() {
                       {/* Scanning Animation */}
                       <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 group-hover:opacity-100 group-hover:animate-[scan_2s_ease-in-out_infinite] -translate-y-full" />
                       
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="h-10 w-10 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform duration-300">
-                          <FileText className="h-5 w-5" />
+                      <div className="flex items-start justify-between mb-4 relative">
+                        <div className="h-10 w-10 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform duration-300 relative">
+                          <FileText className="h-5 w-5 relative z-10" />
+                          <div className="absolute inset-0 bg-indigo-500/10 rounded-lg animate-ping opacity-30 group-hover:opacity-50"></div>
                         </div>
                         <span className="text-xs font-semibold px-2 py-1 bg-slate-100 text-slate-600 rounded-full">
                           01
@@ -182,9 +183,10 @@ export default function LandingPage() {
                   {/* Step 3: Collecte */}
                   <div className="md:col-span-2 relative group h-full">
                     <div className="bg-white rounded-lg border border-slate-200 p-6 hover:border-green-600/30 hover:shadow-lg transition-all duration-300 h-full">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="h-10 w-10 rounded-lg bg-green-50 border border-green-100 flex items-center justify-center text-green-600 group-hover:bg-green-100 transition-colors duration-300">
-                          <CheckCircle2 className="h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
+                      <div className="flex items-start justify-between mb-4 relative">
+                        <div className="h-10 w-10 rounded-lg bg-green-50 border border-green-100 flex items-center justify-center text-green-600 group-hover:bg-green-100 transition-colors duration-300 relative">
+                          <CheckCircle2 className="h-5 w-5 group-hover:scale-110 transition-transform duration-300 relative z-10" />
+                          <div className="absolute inset-0 bg-green-500/10 rounded-lg animate-ping opacity-30 group-hover:opacity-50"></div>
                         </div>
                         <span className="text-xs font-semibold px-2 py-1 bg-slate-100 text-slate-600 rounded-full">
                           03
