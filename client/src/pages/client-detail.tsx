@@ -1030,18 +1030,33 @@ export default function ClientDetail() {
                     Achats
                   </h3>
                   <div className="flex items-center gap-2">
-                    <div className="relative">
-                      <select
-                        className="h-9 rounded-xl border border-slate-200 bg-white px-3 pr-8 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                        value={selectionMode}
-                        onChange={(e) => selectByMode('achats', e.target.value as any)}
-                        data-testid="select-achats-selection"
-                      >
-                        <option value="all">Tout sélectionner</option>
-                        <option value="lost">Perdues uniquement</option>
-                        <option value="urgent">Urgentes uniquement</option>
-                      </select>
-                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="rounded-xl bg-white hover:bg-slate-50 text-blue-700 border-blue-200"
+                      onClick={() => selectByMode('achats', 'all')}
+                      data-testid="button-select-achats-all"
+                    >
+                      Tout sélectionner
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="rounded-xl bg-white hover:bg-amber-50 text-amber-800 border-amber-200"
+                      onClick={() => selectByMode('achats', 'lost')}
+                      data-testid="button-select-achats-lost"
+                    >
+                      Perdues uniquement
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="rounded-xl bg-white hover:bg-red-50 text-red-700 border-red-200"
+                      onClick={() => selectByMode('achats', 'urgent')}
+                      data-testid="button-select-achats-urgent"
+                    >
+                      Urgentes uniquement
+                    </Button>
                   </div>
                 </div>
                 <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_2px_20px_rgba(0,0,0,0.02)] overflow-hidden">
@@ -1090,18 +1105,33 @@ export default function ClientDetail() {
                     Ventes
                   </h3>
                   <div className="flex items-center gap-2">
-                    <div className="relative">
-                      <select
-                        className="h-9 rounded-xl border border-slate-200 bg-white px-3 pr-8 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-green-200"
-                        value={selectionMode}
-                        onChange={(e) => selectByMode('ventes', e.target.value as any)}
-                        data-testid="select-ventes-selection"
-                      >
-                        <option value="all">Tout sélectionner</option>
-                        <option value="lost">Perdues uniquement</option>
-                        <option value="urgent">Urgentes uniquement</option>
-                      </select>
-                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="rounded-xl bg-white hover:bg-slate-50 text-green-700 border-green-200"
+                      onClick={() => selectByMode('ventes', 'all')}
+                      data-testid="button-select-ventes-all"
+                    >
+                      Tout sélectionner
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="rounded-xl bg-white hover:bg-amber-50 text-amber-800 border-amber-200"
+                      onClick={() => selectByMode('ventes', 'lost')}
+                      data-testid="button-select-ventes-lost"
+                    >
+                      Perdues uniquement
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="rounded-xl bg-white hover:bg-red-50 text-red-700 border-red-200"
+                      onClick={() => selectByMode('ventes', 'urgent')}
+                      data-testid="button-select-ventes-urgent"
+                    >
+                      Urgentes uniquement
+                    </Button>
                   </div>
                 </div>
                 <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_2px_20px_rgba(0,0,0,0.02)] overflow-hidden">
@@ -1545,14 +1575,26 @@ export default function ClientDetail() {
                <div className="text-sm font-medium">
                   <span className="text-blue-400 font-bold">{selectedEntries.length + selectedDocs.length} pièces sélectionnées</span>
                </div>
-               <Button 
-                size="lg" 
-                className="rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 shadow-lg shadow-blue-900/50"
-                onClick={handleOpenReminderDialog}
-               >
-                 <Send className="h-5 w-5 mr-2" />
-                 Demander au client
-               </Button>
+               <div className="flex items-center gap-2">
+                 <Button 
+                  size="lg" 
+                  className="rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 shadow-lg shadow-blue-900/50"
+                  onClick={handleOpenReminderDialog}
+                  data-testid="button-request-client"
+                 >
+                   <Send className="h-5 w-5 mr-2" />
+                   Demander au client
+                 </Button>
+                 <Button
+                  size="lg"
+                  variant="outline"
+                  className="rounded-xl border-slate-600/50 text-slate-200 hover:bg-white/10 hover:text-white"
+                  onClick={() => { setSelectedEntries([]); setSelectedDocs([]); setSelectionMode('all'); }}
+                  data-testid="button-cancel-selection"
+                 >
+                   Annuler
+                 </Button>
+               </div>
             </div>
           </div>
         )}
