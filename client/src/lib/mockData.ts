@@ -389,11 +389,14 @@ export const mockDocuments: Document[] = [
 ];
 
 export const mockReminders: Reminder[] = [
-  { id: 'r1', clientId: '1', date: formatDate(subDays(today, 1)), type: 'automatic', channels: ['email'], status: 'opened', subject: 'Rappel : Documents manquants' },
-  { id: 'r2', clientId: '3', date: formatDate(subDays(today, 2)), type: 'email', channels: ['email', 'sms'], status: 'sent', subject: 'Relance urgente - Clôture' },
-  { id: 'r3', clientId: '2', date: formatDate(today), type: 'automatic', channels: ['email'], status: 'sent', subject: 'Vos documents comptables' },
-  { id: 'r4', clientId: '1', date: formatDate(subDays(today, 3)), type: 'email', channels: ['email'], status: 'opened', subject: 'Relance Manuelle' },
-  { id: 'r5', clientId: '6', date: formatDate(subDays(today, 1)), type: 'sms', channels: ['sms'], status: 'sent', subject: 'Rappel SMS' },
+  { id: 'r1', clientId: '1', date: `${formatDate(subDays(today, 0))}T08:12:00`, type: 'automatic', channels: ['email'], status: 'sent', subject: 'Rappel : Documents manquants' },
+  { id: 'r4', clientId: '1', date: `${formatDate(subDays(today, 0))}T11:47:00`, type: 'email', channels: ['email'], status: 'opened', subject: 'Relance Manuelle' },
+  { id: 'r6', clientId: '1', date: `${formatDate(subDays(today, 1))}T16:05:00`, type: 'automatic', channels: ['email', 'sms'], status: 'sent', subject: 'Relance automatique J+1' },
+  { id: 'r7', clientId: '1', date: `${formatDate(subDays(today, 2))}T09:25:00`, type: 'email', channels: ['email'], status: 'opened', subject: 'Relance - Justificatifs' },
+  { id: 'r8', clientId: '1', date: `${formatDate(subDays(today, 3))}T18:33:00`, type: 'sms', channels: ['sms'], status: 'sent', subject: 'Rappel SMS' },
+  { id: 'r2', clientId: '3', date: `${formatDate(subDays(today, 2))}T10:15:00`, type: 'email', channels: ['email', 'sms'], status: 'sent', subject: 'Relance urgente - Clôture' },
+  { id: 'r3', clientId: '2', date: `${formatDate(today)}T14:20:00`, type: 'automatic', channels: ['email'], status: 'sent', subject: 'Vos documents comptables' },
+  { id: 'r5', clientId: '6', date: `${formatDate(subDays(today, 1))}T13:10:00`, type: 'sms', channels: ['sms'], status: 'sent', subject: 'Rappel SMS' },
 ];
 
 export const mockCampaigns: Campaign[] = [
