@@ -396,7 +396,7 @@ export default function LandingPage() {
             Prêt à transformer votre cabinet ?
           </h2>
           <p className="text-xl text-slate-300 mb-10 max-w-2xl mx-auto">
-            Rejoignez les experts-comptables qui ont choisi Naraa pour moderniser leur relation client.
+            Rejoignez les experts-comptables qui ont choisi naraa.fr pour moderniser leur relation client.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/site-vitrine/demo">
