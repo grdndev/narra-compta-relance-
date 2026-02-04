@@ -27,6 +27,7 @@ export default function ClientDetail() {
   const [selectedEntries, setSelectedEntries] = useState<string[]>([]);
   const [lostEntries, setLostEntries] = useState<string[]>([]);
   const [selectionMode, setSelectionMode] = useState<'all' | 'lost' | 'urgent'>('all');
+  const [selectionScope, setSelectionScope] = useState<'achats' | 'ventes' | 'all-av' | null>(null);
   const [selectedJournalEntries, setSelectedJournalEntries] = useState<string[]>([]);
   const [journalChannelModalOpen, setJournalChannelModalOpen] = useState(false);
   const [journalSelectedChannel, setJournalSelectedChannel] = useState<'email' | 'sms' | 'whatsapp'>('email');
@@ -229,6 +230,7 @@ export default function ClientDetail() {
     setSelectedEntries([]);
     setSelectedDocs([]);
     setSelectionMode('all');
+    setSelectionScope(null);
   };
 
   const toggleSelectAllDocs = () => {
@@ -273,6 +275,7 @@ export default function ClientDetail() {
   };
 
   const selectByMode = (scope: 'all-av' | 'achats' | 'ventes', mode: 'all' | 'lost' | 'urgent') => {
+    setSelectionScope(scope);
     setSelectionMode(mode);
 
     const eligibleBase = filteredEntries.filter(e => e.status === 'missing_doc' && !ignoredEntries.includes(e.id));
@@ -1014,7 +1017,8 @@ export default function ClientDetail() {
             <div className="flex items-center justify-end">
               <Button
                 size="sm"
-                className="rounded-xl bg-slate-900 text-white hover:bg-slate-800"
+                variant={selectionScope === 'all-av' && selectionMode === 'all' ? "default" : "outline"}
+                className={`rounded-xl ${selectionScope === 'all-av' && selectionMode === 'all' ? 'bg-slate-900 text-white hover:bg-slate-800' : 'bg-white hover:bg-slate-50'}`}
                 onClick={() => selectByMode('all-av', 'all')}
                 data-testid="button-select-all-av"
               >
@@ -1032,8 +1036,8 @@ export default function ClientDetail() {
                   <div className="flex items-center gap-2">
                     <Button
                       size="sm"
-                      variant="outline"
-                      className="rounded-xl bg-white hover:bg-slate-50 text-blue-700 border-blue-200"
+                      variant={selectionScope === 'achats' && selectionMode === 'all' ? "default" : "outline"}
+                      className={`rounded-xl ${selectionScope === 'achats' && selectionMode === 'all' ? 'bg-blue-600 text-white hover:bg-blue-700 border-blue-600' : 'bg-white hover:bg-slate-50 text-blue-700 border-blue-200'}`}
                       onClick={() => selectByMode('achats', 'all')}
                       data-testid="button-select-achats-all"
                     >
@@ -1041,8 +1045,8 @@ export default function ClientDetail() {
                     </Button>
                     <Button
                       size="sm"
-                      variant="outline"
-                      className="rounded-xl bg-white hover:bg-amber-50 text-amber-800 border-amber-200"
+                      variant={selectionScope === 'achats' && selectionMode === 'lost' ? "default" : "outline"}
+                      className={`rounded-xl ${selectionScope === 'achats' && selectionMode === 'lost' ? 'bg-amber-600 text-white hover:bg-amber-700 border-amber-600' : 'bg-white hover:bg-amber-50 text-amber-800 border-amber-200'}`}
                       onClick={() => selectByMode('achats', 'lost')}
                       data-testid="button-select-achats-lost"
                     >
@@ -1050,8 +1054,8 @@ export default function ClientDetail() {
                     </Button>
                     <Button
                       size="sm"
-                      variant="outline"
-                      className="rounded-xl bg-white hover:bg-red-50 text-red-700 border-red-200"
+                      variant={selectionScope === 'achats' && selectionMode === 'urgent' ? "default" : "outline"}
+                      className={`rounded-xl ${selectionScope === 'achats' && selectionMode === 'urgent' ? 'bg-red-600 text-white hover:bg-red-700 border-red-600' : 'bg-white hover:bg-red-50 text-red-700 border-red-200'}`}
                       onClick={() => selectByMode('achats', 'urgent')}
                       data-testid="button-select-achats-urgent"
                     >
@@ -1107,8 +1111,8 @@ export default function ClientDetail() {
                   <div className="flex items-center gap-2">
                     <Button
                       size="sm"
-                      variant="outline"
-                      className="rounded-xl bg-white hover:bg-slate-50 text-green-700 border-green-200"
+                      variant={selectionScope === 'ventes' && selectionMode === 'all' ? "default" : "outline"}
+                      className={`rounded-xl ${selectionScope === 'ventes' && selectionMode === 'all' ? 'bg-green-600 text-white hover:bg-green-700 border-green-600' : 'bg-white hover:bg-slate-50 text-green-700 border-green-200'}`}
                       onClick={() => selectByMode('ventes', 'all')}
                       data-testid="button-select-ventes-all"
                     >
@@ -1116,8 +1120,8 @@ export default function ClientDetail() {
                     </Button>
                     <Button
                       size="sm"
-                      variant="outline"
-                      className="rounded-xl bg-white hover:bg-amber-50 text-amber-800 border-amber-200"
+                      variant={selectionScope === 'ventes' && selectionMode === 'lost' ? "default" : "outline"}
+                      className={`rounded-xl ${selectionScope === 'ventes' && selectionMode === 'lost' ? 'bg-amber-600 text-white hover:bg-amber-700 border-amber-600' : 'bg-white hover:bg-amber-50 text-amber-800 border-amber-200'}`}
                       onClick={() => selectByMode('ventes', 'lost')}
                       data-testid="button-select-ventes-lost"
                     >
@@ -1125,8 +1129,8 @@ export default function ClientDetail() {
                     </Button>
                     <Button
                       size="sm"
-                      variant="outline"
-                      className="rounded-xl bg-white hover:bg-red-50 text-red-700 border-red-200"
+                      variant={selectionScope === 'ventes' && selectionMode === 'urgent' ? "default" : "outline"}
+                      className={`rounded-xl ${selectionScope === 'ventes' && selectionMode === 'urgent' ? 'bg-red-600 text-white hover:bg-red-700 border-red-600' : 'bg-white hover:bg-red-50 text-red-700 border-red-200'}`}
                       onClick={() => selectByMode('ventes', 'urgent')}
                       data-testid="button-select-ventes-urgent"
                     >
@@ -1589,7 +1593,7 @@ export default function ClientDetail() {
                   size="lg"
                   variant="outline"
                   className="rounded-xl border-slate-600/50 text-slate-200 hover:bg-white/10 hover:text-white"
-                  onClick={() => { setSelectedEntries([]); setSelectedDocs([]); setSelectionMode('all'); }}
+                  onClick={() => { setSelectedEntries([]); setSelectedDocs([]); setSelectionMode('all'); setSelectionScope(null); }}
                   data-testid="button-cancel-selection"
                  >
                    Annuler
