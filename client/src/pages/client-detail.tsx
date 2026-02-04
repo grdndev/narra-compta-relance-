@@ -1002,6 +1002,16 @@ export default function ClientDetail() {
           </TabsContent>
 
           <TabsContent value="achats-ventes" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="flex items-center justify-end">
+              <Button
+                size="sm"
+                className="rounded-xl bg-slate-900 text-white hover:bg-slate-800"
+                onClick={() => selectByMode('all-av', 'all')}
+                data-testid="button-select-all-av"
+              >
+                Tout sélectionner HA + VT
+              </Button>
+            </div>
             <div className="space-y-8">
               {/* ACHATS */}
               <div className="space-y-4">
@@ -1011,45 +1021,17 @@ export default function ClientDetail() {
                     Achats
                   </h3>
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-2">
-                      <Button 
-                        size="sm" 
-                        variant={selectionMode === 'all' ? "default" : "ghost"}
-                        onClick={() => selectByMode('achats', 'all')}
-                        className={`${selectionMode === 'all' ? 'bg-slate-900 text-white hover:bg-slate-800' : 'text-blue-600 hover:text-blue-700 hover:bg-blue-50'} rounded-xl`}
-                        data-testid="button-select-achats-all"
+                    <div className="relative">
+                      <select
+                        className="h-9 rounded-xl border border-slate-200 bg-white px-3 pr-8 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                        value={selectionMode}
+                        onChange={(e) => selectByMode('achats', e.target.value as any)}
+                        data-testid="select-achats-selection"
                       >
-                        <CheckSquare className="h-4 w-4 mr-2" />
-                        Tout
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant={selectionMode === 'lost' ? "default" : "outline"}
-                        onClick={() => selectByMode('achats', 'lost')}
-                        className={`${selectionMode === 'lost' ? 'bg-amber-600 text-white hover:bg-amber-700 border-amber-600' : 'bg-white hover:bg-amber-50 border-amber-200 text-amber-800'} rounded-xl`}
-                        data-testid="button-select-achats-lost"
-                      >
-                        Perdues
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant={selectionMode === 'urgent' ? "default" : "outline"}
-                        onClick={() => selectByMode('achats', 'urgent')}
-                        className={`${selectionMode === 'urgent' ? 'bg-red-600 text-white hover:bg-red-700 border-red-600' : 'bg-white hover:bg-red-50 border-red-200 text-red-700'} rounded-xl`}
-                        data-testid="button-select-achats-urgent"
-                      >
-                        Urgentes
-                      </Button>
-                      <div className="w-px h-6 bg-slate-200 mx-1" />
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => selectByMode('all-av', selectionMode)}
-                        className="rounded-xl bg-white hover:bg-slate-50"
-                        data-testid="button-select-av"
-                      >
-                        Achats + Ventes
-                      </Button>
+                        <option value="all">Tout sélectionner</option>
+                        <option value="lost">Perdues uniquement</option>
+                        <option value="urgent">Urgentes uniquement</option>
+                      </select>
                     </div>
                   </div>
                 </div>
@@ -1099,45 +1081,17 @@ export default function ClientDetail() {
                     Ventes
                   </h3>
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-2">
-                      <Button 
-                        size="sm" 
-                        variant={selectionMode === 'all' ? "default" : "ghost"}
-                        onClick={() => selectByMode('ventes', 'all')}
-                        className={`${selectionMode === 'all' ? 'bg-slate-900 text-white hover:bg-slate-800' : 'text-green-600 hover:text-green-700 hover:bg-green-50'} rounded-xl`}
-                        data-testid="button-select-ventes-all"
+                    <div className="relative">
+                      <select
+                        className="h-9 rounded-xl border border-slate-200 bg-white px-3 pr-8 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-green-200"
+                        value={selectionMode}
+                        onChange={(e) => selectByMode('ventes', e.target.value as any)}
+                        data-testid="select-ventes-selection"
                       >
-                        <CheckSquare className="h-4 w-4 mr-2" />
-                        Tout
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant={selectionMode === 'lost' ? "default" : "outline"}
-                        onClick={() => selectByMode('ventes', 'lost')}
-                        className={`${selectionMode === 'lost' ? 'bg-amber-600 text-white hover:bg-amber-700 border-amber-600' : 'bg-white hover:bg-amber-50 border-amber-200 text-amber-800'} rounded-xl`}
-                        data-testid="button-select-ventes-lost"
-                      >
-                        Perdues
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant={selectionMode === 'urgent' ? "default" : "outline"}
-                        onClick={() => selectByMode('ventes', 'urgent')}
-                        className={`${selectionMode === 'urgent' ? 'bg-red-600 text-white hover:bg-red-700 border-red-600' : 'bg-white hover:bg-red-50 border-red-200 text-red-700'} rounded-xl`}
-                        data-testid="button-select-ventes-urgent"
-                      >
-                        Urgentes
-                      </Button>
-                      <div className="w-px h-6 bg-slate-200 mx-1" />
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => selectByMode('all-av', selectionMode)}
-                        className="rounded-xl bg-white hover:bg-slate-50"
-                        data-testid="button-select-av"
-                      >
-                        Achats + Ventes
-                      </Button>
+                        <option value="all">Tout sélectionner</option>
+                        <option value="lost">Perdues uniquement</option>
+                        <option value="urgent">Urgentes uniquement</option>
+                      </select>
                     </div>
                   </div>
                 </div>
