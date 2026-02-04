@@ -1737,166 +1737,6 @@ export default function ClientDetail() {
                 )}
               </div>
 
-              {/* Follow-up Section */}
-              <div className="p-4 border border-slate-200 dark:border-slate-800 rounded-xl bg-white/70 dark:bg-slate-900/30 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="font-semibold dark:text-slate-200">Séquence de relance (emails)</Label>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5" data-testid="text-followup-hint">
-                      Créez une suite de relances comme dans Lemlist.
-                    </p>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant={followUpEnabled ? 'default' : 'outline'}
-                    onClick={() => setFollowUpEnabled(v => !v)}
-                    className={`rounded-lg ${followUpEnabled ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-white text-slate-600'}`}
-                    data-testid="button-followup-toggle"
-                  >
-                    {followUpEnabled ? 'Activée' : 'Activer'}
-                  </Button>
-                </div>
-
-                {followUpEnabled && (
-                  <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
-                    <div className="space-y-3">
-                      {followUpSteps.map((step, idx) => {
-                        const delayLabel = step.delay === 'd1'
-                          ? 'J+1'
-                          : step.delay === 'd3'
-                            ? 'J+3'
-                            : step.delay === 'd7'
-                              ? 'J+7'
-                              : 'Personnalisé';
-
-                        return (
-                          <div
-                            key={step.id}
-                            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/40 overflow-hidden"
-                            data-testid={`card-followup-step-${step.id}`}
-                          >
-                            <div className="flex items-center justify-between px-4 py-3 bg-slate-50/70 dark:bg-slate-900/40">
-                              <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center text-xs font-bold" data-testid={`text-followup-step-number-${step.id}`}>
-                                  {idx + 1}
-                                </div>
-                                <div className="text-sm font-semibold text-slate-900 dark:text-white" data-testid={`text-followup-step-title-${step.id}`}>
-                                  Relance {idx + 1}
-                                </div>
-                                <div className="text-xs text-slate-500 dark:text-slate-400" data-testid={`text-followup-step-delay-${step.id}`}>
-                                  {delayLabel}{step.delay === 'custom' && step.customDate ? ` (${step.customDate})` : ''}
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="rounded-lg"
-                                  onClick={() => {
-                                    setFollowUpSteps(prev => prev.filter(s => s.id !== step.id));
-                                  }}
-                                  data-testid={`button-followup-remove-${step.id}`}
-                                >
-                                  Supprimer
-                                </Button>
-                              </div>
-                            </div>
-
-                            <div className="p-4 space-y-3">
-                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                                {(['d1', 'd3', 'd7', 'custom'] as FollowUpDelay[]).map(opt => (
-                                  <Button
-                                    key={opt}
-                                    size="sm"
-                                    variant={step.delay === opt ? 'default' : 'outline'}
-                                    onClick={() => {
-                                      setFollowUpSteps(prev => prev.map(s => s.id === step.id ? { ...s, delay: opt } : s));
-                                    }}
-                                    className={`rounded-lg ${step.delay === opt ? 'bg-slate-900 text-white hover:bg-slate-800' : 'bg-white text-slate-600'}`}
-                                    data-testid={`button-followup-delay-${step.id}-${opt}`}
-                                  >
-                                    {opt === 'd1' ? 'J+1' : opt === 'd3' ? 'J+3' : opt === 'd7' ? 'J+7' : 'Personnalisé'}
-                                  </Button>
-                                ))}
-                              </div>
-
-                              {step.delay === 'custom' && (
-                                <div className="animate-in fade-in slide-in-from-top-2">
-                                  <Label className="text-xs mb-1.5 block">Date et heure</Label>
-                                  <Input
-                                    type="datetime-local"
-                                    value={step.customDate || ''}
-                                    onChange={(e) => {
-                                      const v = e.target.value;
-                                      setFollowUpSteps(prev => prev.map(s => s.id === step.id ? { ...s, customDate: v } : s));
-                                    }}
-                                    className="bg-white"
-                                    data-testid={`input-followup-custom-${step.id}`}
-                                  />
-                                </div>
-                              )}
-
-                              <div>
-                                <Label className="text-xs text-slate-500 dark:text-slate-400">Objet</Label>
-                                <Input
-                                  value={step.subject}
-                                  onChange={(e) => {
-                                    const v = e.target.value;
-                                    setFollowUpSteps(prev => prev.map(s => s.id === step.id ? { ...s, subject: v } : s));
-                                  }}
-                                  className="bg-white dark:bg-slate-950 dark:border-slate-800 mt-1"
-                                  data-testid={`input-followup-subject-${step.id}`}
-                                />
-                              </div>
-
-                              <div>
-                                <Label className="text-xs text-slate-500 dark:text-slate-400">Email</Label>
-                                <Textarea
-                                  value={step.body}
-                                  onChange={(e) => {
-                                    const v = e.target.value;
-                                    setFollowUpSteps(prev => prev.map(s => s.id === step.id ? { ...s, body: v } : s));
-                                  }}
-                                  className="bg-white dark:bg-slate-950 dark:border-slate-800 min-h-[120px] text-sm mt-1"
-                                  data-testid={`textarea-followup-body-${step.id}`}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
-                      <p className="text-xs text-slate-500 dark:text-slate-400" data-testid="text-followup-count">
-                        {followUpSteps.length} étape{followUpSteps.length > 1 ? 's' : ''}
-                      </p>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="rounded-lg"
-                        onClick={() => {
-                          if (followUpSteps.length >= 5) return;
-                          setFollowUpSteps(prev => ([
-                            ...prev,
-                            {
-                              id: crypto.randomUUID(),
-                              delay: 'd3',
-                              subject: `Rappel — pièces comptables manquantes`,
-                              body: `Bonjour,\n\nPetit rappel concernant les pièces comptables demandées.\n\nMerci d'avance.\n\nCordialement,\nVotre Expert-Comptable`
-                            }
-                          ]));
-                        }}
-                        disabled={followUpSteps.length >= 5}
-                        data-testid="button-followup-add-step"
-                      >
-                        Ajouter une relance
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </div>
-
               {/* EMAIL SECTION */}
               <div className={`border rounded-xl p-4 transition-all ${reminderChannels.email ? 'border-blue-200 bg-blue-50/30 dark:border-blue-900/50 dark:bg-blue-900/10' : 'border-slate-200 dark:border-slate-800'}`}>
                 <div className="flex items-center space-x-2 mb-3">
@@ -1968,6 +1808,166 @@ export default function ClientDetail() {
                             className="bg-white dark:bg-slate-950 dark:border-slate-800 min-h-[80px] text-sm"
                         />
                     </div>
+                )}
+              </div>
+
+              {/* Follow-up Section */}
+              <div className="p-4 rounded-xl border border-indigo-200/60 dark:border-indigo-900/50 bg-indigo-50/60 dark:bg-indigo-900/10 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="font-semibold text-indigo-900 dark:text-indigo-100">Séquence de relance (emails)</Label>
+                    <p className="text-xs text-indigo-800/70 dark:text-indigo-200/70 mt-0.5" data-testid="text-followup-hint">
+                      Créez une suite de relances.
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant={followUpEnabled ? 'default' : 'outline'}
+                    onClick={() => setFollowUpEnabled(v => !v)}
+                    className={`rounded-lg ${followUpEnabled ? 'bg-indigo-700 text-white hover:bg-indigo-800' : 'bg-white text-slate-600'}`}
+                    data-testid="button-followup-toggle"
+                  >
+                    {followUpEnabled ? 'Activée' : 'Activer'}
+                  </Button>
+                </div>
+
+                {followUpEnabled && (
+                  <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="space-y-3">
+                      {followUpSteps.map((step, idx) => {
+                        const delayLabel = step.delay === 'd1'
+                          ? 'J+1'
+                          : step.delay === 'd3'
+                            ? 'J+3'
+                            : step.delay === 'd7'
+                              ? 'J+7'
+                              : 'Personnalisé';
+
+                        return (
+                          <div
+                            key={step.id}
+                            className="rounded-xl border border-indigo-200/60 dark:border-indigo-900/50 bg-white/70 dark:bg-slate-950/40 overflow-hidden"
+                            data-testid={`card-followup-step-${step.id}`}
+                          >
+                            <div className="flex items-center justify-between px-4 py-3 bg-indigo-50/70 dark:bg-indigo-900/20">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-lg bg-indigo-700 text-white flex items-center justify-center text-xs font-bold" data-testid={`text-followup-step-number-${step.id}`}>
+                                  {idx + 1}
+                                </div>
+                                <div className="text-sm font-semibold text-slate-900 dark:text-white" data-testid={`text-followup-step-title-${step.id}`}>
+                                  Relance {idx + 1}
+                                </div>
+                                <div className="text-xs text-slate-500 dark:text-slate-400" data-testid={`text-followup-step-delay-${step.id}`}>
+                                  {delayLabel}{step.delay === 'custom' && step.customDate ? ` (${step.customDate})` : ''}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="rounded-lg"
+                                  onClick={() => {
+                                    setFollowUpSteps(prev => prev.filter(s => s.id !== step.id));
+                                  }}
+                                  data-testid={`button-followup-remove-${step.id}`}
+                                >
+                                  Supprimer
+                                </Button>
+                              </div>
+                            </div>
+
+                            <div className="p-4 space-y-3">
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                {(['d1', 'd3', 'd7', 'custom'] as FollowUpDelay[]).map(opt => (
+                                  <Button
+                                    key={opt}
+                                    size="sm"
+                                    variant={step.delay === opt ? 'default' : 'outline'}
+                                    onClick={() => {
+                                      setFollowUpSteps(prev => prev.map(s => s.id === step.id ? { ...s, delay: opt } : s));
+                                    }}
+                                    className={`rounded-lg ${step.delay === opt ? 'bg-indigo-700 text-white hover:bg-indigo-800' : 'bg-white text-slate-600'}`}
+                                    data-testid={`button-followup-delay-${step.id}-${opt}`}
+                                  >
+                                    {opt === 'd1' ? 'J+1' : opt === 'd3' ? 'J+3' : opt === 'd7' ? 'J+7' : 'Personnalisé'}
+                                  </Button>
+                                ))}
+                              </div>
+
+                              {step.delay === 'custom' && (
+                                <div className="animate-in fade-in slide-in-from-top-2">
+                                  <Label className="text-xs mb-1.5 block">Date et heure</Label>
+                                  <Input
+                                    type="datetime-local"
+                                    value={step.customDate || ''}
+                                    onChange={(e) => {
+                                      const v = e.target.value;
+                                      setFollowUpSteps(prev => prev.map(s => s.id === step.id ? { ...s, customDate: v } : s));
+                                    }}
+                                    className="bg-white"
+                                    data-testid={`input-followup-custom-${step.id}`}
+                                  />
+                                </div>
+                              )}
+
+                              <div>
+                                <Label className="text-xs text-slate-500 dark:text-slate-400">Objet</Label>
+                                <Input
+                                  value={step.subject}
+                                  onChange={(e) => {
+                                    const v = e.target.value;
+                                    setFollowUpSteps(prev => prev.map(s => s.id === step.id ? { ...s, subject: v } : s));
+                                  }}
+                                  className="bg-white dark:bg-slate-950 dark:border-slate-800 mt-1"
+                                  data-testid={`input-followup-subject-${step.id}`}
+                                />
+                              </div>
+
+                              <div>
+                                <Label className="text-xs text-slate-500 dark:text-slate-400">Email</Label>
+                                <Textarea
+                                  value={step.body}
+                                  onChange={(e) => {
+                                    const v = e.target.value;
+                                    setFollowUpSteps(prev => prev.map(s => s.id === step.id ? { ...s, body: v } : s));
+                                  }}
+                                  className="bg-white dark:bg-slate-950 dark:border-slate-800 min-h-[120px] text-sm mt-1"
+                                  data-testid={`textarea-followup-body-${step.id}`}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
+                      <p className="text-xs text-indigo-900/70 dark:text-indigo-200/70" data-testid="text-followup-count">
+                        {followUpSteps.length} étape{followUpSteps.length > 1 ? 's' : ''}
+                      </p>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="rounded-lg bg-white/80"
+                        onClick={() => {
+                          if (followUpSteps.length >= 5) return;
+                          setFollowUpSteps(prev => ([
+                            ...prev,
+                            {
+                              id: crypto.randomUUID(),
+                              delay: 'd3',
+                              subject: `Rappel — pièces comptables manquantes`,
+                              body: `Bonjour,\n\nPetit rappel concernant les pièces comptables demandées.\n\nMerci d'avance.\n\nCordialement,\nVotre Expert-Comptable`
+                            }
+                          ]));
+                        }}
+                        disabled={followUpSteps.length >= 5}
+                        data-testid="button-followup-add-step"
+                      >
+                        Ajouter une relance
+                      </Button>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
