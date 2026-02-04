@@ -25,6 +25,8 @@ export default function ClientDetail() {
   const { toast } = useToast();
   const [selectedDocs, setSelectedDocs] = useState<string[]>([]);
   const [selectedEntries, setSelectedEntries] = useState<string[]>([]);
+  const [lostEntries, setLostEntries] = useState<string[]>([]);
+  const [selectionMode, setSelectionMode] = useState<'all' | 'lost' | 'urgent'>('all');
   const [selectedJournalEntries, setSelectedJournalEntries] = useState<string[]>([]);
   const [journalChannelModalOpen, setJournalChannelModalOpen] = useState(false);
   const [journalSelectedChannel, setJournalSelectedChannel] = useState<'email' | 'sms' | 'whatsapp'>('email');
@@ -144,6 +146,18 @@ export default function ClientDetail() {
   }
 
   const pendingDocs = documents.filter(d => d.status === 'missing');
+
+  const buildEmailTemplateForSelection = (mode: 'all' | 'lost' | 'urgent', politeName: string, count: number) => {
+    if (mode === 'lost') {
+      return `Bonjour ${politeName},\n\nNous constatons que ${count} pièce(s) comptable(s) sont indiquées comme *perdues* (non retrouvées).\n\n⚠️ Sans justificatifs, certaines charges peuvent être considérées comme non déductibles et cela peut poser un risque en cas de contrôle fiscal.\n\nMerci de nous transmettre au plus vite un duplicata (fournisseur / facture / reçu) ou toute preuve équivalente permettant de justifier ces écritures.\n\nCordialement,\nVotre Expert-Comptable`;
+    }
+
+    if (mode === 'urgent') {
+      return `Bonjour ${politeName},\n\nNous vous informons qu’il manque encore ${count} pièce(s) comptable(s) marquées comme *urgentes*.\n\nAfin de mener à bien notre mission et de respecter les deadlines, merci de nous transmettre ces justificatifs dès que possible via votre espace client.\n\nCordialement,\nVotre Expert-Comptable`;
+    }
+
+    return `Bonjour ${politeName},\n\nSauf erreur de notre part, nous n'avons pas reçu les justificatifs pour ${count} pièce(s) comptable(s).\n\nMerci de nous les faire parvenir dès que possible.\n\nCordialement,\nVotre Expert-Comptable`;
+  };
   
   const handleOpenReminderDialog = () => {
     // Determine context (general reminder or specific entries)
@@ -160,9 +174,9 @@ export default function ClientDetail() {
 
     // Set default content
     setReminderContent({
-        email: `Bonjour ${politeName},\n\nSauf erreur de notre part, nous n'avons pas reçu les justificatifs pour ${isEntryReminder ? 'les écritures suivantes' : (isDocReminder ? 'les documents suivants' : 'les documents manquants')}.\n\n${(isEntryReminder || isDocReminder) ? `- ${piecesCount} pièces sélectionnées` : 'Merci de vérifier votre espace client.'}\n\nMerci de nous les faire parvenir dès que possible.\n\nCordialement,\nVotre Expert-Comptable`,
-        sms: `Bonjour ${politeName}, sauf erreur, il nous manque ${piecesCount} documents comptables. Merci de vérifier vos emails. Cdt, Votre Expert-Comptable`,
-        whatsapp: `Bonjour ${politeName}, il nous manque ${piecesCount} documents pour votre comptabilité. Pourriez-vous vérifier ? Merci !`
+        email: buildEmailTemplateForSelection(selectionMode, politeName, piecesCount),
+        sms: `Bonjour ${politeName}, sauf erreur, il nous manque ${piecesCount} document(s) comptable(s). Merci de vérifier vos emails. Cdt, Votre Expert-Comptable`,
+        whatsapp: `Bonjour ${politeName}, il nous manque ${piecesCount} document(s) pour votre comptabilité. Pourriez-vous vérifier ? Merci !`
     });
     
     // Reset scheduling
@@ -214,6 +228,7 @@ export default function ClientDetail() {
     });
     setSelectedEntries([]);
     setSelectedDocs([]);
+    setSelectionMode('all');
   };
 
   const toggleSelectAllDocs = () => {
@@ -257,6 +272,24 @@ export default function ClientDetail() {
     }
   };
 
+  const selectByMode = (mode: 'all' | 'lost' | 'urgent') => {
+    setSelectionMode(mode);
+
+    const eligible = filteredEntries.filter(e => e.status === 'missing_doc' && !ignoredEntries.includes(e.id));
+
+    if (mode === 'all') {
+      setSelectedEntries(eligible.map(e => e.id));
+      return;
+    }
+
+    if (mode === 'lost') {
+      setSelectedEntries(eligible.filter(e => lostEntries.includes(e.id)).map(e => e.id));
+      return;
+    }
+
+    setSelectedEntries(eligible.filter(e => e.isUrgent).map(e => e.id));
+  };
+
   const handleIgnoreEntry = (id: string) => {
     if (ignoredEntries.includes(id)) {
       setIgnoredEntries(ignoredEntries.filter(e => e !== id));
@@ -283,6 +316,19 @@ export default function ClientDetail() {
     toast({
       title: "Urgence mise à jour",
       description: "Le statut d'urgence de l'écriture a été modifié.",
+    });
+  };
+
+  const handleToggleLost = (id: string) => {
+    setLostEntries(prev => {
+      const next = prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id];
+      toast({
+        title: prev.includes(id) ? "Pièce retirée des perdues" : "Pièce déclarée perdue",
+        description: prev.includes(id)
+          ? "Cette pièce ne sera plus marquée comme perdue."
+          : "Cette pièce est maintenant marquée comme perdue.",
+      });
+      return next;
     });
   };
 
@@ -958,15 +1004,36 @@ export default function ClientDetail() {
                     <span className="w-2 h-8 bg-blue-500 rounded-full"></span>
                     Achats
                   </h3>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => toggleSelectAllEntriesInList(purchases)}
-                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                  >
-                    <CheckSquare className="h-4 w-4 mr-2" />
-                    Tout sélectionner
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      size="sm" 
+                      variant={selectionMode === 'all' ? "default" : "ghost"}
+                      onClick={() => selectByMode('all')}
+                      className={`${selectionMode === 'all' ? 'bg-slate-900 text-white hover:bg-slate-800' : 'text-blue-600 hover:text-blue-700 hover:bg-blue-50'} rounded-xl`}
+                      data-testid="button-select-all"
+                    >
+                      <CheckSquare className="h-4 w-4 mr-2" />
+                      Tout
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant={selectionMode === 'lost' ? "default" : "outline"}
+                      onClick={() => selectByMode('lost')}
+                      className={`${selectionMode === 'lost' ? 'bg-amber-600 text-white hover:bg-amber-700 border-amber-600' : 'bg-white hover:bg-amber-50 border-amber-200 text-amber-800'} rounded-xl`}
+                      data-testid="button-select-lost"
+                    >
+                      Perdues
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant={selectionMode === 'urgent' ? "default" : "outline"}
+                      onClick={() => selectByMode('urgent')}
+                      className={`${selectionMode === 'urgent' ? 'bg-red-600 text-white hover:bg-red-700 border-red-600' : 'bg-white hover:bg-red-50 border-red-200 text-red-700'} rounded-xl`}
+                      data-testid="button-select-urgent"
+                    >
+                      Urgentes
+                    </Button>
+                  </div>
                 </div>
                 <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_2px_20px_rgba(0,0,0,0.02)] overflow-hidden">
                   <Table>
@@ -994,6 +1061,7 @@ export default function ClientDetail() {
                             onToggleSelectGroup={() => toggleSelectAllEntriesInList(group.entries)}
                             onIgnore={handleIgnoreEntry}
                             onToggleUrgent={handleToggleUrgent}
+                            onToggleLost={handleToggleLost}
                             onEditComment={handleOpenComment}
                             showIgnored={showIgnored}
                           />
@@ -1011,15 +1079,36 @@ export default function ClientDetail() {
                     <span className="w-2 h-8 bg-green-500 rounded-full"></span>
                     Ventes
                   </h3>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => toggleSelectAllEntriesInList(sales)}
-                    className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                  >
-                    <CheckSquare className="h-4 w-4 mr-2" />
-                    Tout sélectionner
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      size="sm" 
+                      variant={selectionMode === 'all' ? "default" : "ghost"}
+                      onClick={() => selectByMode('all')}
+                      className={`${selectionMode === 'all' ? 'bg-slate-900 text-white hover:bg-slate-800' : 'text-green-600 hover:text-green-700 hover:bg-green-50'} rounded-xl`}
+                      data-testid="button-select-all"
+                    >
+                      <CheckSquare className="h-4 w-4 mr-2" />
+                      Tout
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant={selectionMode === 'lost' ? "default" : "outline"}
+                      onClick={() => selectByMode('lost')}
+                      className={`${selectionMode === 'lost' ? 'bg-amber-600 text-white hover:bg-amber-700 border-amber-600' : 'bg-white hover:bg-amber-50 border-amber-200 text-amber-800'} rounded-xl`}
+                      data-testid="button-select-lost"
+                    >
+                      Perdues
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant={selectionMode === 'urgent' ? "default" : "outline"}
+                      onClick={() => selectByMode('urgent')}
+                      className={`${selectionMode === 'urgent' ? 'bg-red-600 text-white hover:bg-red-700 border-red-600' : 'bg-white hover:bg-red-50 border-red-200 text-red-700'} rounded-xl`}
+                      data-testid="button-select-urgent"
+                    >
+                      Urgentes
+                    </Button>
+                  </div>
                 </div>
                 <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_2px_20px_rgba(0,0,0,0.02)] overflow-hidden">
                   <Table>
@@ -1047,6 +1136,7 @@ export default function ClientDetail() {
                             onToggleSelectGroup={() => toggleSelectAllEntriesInList(group.entries)}
                             onIgnore={handleIgnoreEntry}
                             onToggleUrgent={handleToggleUrgent}
+                            onToggleLost={handleToggleLost}
                             onEditComment={handleOpenComment}
                             showIgnored={showIgnored}
                           />
@@ -1256,6 +1346,7 @@ export default function ClientDetail() {
                             onToggleSelectGroup={() => toggleSelectAllEntriesInList(group.entries)}
                             onIgnore={handleIgnoreEntry}
                             onToggleUrgent={handleToggleUrgent}
+                            onToggleLost={handleToggleLost}
                             onEditComment={handleOpenComment}
                             showIgnored={showIgnored}
                           />
@@ -1309,6 +1400,7 @@ export default function ClientDetail() {
                             onToggleSelectGroup={() => toggleSelectAllEntriesInList(group.entries)}
                             onIgnore={handleIgnoreEntry}
                             onToggleUrgent={handleToggleUrgent}
+                            onToggleLost={handleToggleLost}
                             onEditComment={handleOpenComment}
                             showIgnored={showIgnored}
                           />
@@ -1764,7 +1856,7 @@ function UsersIcon(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-function AccountGroupRow({ group, selectedEntries, onToggleSelect, onToggleSelectGroup, onIgnore, onToggleUrgent, onEditComment, showIgnored }: any) {
+function AccountGroupRow({ group, selectedEntries, onToggleSelect, onToggleSelectGroup, onIgnore, onToggleUrgent, onToggleLost, onEditComment, showIgnored }: any) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -1824,6 +1916,7 @@ function AccountGroupRow({ group, selectedEntries, onToggleSelect, onToggleSelec
                               checked={selectedEntries.includes(entry.id)}
                               onCheckedChange={() => onToggleSelect(entry.id)}
                               className="rounded-md border-slate-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                              data-testid={`checkbox-entry-${entry.id}`}
                             />
                           </TableCell>
                           <TableCell>
@@ -1854,8 +1947,9 @@ function AccountGroupRow({ group, selectedEntries, onToggleSelect, onToggleSelec
                                 variant="ghost" 
                                 size="icon" 
                                 className={`h-8 w-8 rounded-lg ${entry.isUrgent ? 'text-red-600 bg-red-100 border-red-200 border' : 'text-slate-300 hover:text-red-600 hover:bg-red-50'}`}
-                                onClick={() => onToggleUrgent(entry.id)}
+                                onClick={(e) => { e.stopPropagation(); onToggleUrgent(entry.id); }}
                                 title="Marquer comme urgent"
+                                data-testid={`button-urgent-entry-${entry.id}`}
                               >
                                 <AlertTriangle className="h-4 w-4" />
                               </Button>
@@ -1863,8 +1957,9 @@ function AccountGroupRow({ group, selectedEntries, onToggleSelect, onToggleSelec
                                 variant="ghost" 
                                 size="icon" 
                                 className="h-8 w-8 text-slate-300 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
-                                onClick={() => onEditComment(entry.id, entry.comment)}
+                                onClick={(e) => { e.stopPropagation(); onEditComment(entry.id, entry.comment); }}
                                 title="Ajouter un commentaire"
+                                data-testid={`button-comment-entry-${entry.id}`}
                               >
                                 <MessageSquare className="h-4 w-4" />
                               </Button>
@@ -1872,11 +1967,24 @@ function AccountGroupRow({ group, selectedEntries, onToggleSelect, onToggleSelec
                                 variant="ghost" 
                                 size="icon" 
                                 className={`h-8 w-8 rounded-lg ${showIgnored ? 'text-blue-500 hover:text-blue-700 hover:bg-blue-50' : 'text-slate-300 hover:text-slate-600 hover:bg-slate-100'}`}
-                                onClick={() => onIgnore(entry.id)}
+                                onClick={(e) => { e.stopPropagation(); onIgnore(entry.id); }}
                                 title={showIgnored ? "Rétablir l'écriture" : "Ignorer cette écriture"}
+                                data-testid={`button-ignore-entry-${entry.id}`}
                               >
                                 {showIgnored ? <RotateCcw className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                               </Button>
+                              {(entry.journal === 'ACH' || entry.journal === 'VTE') && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className={`h-8 px-2 rounded-lg border text-slate-500 border-slate-200 hover:text-amber-700 hover:bg-amber-50`}
+                                  onClick={(e) => { e.stopPropagation(); onToggleLost(entry.id); }}
+                                  data-testid={`button-lost-entry-${entry.id}`}
+                                  title="Déclarer la pièce perdue"
+                                >
+                                  Perdu
+                                </Button>
+                              )}
                             </div>
                           </TableCell>
                         </TableRow>
