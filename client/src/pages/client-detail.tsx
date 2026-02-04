@@ -1062,6 +1062,7 @@ export default function ClientDetail() {
                             onIgnore={handleIgnoreEntry}
                             onToggleUrgent={handleToggleUrgent}
                             onToggleLost={handleToggleLost}
+                            lostEntries={lostEntries}
                             onEditComment={handleOpenComment}
                             showIgnored={showIgnored}
                           />
@@ -1137,6 +1138,7 @@ export default function ClientDetail() {
                             onIgnore={handleIgnoreEntry}
                             onToggleUrgent={handleToggleUrgent}
                             onToggleLost={handleToggleLost}
+                            lostEntries={lostEntries}
                             onEditComment={handleOpenComment}
                             showIgnored={showIgnored}
                           />
@@ -1347,6 +1349,7 @@ export default function ClientDetail() {
                             onIgnore={handleIgnoreEntry}
                             onToggleUrgent={handleToggleUrgent}
                             onToggleLost={handleToggleLost}
+                            lostEntries={lostEntries}
                             onEditComment={handleOpenComment}
                             showIgnored={showIgnored}
                           />
@@ -1401,6 +1404,7 @@ export default function ClientDetail() {
                             onIgnore={handleIgnoreEntry}
                             onToggleUrgent={handleToggleUrgent}
                             onToggleLost={handleToggleLost}
+                            lostEntries={lostEntries}
                             onEditComment={handleOpenComment}
                             showIgnored={showIgnored}
                           />
@@ -1856,7 +1860,7 @@ function UsersIcon(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-function AccountGroupRow({ group, selectedEntries, onToggleSelect, onToggleSelectGroup, onIgnore, onToggleUrgent, onToggleLost, onEditComment, showIgnored }: any) {
+function AccountGroupRow({ group, selectedEntries, lostEntries, onToggleSelect, onToggleSelectGroup, onIgnore, onToggleUrgent, onToggleLost, onEditComment, showIgnored }: any) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -1910,7 +1914,7 @@ function AccountGroupRow({ group, selectedEntries, onToggleSelect, onToggleSelec
                     </TableHeader>
                     <TableBody>
                       {group.entries.map((entry: any) => (
-                        <TableRow key={entry.id} className={`group hover:bg-blue-50/10 border-slate-50 transition-colors ${entry.isUrgent ? 'bg-red-50' : ''}`}>
+                        <TableRow key={entry.id} className={`group hover:bg-blue-50/10 border-slate-50 transition-colors ${lostEntries?.includes(entry.id) ? 'bg-amber-50' : entry.isUrgent ? 'bg-red-50' : ''}`}>
                           <TableCell className="pl-4">
                             <Checkbox 
                               checked={selectedEntries.includes(entry.id)}
@@ -1977,7 +1981,7 @@ function AccountGroupRow({ group, selectedEntries, onToggleSelect, onToggleSelec
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className={`h-8 px-2 rounded-lg border text-slate-500 border-slate-200 hover:text-amber-700 hover:bg-amber-50`}
+                                  className={`h-8 px-2 rounded-lg border ${lostEntries?.includes(entry.id) ? 'text-amber-800 bg-amber-100 border-amber-200 hover:bg-amber-200' : 'text-slate-500 border-slate-200 hover:text-amber-700 hover:bg-amber-50'}`}
                                   onClick={(e) => { e.stopPropagation(); onToggleLost(entry.id); }}
                                   data-testid={`button-lost-entry-${entry.id}`}
                                   title="Déclarer la pièce perdue"
