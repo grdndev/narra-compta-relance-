@@ -21,7 +21,7 @@ export default function PricingPage() {
             <p className="text-lg text-slate-600 mb-10 leading-relaxed">
               Vous avez déjà une GED et souhaitez la conserver ?
               <br/>
-              Naraa.fr s’adapte à votre organisation et propose des options de personnalisation selon les pratiques de votre cabinet
+              Naraa.fr s’adapte à votre organisation et propose des options de personnalisation selon les pratiques de votre cabinet.
             </p>
             <Link href="/site-vitrine/quote">
               <Button size="lg" className="rounded-full px-8 bg-slate-900 text-white hover:bg-slate-800">
