@@ -340,7 +340,7 @@ export default function LandingPage() {
                 <div className="inline-flex h-12 w-12 rounded-xl bg-indigo-50 items-center justify-center text-indigo-600 mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-colors ml-auto">
                   <MessageSquare className="h-6 w-6" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-2">Messagerie Unifiée</h3>
+                <h3 className="text-lg font-bold text-slate-900 mb-2">Traçabilité</h3>
                 <p className="text-sm text-slate-600">Centralisez tous les échanges par email avec vos clients.</p>
               </div>
             </div>
