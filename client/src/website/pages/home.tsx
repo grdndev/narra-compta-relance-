@@ -15,7 +15,7 @@ import { Footer } from "../components/Footer";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-blue-100">
+    <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-blue-100 overflow-x-hidden">
       <Navbar />
 
       {/* Hero Section */}
@@ -32,7 +32,7 @@ export default function LandingPage() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
               </span>
-              Nouveau : Découvrez l'Assistant IA pour vos journaux
+              Quand je relance c'est l'assurance
             </div>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 mb-8 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100 max-w-5xl mx-auto">
@@ -133,9 +133,10 @@ export default function LandingPage() {
                       {/* Scanning Animation */}
                       <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 group-hover:opacity-100 group-hover:animate-[scan_2s_ease-in-out_infinite] -translate-y-full" />
                       
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="h-10 w-10 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform duration-300">
-                          <FileText className="h-5 w-5" />
+                      <div className="flex items-start justify-between mb-4 relative">
+                        <div className="h-10 w-10 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform duration-300 relative">
+                          <FileText className="h-5 w-5 relative z-10" />
+                          <div className="absolute inset-0 bg-indigo-500/10 rounded-lg animate-ping opacity-30 group-hover:opacity-50"></div>
                         </div>
                         <span className="text-xs font-semibold px-2 py-1 bg-slate-100 text-slate-600 rounded-full">
                           01
@@ -182,9 +183,10 @@ export default function LandingPage() {
                   {/* Step 3: Collecte */}
                   <div className="md:col-span-2 relative group h-full">
                     <div className="bg-white rounded-lg border border-slate-200 p-6 hover:border-green-600/30 hover:shadow-lg transition-all duration-300 h-full">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="h-10 w-10 rounded-lg bg-green-50 border border-green-100 flex items-center justify-center text-green-600 group-hover:bg-green-100 transition-colors duration-300">
-                          <CheckCircle2 className="h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
+                      <div className="flex items-start justify-between mb-4 relative">
+                        <div className="h-10 w-10 rounded-lg bg-green-50 border border-green-100 flex items-center justify-center text-green-600 group-hover:bg-green-100 transition-colors duration-300 relative">
+                          <CheckCircle2 className="h-5 w-5 group-hover:scale-110 transition-transform duration-300 relative z-10" />
+                          <div className="absolute inset-0 bg-green-500/10 rounded-lg animate-ping opacity-30 group-hover:opacity-50"></div>
                         </div>
                         <span className="text-xs font-semibold px-2 py-1 bg-slate-100 text-slate-600 rounded-full">
                           03
@@ -219,7 +221,7 @@ export default function LandingPage() {
               Gagnez jusqu’à 80% de temps sur les relances clients
             </h2>
             <p className="text-lg text-slate-600">
-              naraa diminue votre temps administratif afin de vous concentrer sur des missions à forte valeur ajoutée.
+              naraa.fr diminue votre temps administratif afin de vous concentrer sur des missions à forte valeur ajoutée.
             </p>
           </div>
 
@@ -338,7 +340,7 @@ export default function LandingPage() {
                 <div className="inline-flex h-12 w-12 rounded-xl bg-indigo-50 items-center justify-center text-indigo-600 mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-colors ml-auto">
                   <MessageSquare className="h-6 w-6" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-2">Messagerie Unifiée</h3>
+                <h3 className="text-lg font-bold text-slate-900 mb-2">Traçabilité</h3>
                 <p className="text-sm text-slate-600">Centralisez tous les échanges par email avec vos clients.</p>
               </div>
             </div>
@@ -350,7 +352,7 @@ export default function LandingPage() {
                 <div className="inline-flex h-12 w-12 rounded-xl bg-green-50 items-center justify-center text-green-600 mb-4 group-hover:bg-green-600 group-hover:text-white transition-colors ml-auto">
                   <Shield className="h-6 w-6" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-2">Sécurité Bancaire</h3>
+                <h3 className="text-lg font-bold text-slate-900 mb-2">Sécurité</h3>
                 <p className="text-sm text-slate-600">Données sécurisées, hébergement en Europe, respect du RGPD.</p>
               </div>
             </div>
@@ -372,7 +374,7 @@ export default function LandingPage() {
             <p className="text-lg text-slate-600 mb-10 leading-relaxed">
               Vous avez déjà une GED et souhaitez la conserver ?
               <br/>
-              naraa s’adapte à votre façon de travailler.
+              Naraa.fr s’adapte à votre organisation et propose des options de personnalisation selon les pratiques de votre cabinet.
             </p>
             <Link href="/site-vitrine/quote">
               <Button size="lg" className="rounded-full px-8 bg-slate-900 text-white hover:bg-slate-800">
@@ -394,7 +396,7 @@ export default function LandingPage() {
             Prêt à transformer votre cabinet ?
           </h2>
           <p className="text-xl text-slate-300 mb-10 max-w-2xl mx-auto">
-            Rejoignez les experts-comptables qui ont choisi Naraa pour moderniser leur relation client.
+            Rejoignez les experts-comptables qui ont choisi naraa.fr pour moderniser leur relation client.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/site-vitrine/demo">

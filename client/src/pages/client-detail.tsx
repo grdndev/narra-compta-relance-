@@ -8,7 +8,7 @@ import { useRoute } from "wouter";
 import { 
   ArrowLeft, Mail, Phone, Building2, Calendar, 
   AlertCircle, CheckCircle2, History, Send, Search, CheckSquare, MessageSquare, ZoomIn, Eye, EyeOff, AlertTriangle,
-  User, Link2, FileText, Trash2, Plus, Save, RotateCcw, Info
+  User, Link2, FileText, Trash2, Plus, Save, RotateCcw, Info, Download
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useMemo } from "react";
@@ -25,6 +25,9 @@ export default function ClientDetail() {
   const { toast } = useToast();
   const [selectedDocs, setSelectedDocs] = useState<string[]>([]);
   const [selectedEntries, setSelectedEntries] = useState<string[]>([]);
+  const [lostEntries, setLostEntries] = useState<string[]>([]);
+  const [selectionMode, setSelectionMode] = useState<'all' | 'lost' | 'urgent'>('all');
+  const [selectionScope, setSelectionScope] = useState<'achats' | 'ventes' | 'all-av' | null>(null);
   const [selectedJournalEntries, setSelectedJournalEntries] = useState<string[]>([]);
   const [journalChannelModalOpen, setJournalChannelModalOpen] = useState(false);
   const [journalSelectedChannel, setJournalSelectedChannel] = useState<'email' | 'sms' | 'whatsapp'>('email');
@@ -92,6 +95,12 @@ export default function ClientDetail() {
   const [isUrgentReminder, setIsUrgentReminder] = useState(false);
   const [customDate, setCustomDate] = useState<string>("");
 
+  type FollowUpDelay = 'd1' | 'd3' | 'd7' | 'custom';
+  type FollowUpStep = { id: string; delay: FollowUpDelay; customDate?: string; subject: string; body: string };
+
+  const [followUpEnabled, setFollowUpEnabled] = useState(false);
+  const [followUpSteps, setFollowUpSteps] = useState<FollowUpStep[]>([]);
+
   const documents = mockDocuments.filter(d => d.clientId === params?.id);
   const reminders = mockReminders.filter(r => r.clientId === params?.id);
   
@@ -144,6 +153,18 @@ export default function ClientDetail() {
   }
 
   const pendingDocs = documents.filter(d => d.status === 'missing');
+
+  const buildEmailTemplateForSelection = (mode: 'all' | 'lost' | 'urgent', politeName: string, count: number) => {
+    if (mode === 'lost') {
+      return `Bonjour ${politeName},\n\nNous constatons que ${count} pièce(s) comptable(s) sont indiquées comme *perdues* (non retrouvées).\n\n⚠️ Sans justificatifs, certaines charges peuvent être considérées comme non déductibles et cela peut poser un risque en cas de contrôle fiscal.\n\nMerci de nous transmettre au plus vite un duplicata (fournisseur / facture / reçu) ou toute preuve équivalente permettant de justifier ces écritures.\n\nCordialement,\nVotre Expert-Comptable`;
+    }
+
+    if (mode === 'urgent') {
+      return `Bonjour ${politeName},\n\nNous vous informons qu’il manque encore ${count} pièce(s) comptable(s) marquées comme *urgentes*.\n\nAfin de mener à bien notre mission et de respecter les deadlines, merci de nous transmettre ces justificatifs dès que possible via votre espace client.\n\nCordialement,\nVotre Expert-Comptable`;
+    }
+
+    return `Bonjour ${politeName},\n\nSauf erreur de notre part, nous n'avons pas reçu les justificatifs pour ${count} pièce(s) comptable(s).\n\nMerci de nous les faire parvenir dès que possible.\n\nCordialement,\nVotre Expert-Comptable`;
+  };
   
   const handleOpenReminderDialog = () => {
     // Determine context (general reminder or specific entries)
@@ -160,10 +181,26 @@ export default function ClientDetail() {
 
     // Set default content
     setReminderContent({
-        email: `Bonjour ${politeName},\n\nSauf erreur de notre part, nous n'avons pas reçu les justificatifs pour ${isEntryReminder ? 'les écritures suivantes' : (isDocReminder ? 'les documents suivants' : 'les documents manquants')}.\n\n${(isEntryReminder || isDocReminder) ? `- ${piecesCount} pièces sélectionnées` : 'Merci de vérifier votre espace client.'}\n\nMerci de nous les faire parvenir dès que possible.\n\nCordialement,\nVotre Expert-Comptable`,
-        sms: `Bonjour ${politeName}, sauf erreur, il nous manque ${piecesCount} documents comptables. Merci de vérifier vos emails. Cdt, Votre Expert-Comptable`,
-        whatsapp: `Bonjour ${politeName}, il nous manque ${piecesCount} documents pour votre comptabilité. Pourriez-vous vérifier ? Merci !`
+        email: buildEmailTemplateForSelection(selectionMode, politeName, piecesCount),
+        sms: `Bonjour ${politeName}, sauf erreur, il nous manque ${piecesCount} document(s) comptable(s). Merci de vérifier vos emails. Cdt, Votre Expert-Comptable`,
+        whatsapp: `Bonjour ${politeName}, il nous manque ${piecesCount} document(s) pour votre comptabilité. Pourriez-vous vérifier ? Merci !`
     });
+
+    setFollowUpEnabled(false);
+    setFollowUpSteps([
+      {
+        id: crypto.randomUUID(),
+        delay: 'd1',
+        subject: `Rappel — pièces comptables manquantes`,
+        body: `Bonjour ${politeName},\n\nJe me permets de revenir vers vous car nous n'avons pas eu de retour concernant les pièces comptables demandées.\n\nPouvez-vous nous les transmettre dès que possible afin que nous puissions finaliser votre dossier ?\n\nMerci par avance.\n\nCordialement,\nVotre Expert-Comptable`
+      },
+      {
+        id: crypto.randomUUID(),
+        delay: 'd3',
+        subject: `2e rappel — pièces comptables manquantes`,
+        body: `Bonjour ${politeName},\n\nSans retour de votre part, nous ne pouvons pas clôturer certaines écritures.\n\nPouvez-vous nous envoyer les justificatifs manquants (ou nous indiquer si certaines pièces sont perdues) ?\n\nMerci d'avance.\n\nCordialement,\nVotre Expert-Comptable`
+      }
+    ]);
     
     // Reset scheduling
     setScheduleOption('immediate');
@@ -207,13 +244,19 @@ export default function ClientDetail() {
       if (scheduleOption === 'custom') scheduleText = `le ${customDate}`;
 
     setReminderDialogOpen(false);
+    const followUpLabel = !followUpEnabled
+      ? null
+      : `${followUpSteps.length} relance${followUpSteps.length > 1 ? 's' : ''}`;
+
     toast({
       title: scheduleOption === 'immediate' ? "Demande envoyée !" : "Relance programmée",
-      description: `La relance pour ${selectedEntries.length > 0 ? selectedEntries.length : (selectedDocs.length > 0 ? selectedDocs.length : 'les')} pièces ${scheduleOption === 'immediate' ? 'a été envoyée' : 'sera envoyée ' + scheduleText} via ${channels.join(', ')}.`,
+      description: `La relance pour ${selectedEntries.length > 0 ? selectedEntries.length : (selectedDocs.length > 0 ? selectedDocs.length : 'les')} pièces ${scheduleOption === 'immediate' ? 'a été envoyée' : 'sera envoyée ' + scheduleText} via ${channels.join(', ')}.${followUpLabel ? ` Relance automatique prévue : ${followUpLabel}.` : ''}`,
       className: "bg-green-600 text-white border-none"
     });
     setSelectedEntries([]);
     setSelectedDocs([]);
+    setSelectionMode('all');
+    setSelectionScope(null);
   };
 
   const toggleSelectAllDocs = () => {
@@ -257,6 +300,40 @@ export default function ClientDetail() {
     }
   };
 
+  const selectByMode = (scope: 'all-av' | 'achats' | 'ventes', mode: 'all' | 'lost' | 'urgent') => {
+    setSelectionScope(scope);
+    setSelectionMode(mode);
+
+    const eligibleBase = filteredEntries.filter(e => e.status === 'missing_doc' && !ignoredEntries.includes(e.id));
+
+    const eligible = eligibleBase.filter(e => {
+      if (scope === 'achats') return e.journal === 'ACH';
+      if (scope === 'ventes') return e.journal === 'VTE';
+      return e.journal === 'ACH' || e.journal === 'VTE';
+    });
+
+    if (mode === 'all') {
+      setSelectedEntries(eligible.map(e => e.id));
+      return;
+    }
+
+    if (mode === 'lost') {
+      const lostIds = eligible.filter(e => lostEntries.includes(e.id)).map(e => e.id);
+      setSelectedEntries(lostIds);
+
+      if (lostIds.length === 0) {
+        toast({
+          title: "Aucune pièce perdue",
+          description: "Aucune écriture marquée comme perdue dans cette liste.",
+        });
+      }
+      return;
+    }
+
+    setSelectedEntries(eligible.filter(e => e.isUrgent).map(e => e.id));
+  };
+
+
   const handleIgnoreEntry = (id: string) => {
     if (ignoredEntries.includes(id)) {
       setIgnoredEntries(ignoredEntries.filter(e => e !== id));
@@ -283,6 +360,19 @@ export default function ClientDetail() {
     toast({
       title: "Urgence mise à jour",
       description: "Le statut d'urgence de l'écriture a été modifié.",
+    });
+  };
+
+  const handleToggleLost = (id: string) => {
+    setLostEntries(prev => {
+      const next = prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id];
+      toast({
+        title: prev.includes(id) ? "Pièce retirée des perdues" : "Pièce déclarée perdue",
+        description: prev.includes(id)
+          ? "Cette pièce ne sera plus marquée comme perdue."
+          : "Cette pièce est maintenant marquée comme perdue.",
+      });
+      return next;
     });
   };
 
@@ -658,10 +748,55 @@ export default function ClientDetail() {
         <Card className="border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] rounded-3xl dark:bg-slate-900 dark:border dark:border-slate-800 max-w-2xl">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                <FileText className="h-5 w-5 text-amber-500" />
-                Notes internes
-              </CardTitle>
+              <div className="flex flex-col gap-1">
+                <CardTitle className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-amber-500" />
+                  Notes internes
+                </CardTitle>
+                <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                  <span>{new Date().toLocaleDateString('fr-FR')}</span>
+                  <span className="text-slate-300 dark:text-slate-600">•</span>
+                  <span className="font-semibold text-slate-700 dark:text-slate-200">
+                    {(() => {
+                      const missing = filteredEntries.filter(e => e.status === 'missing_doc');
+
+                      const achatsVentesTotal = missing
+                        .filter(e => e.journal === 'ACH' || e.journal === 'VTE')
+                        .reduce((sum, e) => sum + e.amount, 0);
+
+                      const encDecTotal = missing
+                        .filter(e => e.journal === 'BQ')
+                        .reduce((sum, e) => sum + e.amount, 0);
+
+                      const journauxTotal = missing.reduce((sum, e) => sum + e.amount, 0);
+
+                      if (activeTab === 'emails') {
+                        return `AV ${achatsVentesTotal.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })} • Enc/Déc ${encDecTotal.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })} • Journaux ${journauxTotal.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}`;
+                      }
+
+                      // Vision-dependent totals
+                      if (activeTab === 'achats-ventes') return achatsVentesTotal.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+                      if (activeTab === 'encaissements') return encDecTotal.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+                      if (activeTab === 'journaux') return journauxTotal.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+
+                      // Default (Synthèse and others): global missing total
+                      return journauxTotal.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+                    })()}
+                  </span>
+                  <span className="text-slate-300 dark:text-slate-600">•</span>
+                  <span>
+                    {activeTab === 'emails'
+                      ? 'Totaux non lettrés'
+                      : activeTab === 'achats-ventes'
+                        ? 'Total factures non lettrées'
+                        : activeTab === 'encaissements'
+                          ? 'Total paiements non lettrés'
+                          : activeTab === 'journaux'
+                            ? 'Total écritures non lettrées'
+                            : 'Total écritures non lettrées'}
+                  </span>
+                </div>
+              </div>
               {!isEditingNotes ? (
                 <Button 
                   variant="outline" 
@@ -873,7 +1008,55 @@ export default function ClientDetail() {
               <div className="space-y-6">
                 <Card className="border-none shadow-[0_2px_20px_rgba(0,0,0,0.04)] rounded-3xl">
                   <CardHeader>
-                    <CardTitle>Historique des Relances</CardTitle>
+                    <div className="flex items-center justify-between gap-3">
+                      <CardTitle data-testid="title-reminders-history">Historique des Relances</CardTitle>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="rounded-xl"
+                        onClick={() => {
+                          const rows = reminders.map(r => {
+                            const date = new Date(r.date);
+                            return {
+                              date: date.toLocaleDateString('fr-FR'),
+                              heure: date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+                              sujet: (r.subject || '').replace(/\n/g, ' '),
+                              statut: r.status,
+                              canaux: (r.channels?.join(', ') || r.type || '').toString()
+                            };
+                          });
+
+                          const header = ['date', 'heure', 'sujet', 'statut', 'canaux'];
+                          const csv = [
+                            header.join(';'),
+                            ...rows.map(row => header.map(h => {
+                              const v = String((row as any)[h] ?? '');
+                              return `\"${v.replace(/\"/g, '\"\"')}\"`;
+                            }).join(';'))
+                          ].join('\n');
+
+                          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                          const url = URL.createObjectURL(blob);
+                          const link = document.createElement('a');
+                          link.href = url;
+                          link.download = `historique-relances-${client.company.toLowerCase().replace(/\s+/g, '-')}.csv`;
+                          document.body.appendChild(link);
+                          link.click();
+                          link.remove();
+                          URL.revokeObjectURL(url);
+
+                          toast({
+                            title: 'Export prêt',
+                            description: `Historique exporté (${reminders.length} relance${reminders.length > 1 ? 's' : ''}).`,
+                          });
+                        }}
+                        data-testid="button-export-reminders"
+                        disabled={reminders.length === 0}
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        Exporter
+                      </Button>
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <div className="relative border-l border-slate-200 ml-3 space-y-6 pb-2">
@@ -888,10 +1071,10 @@ export default function ClientDetail() {
                                 {reminder.subject}
                               </span>
                               <span className="text-xs text-slate-500">
-                                {new Date(reminder.date).toLocaleDateString('fr-FR')} • Via {reminder.channels?.map(c => c.charAt(0).toUpperCase() + c.slice(1)).join(', ') || reminder.type}
+                                {new Date(reminder.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })} • {new Date(reminder.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} • Via {reminder.channels?.map(c => c.charAt(0).toUpperCase() + c.slice(1)).join(', ') || reminder.type}
                               </span>
-                              <Badge variant="outline" className="w-fit text-[10px] px-1.5 py-0 h-5 border-slate-200">
-                                {reminder.status}
+                              <Badge variant="outline" className={`w-fit text-[10px] px-1.5 py-0 h-5 border-slate-200 ${reminder.status === 'opened' ? 'bg-green-50 text-green-700 border-green-200' : reminder.status === 'sent' ? 'bg-blue-50 text-blue-700 border-blue-200' : reminder.status === 'failed' ? 'bg-red-50 text-red-700 border-red-200' : ''}`}>
+                                {reminder.status === 'opened' ? 'Ouvert' : reminder.status === 'sent' ? 'En cours' : reminder.status === 'failed' ? 'Échec' : reminder.status}
                               </Badge>
                             </div>
                           </div>
@@ -905,6 +1088,17 @@ export default function ClientDetail() {
           </TabsContent>
 
           <TabsContent value="achats-ventes" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="flex items-center justify-end">
+              <Button
+                size="sm"
+                variant={selectionScope === 'all-av' && selectionMode === 'all' ? "default" : "outline"}
+                className={`rounded-xl ${selectionScope === 'all-av' && selectionMode === 'all' ? 'bg-slate-900 text-white hover:bg-slate-800' : 'bg-white hover:bg-slate-50'}`}
+                onClick={() => selectByMode('all-av', 'all')}
+                data-testid="button-select-all-av"
+              >
+                Tout sélectionner HA + VT
+              </Button>
+            </div>
             <div className="space-y-8">
               {/* ACHATS */}
               <div className="space-y-4">
@@ -913,15 +1107,35 @@ export default function ClientDetail() {
                     <span className="w-2 h-8 bg-blue-500 rounded-full"></span>
                     Achats
                   </h3>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => toggleSelectAllEntriesInList(purchases)}
-                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                  >
-                    <CheckSquare className="h-4 w-4 mr-2" />
-                    Tout sélectionner
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant={selectionScope === 'achats' && selectionMode === 'all' ? "default" : "outline"}
+                      className={`rounded-xl ${selectionScope === 'achats' && selectionMode === 'all' ? 'bg-blue-600 text-white hover:bg-blue-700 border-blue-600' : 'bg-white hover:bg-slate-50 text-blue-700 border-blue-200'}`}
+                      onClick={() => selectByMode('achats', 'all')}
+                      data-testid="button-select-achats-all"
+                    >
+                      Tout sélectionner
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={selectionScope === 'achats' && selectionMode === 'lost' ? "default" : "outline"}
+                      className={`rounded-xl ${selectionScope === 'achats' && selectionMode === 'lost' ? 'bg-amber-600 text-white hover:bg-amber-700 border-amber-600' : 'bg-white hover:bg-amber-50 text-amber-800 border-amber-200'}`}
+                      onClick={() => selectByMode('achats', 'lost')}
+                      data-testid="button-select-achats-lost"
+                    >
+                      Perdues uniquement
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={selectionScope === 'achats' && selectionMode === 'urgent' ? "default" : "outline"}
+                      className={`rounded-xl ${selectionScope === 'achats' && selectionMode === 'urgent' ? 'bg-red-600 text-white hover:bg-red-700 border-red-600' : 'bg-white hover:bg-red-50 text-red-700 border-red-200'}`}
+                      onClick={() => selectByMode('achats', 'urgent')}
+                      data-testid="button-select-achats-urgent"
+                    >
+                      Urgentes uniquement
+                    </Button>
+                  </div>
                 </div>
                 <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_2px_20px_rgba(0,0,0,0.02)] overflow-hidden">
                   <Table>
@@ -949,6 +1163,8 @@ export default function ClientDetail() {
                             onToggleSelectGroup={() => toggleSelectAllEntriesInList(group.entries)}
                             onIgnore={handleIgnoreEntry}
                             onToggleUrgent={handleToggleUrgent}
+                            onToggleLost={handleToggleLost}
+                            lostEntries={lostEntries}
                             onEditComment={handleOpenComment}
                             showIgnored={showIgnored}
                           />
@@ -966,15 +1182,35 @@ export default function ClientDetail() {
                     <span className="w-2 h-8 bg-green-500 rounded-full"></span>
                     Ventes
                   </h3>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => toggleSelectAllEntriesInList(sales)}
-                    className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                  >
-                    <CheckSquare className="h-4 w-4 mr-2" />
-                    Tout sélectionner
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant={selectionScope === 'ventes' && selectionMode === 'all' ? "default" : "outline"}
+                      className={`rounded-xl ${selectionScope === 'ventes' && selectionMode === 'all' ? 'bg-green-600 text-white hover:bg-green-700 border-green-600' : 'bg-white hover:bg-slate-50 text-green-700 border-green-200'}`}
+                      onClick={() => selectByMode('ventes', 'all')}
+                      data-testid="button-select-ventes-all"
+                    >
+                      Tout sélectionner
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={selectionScope === 'ventes' && selectionMode === 'lost' ? "default" : "outline"}
+                      className={`rounded-xl ${selectionScope === 'ventes' && selectionMode === 'lost' ? 'bg-amber-600 text-white hover:bg-amber-700 border-amber-600' : 'bg-white hover:bg-amber-50 text-amber-800 border-amber-200'}`}
+                      onClick={() => selectByMode('ventes', 'lost')}
+                      data-testid="button-select-ventes-lost"
+                    >
+                      Perdues uniquement
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={selectionScope === 'ventes' && selectionMode === 'urgent' ? "default" : "outline"}
+                      className={`rounded-xl ${selectionScope === 'ventes' && selectionMode === 'urgent' ? 'bg-red-600 text-white hover:bg-red-700 border-red-600' : 'bg-white hover:bg-red-50 text-red-700 border-red-200'}`}
+                      onClick={() => selectByMode('ventes', 'urgent')}
+                      data-testid="button-select-ventes-urgent"
+                    >
+                      Urgentes uniquement
+                    </Button>
+                  </div>
                 </div>
                 <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_2px_20px_rgba(0,0,0,0.02)] overflow-hidden">
                   <Table>
@@ -1002,6 +1238,8 @@ export default function ClientDetail() {
                             onToggleSelectGroup={() => toggleSelectAllEntriesInList(group.entries)}
                             onIgnore={handleIgnoreEntry}
                             onToggleUrgent={handleToggleUrgent}
+                            onToggleLost={handleToggleLost}
+                            lostEntries={lostEntries}
                             onEditComment={handleOpenComment}
                             showIgnored={showIgnored}
                           />
@@ -1211,6 +1449,8 @@ export default function ClientDetail() {
                             onToggleSelectGroup={() => toggleSelectAllEntriesInList(group.entries)}
                             onIgnore={handleIgnoreEntry}
                             onToggleUrgent={handleToggleUrgent}
+                            onToggleLost={handleToggleLost}
+                            lostEntries={lostEntries}
                             onEditComment={handleOpenComment}
                             showIgnored={showIgnored}
                           />
@@ -1264,6 +1504,8 @@ export default function ClientDetail() {
                             onToggleSelectGroup={() => toggleSelectAllEntriesInList(group.entries)}
                             onIgnore={handleIgnoreEntry}
                             onToggleUrgent={handleToggleUrgent}
+                            onToggleLost={handleToggleLost}
+                            lostEntries={lostEntries}
                             onEditComment={handleOpenComment}
                             showIgnored={showIgnored}
                           />
@@ -1411,14 +1653,26 @@ export default function ClientDetail() {
                <div className="text-sm font-medium">
                   <span className="text-blue-400 font-bold">{selectedEntries.length + selectedDocs.length} pièces sélectionnées</span>
                </div>
-               <Button 
-                size="lg" 
-                className="rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 shadow-lg shadow-blue-900/50"
-                onClick={handleOpenReminderDialog}
-               >
-                 <Send className="h-5 w-5 mr-2" />
-                 Demander au client
-               </Button>
+               <div className="flex items-center gap-2">
+                 <Button 
+                  size="lg" 
+                  className="rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 shadow-lg shadow-blue-900/50"
+                  onClick={handleOpenReminderDialog}
+                  data-testid="button-request-client"
+                 >
+                   <Send className="h-5 w-5 mr-2" />
+                   Demander au client
+                 </Button>
+                 <Button
+                  size="lg"
+                  variant="outline"
+                  className="rounded-xl border-slate-600/50 text-slate-200 hover:bg-white/10 hover:text-white"
+                  onClick={() => { setSelectedEntries([]); setSelectedDocs([]); setSelectionMode('all'); setSelectionScope(null); }}
+                  data-testid="button-cancel-selection"
+                 >
+                   Annuler
+                 </Button>
+               </div>
             </div>
           </div>
         )}
@@ -1483,6 +1737,7 @@ export default function ClientDetail() {
                         size="sm"
                         onClick={() => setScheduleOption('immediate')}
                         className={`rounded-lg ${scheduleOption === 'immediate' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600'}`}
+                        data-testid="button-schedule-immediate"
                     >
                         Immédiat
                     </Button>
@@ -1492,6 +1747,7 @@ export default function ClientDetail() {
                         size="sm"
                         onClick={() => setScheduleOption('d1')}
                         className={`rounded-lg ${scheduleOption === 'd1' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600'}`}
+                        data-testid="button-schedule-d1"
                     >
                         J+1 (Demain)
                     </Button>
@@ -1500,6 +1756,7 @@ export default function ClientDetail() {
                         size="sm"
                         onClick={() => setScheduleOption('d2')}
                         className={`rounded-lg ${scheduleOption === 'd2' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600'}`}
+                        data-testid="button-schedule-d2"
                     >
                         J+2
                     </Button>
@@ -1508,6 +1765,7 @@ export default function ClientDetail() {
                         size="sm"
                         onClick={() => setScheduleOption('custom')}
                         className={`rounded-lg ${scheduleOption === 'custom' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600'}`}
+                        data-testid="button-schedule-custom"
                     >
                         Personnalisé
                     </Button>
@@ -1521,6 +1779,7 @@ export default function ClientDetail() {
                             value={customDate}
                             onChange={(e) => setCustomDate(e.target.value)}
                             className="bg-white"
+                            data-testid="input-schedule-custom"
                         />
                     </div>
                 )}
@@ -1597,6 +1856,166 @@ export default function ClientDetail() {
                             className="bg-white dark:bg-slate-950 dark:border-slate-800 min-h-[80px] text-sm"
                         />
                     </div>
+                )}
+              </div>
+
+              {/* Follow-up Section */}
+              <div className="p-4 rounded-xl border border-indigo-200/60 dark:border-indigo-900/50 bg-indigo-50/60 dark:bg-indigo-900/10 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="font-semibold text-indigo-900 dark:text-indigo-100">Séquence de relance (emails)</Label>
+                    <p className="text-xs text-indigo-800/70 dark:text-indigo-200/70 mt-0.5" data-testid="text-followup-hint">
+                      Créez une suite de relances.
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant={followUpEnabled ? 'default' : 'outline'}
+                    onClick={() => setFollowUpEnabled(v => !v)}
+                    className={`rounded-lg ${followUpEnabled ? 'bg-indigo-700 text-white hover:bg-indigo-800' : 'bg-white text-slate-600'}`}
+                    data-testid="button-followup-toggle"
+                  >
+                    {followUpEnabled ? 'Activée' : 'Activer'}
+                  </Button>
+                </div>
+
+                {followUpEnabled && (
+                  <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="space-y-3">
+                      {followUpSteps.map((step, idx) => {
+                        const delayLabel = step.delay === 'd1'
+                          ? 'J+1'
+                          : step.delay === 'd3'
+                            ? 'J+3'
+                            : step.delay === 'd7'
+                              ? 'J+7'
+                              : 'Personnalisé';
+
+                        return (
+                          <div
+                            key={step.id}
+                            className="rounded-xl border border-indigo-200/60 dark:border-indigo-900/50 bg-white/70 dark:bg-slate-950/40 overflow-hidden"
+                            data-testid={`card-followup-step-${step.id}`}
+                          >
+                            <div className="flex items-center justify-between px-4 py-3 bg-indigo-50/70 dark:bg-indigo-900/20">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-lg bg-indigo-700 text-white flex items-center justify-center text-xs font-bold" data-testid={`text-followup-step-number-${step.id}`}>
+                                  {idx + 1}
+                                </div>
+                                <div className="text-sm font-semibold text-slate-900 dark:text-white" data-testid={`text-followup-step-title-${step.id}`}>
+                                  Relance {idx + 1}
+                                </div>
+                                <div className="text-xs text-slate-500 dark:text-slate-400" data-testid={`text-followup-step-delay-${step.id}`}>
+                                  {delayLabel}{step.delay === 'custom' && step.customDate ? ` (${step.customDate})` : ''}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="rounded-lg"
+                                  onClick={() => {
+                                    setFollowUpSteps(prev => prev.filter(s => s.id !== step.id));
+                                  }}
+                                  data-testid={`button-followup-remove-${step.id}`}
+                                >
+                                  Supprimer
+                                </Button>
+                              </div>
+                            </div>
+
+                            <div className="p-4 space-y-3">
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                {(['d1', 'd3', 'd7', 'custom'] as FollowUpDelay[]).map(opt => (
+                                  <Button
+                                    key={opt}
+                                    size="sm"
+                                    variant={step.delay === opt ? 'default' : 'outline'}
+                                    onClick={() => {
+                                      setFollowUpSteps(prev => prev.map(s => s.id === step.id ? { ...s, delay: opt } : s));
+                                    }}
+                                    className={`rounded-lg ${step.delay === opt ? 'bg-indigo-700 text-white hover:bg-indigo-800' : 'bg-white text-slate-600'}`}
+                                    data-testid={`button-followup-delay-${step.id}-${opt}`}
+                                  >
+                                    {opt === 'd1' ? 'J+1' : opt === 'd3' ? 'J+3' : opt === 'd7' ? 'J+7' : 'Personnalisé'}
+                                  </Button>
+                                ))}
+                              </div>
+
+                              {step.delay === 'custom' && (
+                                <div className="animate-in fade-in slide-in-from-top-2">
+                                  <Label className="text-xs mb-1.5 block">Date et heure</Label>
+                                  <Input
+                                    type="datetime-local"
+                                    value={step.customDate || ''}
+                                    onChange={(e) => {
+                                      const v = e.target.value;
+                                      setFollowUpSteps(prev => prev.map(s => s.id === step.id ? { ...s, customDate: v } : s));
+                                    }}
+                                    className="bg-white"
+                                    data-testid={`input-followup-custom-${step.id}`}
+                                  />
+                                </div>
+                              )}
+
+                              <div>
+                                <Label className="text-xs text-slate-500 dark:text-slate-400">Objet</Label>
+                                <Input
+                                  value={step.subject}
+                                  onChange={(e) => {
+                                    const v = e.target.value;
+                                    setFollowUpSteps(prev => prev.map(s => s.id === step.id ? { ...s, subject: v } : s));
+                                  }}
+                                  className="bg-white dark:bg-slate-950 dark:border-slate-800 mt-1"
+                                  data-testid={`input-followup-subject-${step.id}`}
+                                />
+                              </div>
+
+                              <div>
+                                <Label className="text-xs text-slate-500 dark:text-slate-400">Email</Label>
+                                <Textarea
+                                  value={step.body}
+                                  onChange={(e) => {
+                                    const v = e.target.value;
+                                    setFollowUpSteps(prev => prev.map(s => s.id === step.id ? { ...s, body: v } : s));
+                                  }}
+                                  className="bg-white dark:bg-slate-950 dark:border-slate-800 min-h-[120px] text-sm mt-1"
+                                  data-testid={`textarea-followup-body-${step.id}`}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
+                      <p className="text-xs text-indigo-900/70 dark:text-indigo-200/70" data-testid="text-followup-count">
+                        {followUpSteps.length} étape{followUpSteps.length > 1 ? 's' : ''}
+                      </p>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="rounded-lg bg-white/80"
+                        onClick={() => {
+                          if (followUpSteps.length >= 5) return;
+                          setFollowUpSteps(prev => ([
+                            ...prev,
+                            {
+                              id: crypto.randomUUID(),
+                              delay: 'd3',
+                              subject: `Rappel — pièces comptables manquantes`,
+                              body: `Bonjour,\n\nPetit rappel concernant les pièces comptables demandées.\n\nMerci d'avance.\n\nCordialement,\nVotre Expert-Comptable`
+                            }
+                          ]));
+                        }}
+                        disabled={followUpSteps.length >= 5}
+                        data-testid="button-followup-add-step"
+                      >
+                        Ajouter une relance
+                      </Button>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
@@ -1719,7 +2138,7 @@ function UsersIcon(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-function AccountGroupRow({ group, selectedEntries, onToggleSelect, onToggleSelectGroup, onIgnore, onToggleUrgent, onEditComment, showIgnored }: any) {
+function AccountGroupRow({ group, selectedEntries, lostEntries, onToggleSelect, onToggleSelectGroup, onIgnore, onToggleUrgent, onToggleLost, onEditComment, showIgnored }: any) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -1773,12 +2192,13 @@ function AccountGroupRow({ group, selectedEntries, onToggleSelect, onToggleSelec
                     </TableHeader>
                     <TableBody>
                       {group.entries.map((entry: any) => (
-                        <TableRow key={entry.id} className={`group hover:bg-blue-50/10 border-slate-50 transition-colors ${entry.isUrgent ? 'bg-red-50' : ''}`}>
+                        <TableRow key={entry.id} className={`group hover:bg-blue-50/10 border-slate-50 transition-colors ${lostEntries?.includes(entry.id) ? 'bg-amber-50' : entry.isUrgent ? 'bg-red-50' : ''}`}>
                           <TableCell className="pl-4">
                             <Checkbox 
                               checked={selectedEntries.includes(entry.id)}
                               onCheckedChange={() => onToggleSelect(entry.id)}
                               className="rounded-md border-slate-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                              data-testid={`checkbox-entry-${entry.id}`}
                             />
                           </TableCell>
                           <TableCell>
@@ -1809,8 +2229,9 @@ function AccountGroupRow({ group, selectedEntries, onToggleSelect, onToggleSelec
                                 variant="ghost" 
                                 size="icon" 
                                 className={`h-8 w-8 rounded-lg ${entry.isUrgent ? 'text-red-600 bg-red-100 border-red-200 border' : 'text-slate-300 hover:text-red-600 hover:bg-red-50'}`}
-                                onClick={() => onToggleUrgent(entry.id)}
+                                onClick={(e) => { e.stopPropagation(); onToggleUrgent(entry.id); }}
                                 title="Marquer comme urgent"
+                                data-testid={`button-urgent-entry-${entry.id}`}
                               >
                                 <AlertTriangle className="h-4 w-4" />
                               </Button>
@@ -1818,8 +2239,9 @@ function AccountGroupRow({ group, selectedEntries, onToggleSelect, onToggleSelec
                                 variant="ghost" 
                                 size="icon" 
                                 className="h-8 w-8 text-slate-300 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
-                                onClick={() => onEditComment(entry.id, entry.comment)}
+                                onClick={(e) => { e.stopPropagation(); onEditComment(entry.id, entry.comment); }}
                                 title="Ajouter un commentaire"
+                                data-testid={`button-comment-entry-${entry.id}`}
                               >
                                 <MessageSquare className="h-4 w-4" />
                               </Button>
@@ -1827,11 +2249,24 @@ function AccountGroupRow({ group, selectedEntries, onToggleSelect, onToggleSelec
                                 variant="ghost" 
                                 size="icon" 
                                 className={`h-8 w-8 rounded-lg ${showIgnored ? 'text-blue-500 hover:text-blue-700 hover:bg-blue-50' : 'text-slate-300 hover:text-slate-600 hover:bg-slate-100'}`}
-                                onClick={() => onIgnore(entry.id)}
+                                onClick={(e) => { e.stopPropagation(); onIgnore(entry.id); }}
                                 title={showIgnored ? "Rétablir l'écriture" : "Ignorer cette écriture"}
+                                data-testid={`button-ignore-entry-${entry.id}`}
                               >
                                 {showIgnored ? <RotateCcw className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                               </Button>
+                              {(entry.journal === 'ACH' || entry.journal === 'VTE') && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className={`h-8 px-2 rounded-lg border ${lostEntries?.includes(entry.id) ? 'text-amber-800 bg-amber-100 border-amber-200 hover:bg-amber-200' : 'text-slate-500 border-slate-200 hover:text-amber-700 hover:bg-amber-50'}`}
+                                  onClick={(e) => { e.stopPropagation(); onToggleLost(entry.id); }}
+                                  data-testid={`button-lost-entry-${entry.id}`}
+                                  title="Déclarer la pièce perdue"
+                                >
+                                  Perdu
+                                </Button>
+                              )}
                             </div>
                           </TableCell>
                         </TableRow>

@@ -40,7 +40,7 @@ export default function ContactPage() {
             </div>
             <h2 className="text-2xl font-bold text-slate-900 mb-2">Message reçu !</h2>
             <p className="text-slate-600 mb-8">
-              Merci de nous avoir contactés. Un membre de l'équipe naraa traitera votre demande et reviendra vers vous très rapidement.
+              Merci de nous avoir contactés. Un membre de l'équipe naraa.fr traitera votre demande et reviendra vers vous très rapidement.
             </p>
             <Link href="/site-vitrine">
               <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
@@ -81,17 +81,17 @@ export default function ContactPage() {
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="firstName">Prénom <span className="text-red-500">*</span></Label>
-                  <Input id="firstName" required placeholder="Jean" />
+                  <Input id="firstName" required placeholder="Marie" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lastName">Nom <span className="text-red-500">*</span></Label>
-                  <Input id="lastName" required placeholder="Dupont" />
+                  <Input id="lastName" required placeholder="Victoire" />
                 </div>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="email">Email professionnel <span className="text-red-500">*</span></Label>
-                <Input id="email" type="email" required placeholder="jean.dupont@cabinet.fr" />
+                <Input id="email" type="email" required placeholder="marie.victoire@cabinet.fr" />
               </div>
 
               <div className="space-y-2">

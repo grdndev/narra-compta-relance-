@@ -104,7 +104,7 @@ export default function FeaturesPage() {
               Gagnez jusqu’à 80% de temps sur les relances clients
             </h2>
             <p className="text-lg text-slate-600">
-              naraa diminue votre temps administratif afin de vous concentrer sur des missions à forte valeur ajoutée.
+              naraa.fr diminue votre temps administratif afin de vous concentrer sur des missions à forte valeur ajoutée.
             </p>
           </div>
 
@@ -163,7 +163,7 @@ export default function FeaturesPage() {
                   </div>
                 </div>
               </div>
-              <h3 className="mt-4 text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">naraa</h3>
+              <h3 className="mt-4 text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">naraa.fr</h3>
               <p className="text-sm text-slate-500 font-medium">Cœur du système</p>
             </div>
 
@@ -208,7 +208,7 @@ export default function FeaturesPage() {
                 <div className="inline-flex h-12 w-12 rounded-xl bg-indigo-50 items-center justify-center text-indigo-600 mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-colors ml-auto">
                   <MessageSquare className="h-6 w-6" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-2">Messagerie Unifiée</h3>
+                <h3 className="text-lg font-bold text-slate-900 mb-2">Traçabilité</h3>
                 <p className="text-sm text-slate-600">Centralisez tous les échanges par email avec vos clients.</p>
               </div>
             </div>
@@ -219,7 +219,7 @@ export default function FeaturesPage() {
                 <div className="inline-flex h-12 w-12 rounded-xl bg-green-50 items-center justify-center text-green-600 mb-4 group-hover:bg-green-600 group-hover:text-white transition-colors ml-auto">
                   <Shield className="h-6 w-6" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-2">Sécurité Bancaire</h3>
+                <h3 className="text-lg font-bold text-slate-900 mb-2">Sécurité</h3>
                 <p className="text-sm text-slate-600">Données sécurisées, hébergement en Europe, respect du RGPD.</p>
               </div>
             </div>
@@ -239,7 +239,7 @@ export default function FeaturesPage() {
             Prêt à transformer votre cabinet ?
           </h2>
           <p className="text-xl text-slate-300 mb-10 max-w-2xl mx-auto">
-            Rejoignez les experts-comptables qui ont choisi Naraa pour moderniser leur relation client.
+            Rejoignez les experts-comptables qui ont choisi naraa.fr pour moderniser leur relation client.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/site-vitrine/demo">

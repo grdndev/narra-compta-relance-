@@ -24,7 +24,7 @@ export function Footer() {
                   <path d="M15 6L12 12" />
                 </svg>
               </div>
-              <span className="text-xl font-bold text-slate-900">naraa</span>
+              <span className="text-xl font-bold text-slate-900">naraa.fr</span>
             </div>
             <p className="text-slate-500 max-w-xs leading-relaxed text-justify">
               La plateforme de relance pour les experts-comptables. Automatisez, collaborez et développez votre cabinet.

@@ -65,7 +65,7 @@ export default function QuotePage() {
             </div>
             <h2 className="text-2xl font-bold text-slate-900 mb-2">Demande reçue !</h2>
             <p className="text-slate-600 mb-8">
-              Merci de votre intérêt pour naraa. Un membre de notre équipe va étudier votre besoin et vous recontactera très prochainement.
+              Merci de votre intérêt pour naraa.fr. Un membre de notre équipe va étudier votre besoin et vous recontactera très prochainement.
             </p>
             <Link href="/site-vitrine">
               <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
@@ -106,18 +106,18 @@ export default function QuotePage() {
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="firstName">Prénom <span className="text-red-500">*</span></Label>
-                  <Input id="firstName" required placeholder="Jean" value={formData.firstName} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} />
+                  <Input id="firstName" required placeholder="Marie" value={formData.firstName} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lastName">Nom <span className="text-red-500">*</span></Label>
-                  <Input id="lastName" required placeholder="Dupont" value={formData.lastName} onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} />
+                  <Input id="lastName" required placeholder="Victoire" value={formData.lastName} onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} />
                 </div>
               </div>
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email professionnel <span className="text-red-500">*</span></Label>
-                  <Input id="email" type="email" required placeholder="jean.dupont@cabinet.fr" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
+                  <Input id="email" type="email" required placeholder="marie.victoire@cabinet.fr" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone">Téléphone <span className="text-red-500">*</span></Label>
@@ -127,7 +127,7 @@ export default function QuotePage() {
 
               <div className="space-y-2">
                 <Label htmlFor="company">Nom du cabinet <span className="text-red-500">*</span></Label>
-                <Input id="company" required placeholder="Cabinet Dupont & Associés" value={formData.company} onChange={(e) => setFormData({ ...formData, company: e.target.value })} />
+                <Input id="company" required placeholder="Cabinet Victoire & Associés" value={formData.company} onChange={(e) => setFormData({ ...formData, company: e.target.value })} />
               </div>
 
               <div className="grid md:grid-cols-2 gap-6">
@@ -188,7 +188,7 @@ export default function QuotePage() {
                   )}
                 </Button>
                 <p className="text-xs text-slate-500 text-center mt-4">
-                  En soumettant ce formulaire, vous acceptez que naraa traite vos données conformément à notre politique de confidentialité.
+                  En soumettant ce formulaire, vous acceptez que naraa.fr traite vos données conformément à notre politique de confidentialité.
                 </p>
               </div>
             </form>
